@@ -1,4 +1,4 @@
-export type ProxyProviderProfileName = "azure" | "groq" | "mistral" | "openrouter";
+export type ProxyProviderProfileName = "azure" | "cohere" | "groq" | "mistral" | "openrouter";
 
 export interface ProxyProviderProfileOptions {
   siteUrl?: string;
@@ -51,7 +51,14 @@ export function resolveProxyProviderProfile(
       upstreamChatCompletionsPath: "/chat/completions",
     };
   }
-  throw new Error(`Unsupported proxy provider profile: ${profile}. Use azure, groq, mistral, or openrouter.`);
+  if (profile === "cohere") {
+    return {
+      upstreamBaseUrl: "https://api.cohere.ai/compatibility/v1",
+      upstreamApiKeyHeader: "authorization",
+      upstreamChatCompletionsPath: "/chat/completions",
+    };
+  }
+  throw new Error(`Unsupported proxy provider profile: ${profile}. Use azure, cohere, groq, mistral, or openrouter.`);
 }
 
 function requireNonEmpty(value: string | undefined, name: string): string {
