@@ -378,6 +378,8 @@ Core invariants are checked again after custom providers return. Duplicate claim
 
 The default `claimlatch-bench` command verifies `benchmarks/independent.jsonl` against `benchmarks/MANIFEST.json` before contacting any model or evidence provider. For a custom dataset, pass `--manifest <path>` to enable the same SHA-256 and case-count check; a mismatch fails closed before a benchmark report is produced.
 
+Use `claimlatch-bench --validate` to verify the selected JSONL dataset and manifest without provider credentials or live model/evidence calls. Add `--json` for machine-readable validation output; `--validate` supports only text and JSON formats.
+
 Run it with configured live providers:
 
 ```bash

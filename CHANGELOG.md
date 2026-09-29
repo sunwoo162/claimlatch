@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-No unreleased changes.
+- Added credential-free `claimlatch-bench --validate` dataset and manifest verification output for local and CI checks.
 
 ## 0.3.15 - 2026-09-29
 
