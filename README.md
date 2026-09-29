@@ -157,6 +157,8 @@ For Groq's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PR
 
 For Mistral's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="mistral"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.mistral.ai/v1`, bearer authentication, and `/chat/completions`.
 
+For NVIDIA NIM's hosted OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="nvidia"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://integrate.api.nvidia.com/v1`, bearer authentication, and `/chat/completions`.
+
 For Cohere's Compatibility API, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="cohere"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.cohere.ai/compatibility/v1`, bearer authentication, and `/chat/completions`.
 
 For DeepSeek's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="deepseek"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.deepseek.com`, bearer authentication, and `/chat/completions`.
