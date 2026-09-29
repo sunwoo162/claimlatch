@@ -7,11 +7,15 @@ import {
   verifyBenchmarkManifestEntry,
 } from "./benchmark.js";
 import { formatBenchmarkReport, resolveBenchmarkOutputFormat } from "./benchmark-formatters.js";
-import { resolveBenchmarkDatasetSelection } from "./benchmark-cli-options.js";
+import { renderBenchmarkHelp, resolveBenchmarkDatasetSelection } from "./benchmark-cli-options.js";
 import { createDefaultClaimLatch } from "./default-gate.js";
 
 async function main(): Promise<void> {
   const argv = process.argv.slice(2);
+  if (argv.includes("--help") || argv.includes("-h")) {
+    process.stdout.write(renderBenchmarkHelp());
+    return;
+  }
   const format = resolveBenchmarkOutputFormat(argv);
   const datasetArgument = argumentValue(argv, "--dataset");
   const splitArgument = argumentValue(argv, "--split");

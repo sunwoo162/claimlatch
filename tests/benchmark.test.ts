@@ -10,6 +10,7 @@ import {
 } from "../src/benchmark.js";
 import {
   parseBenchmarkSplit,
+  renderBenchmarkHelp,
   resolveBenchmarkDatasetPath,
   resolveBenchmarkDatasetSelection,
 } from "../src/benchmark-cli-options.js";
@@ -67,6 +68,17 @@ test("benchmark split options resolve frozen datasets and reject unknown values"
   assert.equal(resolveBenchmarkDatasetSelection("custom.jsonl", undefined), "custom.jsonl");
   assert.throws(() => resolveBenchmarkDatasetSelection("custom.jsonl", "train"), /cannot be combined/);
   assert.throws(() => parseBenchmarkSplit("independent"), /Unsupported benchmark split/);
+});
+
+test("benchmark CLI help documents datasets, splits, manifests, and formats", () => {
+  const help = renderBenchmarkHelp();
+
+  assert.match(help, /Usage:\s+claimlatch-bench/);
+  assert.match(help, /--dataset <path>/);
+  assert.match(help, /--split <train\|dev\|test>/);
+  assert.match(help, /--manifest <path>/);
+  assert.match(help, /--format <text\|json\|junit\|sarif>/);
+  assert.match(help, /default is the 54-case independent\.jsonl aggregate/);
 });
 
 test("benchmark JSONL parser rejects duplicate IDs", () => {
