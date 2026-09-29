@@ -536,6 +536,8 @@ PASS is not proof of universal truth. Claim extraction, search, source selection
 
 ## Project status
 
+`0.3.50` adds a DeepInfra-compatible proxy profile for OpenAI-compatible Chat Completions.
+
 `0.3.49` adds a direct OpenAI API-compatible proxy profile while preserving the existing Azure-style default.
 
 `0.3.48` adds a Hugging Face Inference Providers-compatible proxy profile for OpenAI-compatible Chat Completions.
