@@ -17,7 +17,7 @@
 - Literal private-target and redirect SSRF guards
 - Core invariant enforcement for custom extractors/verifiers
 - OpenAI-compatible non-streaming Chat Completions reverse proxy
-- 54-case frozen human-authored independent-label benchmark with train/dev/test splits
+- 62-case frozen human-authored independent-label benchmark with train/dev/test splits
 - False-pass / false-block metrics
 - Ed25519-signed verification receipt API
 - Runnable guarded-application integration example

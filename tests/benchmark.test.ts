@@ -79,7 +79,7 @@ test("benchmark CLI help documents datasets, splits, manifests, and formats", ()
   assert.match(help, /--split <train\|dev\|test>/);
   assert.match(help, /--manifest <path>/);
   assert.match(help, /--format <text\|json\|junit\|sarif>/);
-  assert.match(help, /default is the 54-case independent\.jsonl aggregate/);
+  assert.match(help, /default is the 62-case independent\.jsonl aggregate/);
 });
 
 test("benchmark validation output is credential-free and deterministic", () => {
@@ -125,10 +125,10 @@ test("independent benchmark contains a balanced expanded label set", async () =>
   const cases = parseBenchmarkJsonl(raw);
   const sourceUrls = new Set(cases.flatMap((item) => item.labelSourceUrls ?? []));
 
-  assert.equal(cases.length, 54);
-  assert.equal(cases.filter((item) => item.expectedPassed).length, 27);
-  assert.equal(cases.filter((item) => !item.expectedPassed).length, 27);
-  assert.ok(sourceUrls.size >= 15);
+  assert.equal(cases.length, 62);
+  assert.equal(cases.filter((item) => item.expectedPassed).length, 31);
+  assert.equal(cases.filter((item) => !item.expectedPassed).length, 31);
+  assert.ok(sourceUrls.size >= 17);
   assert.ok(cases.every((item) => (item.labelSourceUrls?.length ?? 0) > 0));
 });
 
@@ -139,13 +139,13 @@ test("benchmark dataset is partitioned into balanced train, dev, and test splits
     return [split, parseBenchmarkJsonl(raw)] as const;
   }));
 
-  const expectedCounts = [34, 10, 10];
+  const expectedCounts = [38, 12, 12];
   const allCases = splitCases.flatMap(([, cases]) => cases);
   const aggregateRaw = await readFile(new URL("../../benchmarks/independent.jsonl", import.meta.url), "utf8");
   const aggregateCases = parseBenchmarkJsonl(aggregateRaw);
 
   assert.deepEqual(splitCases.map(([, cases]) => cases.length), expectedCounts);
-  assert.equal(new Set(allCases.map((item) => item.id)).size, 54);
+  assert.equal(new Set(allCases.map((item) => item.id)).size, 62);
   assert.deepEqual(
     new Set(allCases.map((item) => item.id)),
     new Set(aggregateCases.map((item) => item.id)),
@@ -180,7 +180,7 @@ test("benchmark manifest verification fails closed for tampered content or case 
   const manifest = parseBenchmarkManifest(await readFile(new URL("../../benchmarks/MANIFEST.json", import.meta.url), "utf8"));
   const raw = await readFile(new URL("../../benchmarks/dev.jsonl", import.meta.url), "utf8");
 
-  assert.equal(verifyBenchmarkManifestEntry(manifest, "dev.jsonl", raw, 10), undefined);
+  assert.equal(verifyBenchmarkManifestEntry(manifest, "dev.jsonl", raw, 12), undefined);
   assert.throws(
     () => verifyBenchmarkManifestEntry(manifest, "dev.jsonl", `${raw}\n`, 8),
     /SHA-256 mismatch/,
