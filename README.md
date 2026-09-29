@@ -408,7 +408,7 @@ PASS is not proof of universal truth. Claim extraction, search, source selection
 
 ## Project status
 
-`0.3.6` adds fail-closed benchmark manifest verification before live provider calls, including SDK helpers and custom `--manifest` support. It also includes a SHA-256 integrity manifest for the frozen benchmark files and cross-platform line-ending-independent verification, hardened provenance, core provider invariant enforcement, an OpenAI-compatible proxy, an independent benchmark runner, signed verification receipts, multi-choice and structured-output proxy verification, provider-specific credential header and completion path compatibility, fail-closed upstream URL validation, and guarded application integration examples. Before `1.0`, public APIs and provider behavior may change.
+`0.3.7` expands the frozen independent benchmark to 54 balanced cases across 27 paired topics using public primary-source labels. It also includes fail-closed benchmark manifest verification before live provider calls, SDK helpers and custom `--manifest` support, a SHA-256 integrity manifest for the frozen benchmark files and cross-platform line-ending-independent verification, hardened provenance, core provider invariant enforcement, an OpenAI-compatible proxy, an independent benchmark runner, signed verification receipts, multi-choice and structured-output proxy verification, provider-specific credential header and completion path compatibility, fail-closed upstream URL validation, and guarded application integration examples. Before `1.0`, public APIs and provider behavior may change.
 
 ## License
 

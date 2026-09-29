@@ -5,6 +5,10 @@
 - Expanded the frozen independent benchmark to 54 balanced cases across 27 paired topics using public primary-source labels.
 - Added fail-closed benchmark manifest verification to the default benchmark CLI and SDK helpers.
 
+## 0.3.7 - 2026-09-29
+
+- Expanded the frozen independent benchmark to 54 balanced cases across 27 paired topics using public primary-source labels.
+
 ## 0.3.6 - 2026-09-29
 
 - Added fail-closed benchmark manifest verification to the default benchmark CLI and SDK helpers.
