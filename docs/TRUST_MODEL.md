@@ -50,4 +50,4 @@ The proxy binds to loopback by default. Exposing it publicly can turn configured
 
 ## High-stakes deployments
 
-For high-stakes use, add domain-specific primary-source providers, human review, larger independent benchmarks, persistent receipts, and network isolation. Do not use a generic PASS as the sole basis for medical, legal, financial, safety-critical, or other consequential decisions.
+ClaimLatch can create deterministic Ed25519-signed verification receipts. The receipt authenticates the exact report payload and the embedded public key; it does not prove that the report is factually correct or that its evidence source is trustworthy. For high-stakes use, add domain-specific primary-source providers, human review, larger independent benchmarks, persistent storage with key rotation, and network isolation. Do not use a generic PASS as the sole basis for medical, legal, financial, safety-critical, or other consequential decisions.

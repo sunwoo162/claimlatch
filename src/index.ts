@@ -12,4 +12,13 @@ export { DEFAULT_POLICY, calculateCoverage, evaluatePolicy, mergePolicy } from "
 export { LlmClaimExtractor, LlmClaimVerifier, OpenAICompatibleClient } from "./providers/openai-compatible.js";
 export { StaticEvidenceProvider } from "./providers/static.js";
 export { TavilyEvidenceProvider } from "./providers/tavily.js";
+export {
+  createSignedVerificationReceipt,
+  serializeVerificationReceiptPayload,
+  verifySignedVerificationReceipt,
+} from "./receipt.js";
+export type {
+  ReceiptVerificationOptions,
+  SignedVerificationReceiptOptions,
+} from "./receipt.js";
 export type * from "./types.js";

@@ -174,6 +174,27 @@ if (!report.passed) {
 
 모든 extraction/search/verification 구성 요소는 인터페이스로 정의되어 있습니다. 따라서 기본 adapter 대신 로컬 모델, private corpus, 공식 API, 커스텀 RAG 시스템을 연결할 수 있습니다.
 
+## 서명된 검증 영수증
+
+검증 리포트는 Ed25519 개인키로 서명된 영수증으로 포장할 수 있습니다. 영수증 payload에는 리포트와 공개키가 함께 포함되며, payload 전체를 canonical JSON으로 직렬화한 뒤 서명합니다.
+
+```ts
+import {
+  createSignedVerificationReceipt,
+  verifySignedVerificationReceipt,
+} from "claimlatch";
+
+const receipt = createSignedVerificationReceipt(report, {
+  privateKeyPem: process.env.CLAIMLATCH_RECEIPT_PRIVATE_KEY!,
+  publicKeyPem: process.env.CLAIMLATCH_RECEIPT_PUBLIC_KEY!,
+  keyId: "production-verifier-2026",
+});
+
+const isAuthentic = verifySignedVerificationReceipt(receipt);
+```
+
+서명은 리포트의 진실성을 새로 보장하지 않습니다. 서명자가 생성한 리포트가 변경되지 않았고 특정 공개키로 검증된다는 것만 보장합니다. 개인키는 환경 변수나 외부 secret manager 등 운영 환경에 맞는 안전한 방식으로 관리하세요.
+
 ## Evidence provenance
 
 문서 보강에 성공하면 ClaimLatch는 다음 정보를 저장합니다.

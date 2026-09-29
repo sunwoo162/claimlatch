@@ -6,6 +6,21 @@ declare const process: {
   stderr: { write(chunk: string): void };
 };
 
+declare module "node:crypto" {
+  export function sign(
+    algorithm: null,
+    data: Uint8Array,
+    key: string,
+  ): Uint8Array;
+
+  export function verify(
+    algorithm: null,
+    data: Uint8Array,
+    key: string,
+    signature: Uint8Array,
+  ): boolean;
+}
+
 declare module "node:fs/promises" {
   export function readFile(path: string | URL, encoding: "utf8"): Promise<string>;
 }

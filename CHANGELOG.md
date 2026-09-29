@@ -6,6 +6,7 @@
 - Added deterministic cross-source contradiction detection based on normalized source URLs.
 - Added a default fail-closed policy violation for unresolved disagreement between distinct sources.
 - Added PDF.js-based page-level text extraction with page-local quote offsets and safe fallback on parse failure.
+- Added deterministic Ed25519-signed verification receipts with embedded public keys and tamper detection.
 
 ## 0.2.0 - 2026-09-28
 
