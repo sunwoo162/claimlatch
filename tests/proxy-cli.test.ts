@@ -14,7 +14,9 @@ test("proxy CLI help documents credentials, routes, and fail-closed behavior", (
   assert.match(help, /CLAIMLATCH_LLM_MODEL/);
   assert.match(help, /TAVILY_API_KEY/);
   assert.match(help, /POST \/v1\/chat\/completions/);
+  assert.match(help, /GET  \/v1\/models, \/models/);
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS/);
+  assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_MODELS_PATH/);
   assert.match(help, /CLAIMLATCH_PROXY_PROVIDER_PROFILE/);
   assert.match(help, /azure, cerebras, cohere, deepinfra, deepseek, fireworks, groq, huggingface, mistral, nvidia, openai, openrouter, perplexity, sambanova, together, or xai/);
   assert.match(help, /PASS.*BLOCK/s);
@@ -47,6 +49,7 @@ test("proxy CLI resolves provider profile defaults and explicit overrides", () =
     upstreamBaseUrl: "https://openrouter.ai/api/v1",
     upstreamApiKeyHeader: "x-api-key",
     upstreamChatCompletionsPath: "/v1/chat/completions?profile=custom",
+    upstreamModelsPath: "/models",
     upstreamRequestHeaders: {
       "HTTP-Referer": "https://claimlatch.example",
       "X-Title": "ClaimLatch",
@@ -81,6 +84,7 @@ test("proxy CLI resolves every hosted built-in profile without an explicit base 
       upstreamBaseUrl,
       upstreamApiKeyHeader: "authorization",
       upstreamChatCompletionsPath: "/chat/completions",
+      upstreamModelsPath: "/models",
     });
   }
 });

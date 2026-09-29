@@ -48,7 +48,7 @@ The strict `requireRetrievedDocumentForDecisiveClaims` policy requires every sel
 
 ## Reverse proxy
 
-The proxy implements `POST /v1/chat/completions` and `/chat/completions`. It verifies every assistant choice in a multi-choice response; textual choices use ClaimLatch, while structured choices require an explicit application verifier. One blocked choice blocks the whole response.
+The proxy implements `GET /v1/models`, `GET /models`, `POST /v1/chat/completions`, and `POST /chat/completions`. Model listing is a bounded metadata passthrough and never invokes the answer gate. For completions, it verifies every assistant choice in a multi-choice response; textual choices use ClaimLatch, while structured choices require an explicit application verifier. One blocked choice blocks the whole response.
 
 ```text
 client
