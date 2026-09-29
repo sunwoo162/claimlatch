@@ -538,6 +538,8 @@ PASS is not proof of universal truth. Claim extraction, search, source selection
 
 ## Project status
 
+`0.3.52` adds bounded OpenAI-compatible model listing passthrough for `/v1/models` and `/models`, including provider-specific paths and fail-closed response limits.
+
 `0.3.51` exposes benchmark aggregate metrics in JUnit suite properties and SARIF run properties.
 
 `0.3.50` adds a DeepInfra-compatible proxy profile for OpenAI-compatible Chat Completions.

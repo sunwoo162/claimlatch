@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.52 - 2026-09-30
+
+- Added bounded OpenAI-compatible model listing passthrough for `/v1/models` and `/models`, with provider-specific paths, authentication, query forwarding, response limits, and timeout protection.
+
 ## 0.3.51 - 2026-09-29
 
 - Exposed benchmark aggregate metrics in JUnit suite properties and SARIF run properties.
