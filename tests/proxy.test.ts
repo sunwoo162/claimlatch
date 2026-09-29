@@ -950,10 +950,14 @@ test("proxy preserves compatible upstream response headers on pass", async () =>
     assert.equal(response.headers.get("x-claimlatch-result"), "pass");
     assert.equal(response.headers.get("x-request-id"), "resp_test");
     assert.equal(response.headers.get("x-ratelimit-limit-requests"), "10");
+    assert.equal(response.headers.get("x-ms-request-id"), "ms_req_test");
+    assert.equal(response.headers.get("x-ms-region"), "koreacentral");
   }, {
     "content-type": "application/json",
     "x-request-id": "resp_test",
     "x-ratelimit-limit-requests": "10",
+    "x-ms-request-id": "ms_req_test",
+    "x-ms-region": "koreacentral",
     connection: "close",
   });
 });
