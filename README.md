@@ -258,6 +258,15 @@ claimlatch-bench --dataset benchmarks/independent.jsonl
 npm run bench
 ```
 
+The benchmark CLI defaults to human-readable text. Use `--format json`, `--format junit`, or `--format sarif` for CI and automation. The legacy `--json` flag remains supported.
+
+```bash
+claimlatch-bench --dataset benchmarks/independent.jsonl --format junit > claimlatch-benchmark.xml
+claimlatch-bench --dataset benchmarks/independent.jsonl --format sarif > claimlatch-benchmark.sarif
+```
+
+JUnit includes every benchmark case and marks incorrect decisions as failures. SARIF emits incorrect decisions as `FALSE_PASS` or `FALSE_BLOCK` results with deterministic benchmark-line locations. These formats serialize the observed run; they do not create or infer benchmark results.
+
 Reported metrics:
 
 - decision accuracy against the dataset labels

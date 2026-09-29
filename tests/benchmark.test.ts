@@ -52,6 +52,17 @@ test("benchmark JSONL parser rejects duplicate IDs", () => {
   ].join("\n")), /Duplicate benchmark id/);
 });
 
+test("benchmark JSONL parser preserves source line numbers for report locations", () => {
+  const cases = parseBenchmarkJsonl([
+    "# benchmark fixture",
+    JSON.stringify({ id: "first", question: "q", answer: "a", expectedPassed: true }),
+    "",
+    JSON.stringify({ id: "second", question: "q2", answer: "a2", expectedPassed: false }),
+  ].join("\n"));
+
+  assert.deepEqual(cases.map((item) => item.sourceLine), [2, 4]);
+});
+
 test("independent benchmark contains a balanced expanded label set", async () => {
   const raw = await readFile(new URL("../../benchmarks/independent.jsonl", import.meta.url), "utf8");
   const cases = parseBenchmarkJsonl(raw);

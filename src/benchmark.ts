@@ -6,6 +6,7 @@ export interface BenchmarkCase {
   question: string;
   answer: string;
   expectedPassed: boolean;
+  sourceLine?: number;
   labelSourceUrls?: string[];
   note?: string;
 }
@@ -14,6 +15,7 @@ export interface BenchmarkCaseResult {
   id: string;
   expectedPassed: boolean;
   actualPassed: boolean;
+  sourceLine?: number;
   correct: boolean;
   falsePass: boolean;
   falseBlock: boolean;
@@ -47,6 +49,7 @@ export async function runBenchmark(gate: ClaimLatch, cases: readonly BenchmarkCa
       id: benchmarkCase.id,
       expectedPassed: benchmarkCase.expectedPassed,
       actualPassed: report.passed,
+      ...(benchmarkCase.sourceLine !== undefined ? { sourceLine: benchmarkCase.sourceLine } : {}),
       correct: benchmarkCase.expectedPassed === report.passed,
       falsePass,
       falseBlock,
@@ -105,6 +108,7 @@ export function parseBenchmarkJsonl(input: string): BenchmarkCase[] {
       question: value.question,
       answer: value.answer,
       expectedPassed: value.expectedPassed,
+      sourceLine: index + 1,
       ...(labelSourceUrls && labelSourceUrls.length > 0 ? { labelSourceUrls } : {}),
       ...(typeof value.note === "string" ? { note: value.note } : {}),
     });

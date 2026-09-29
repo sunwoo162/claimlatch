@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-No changes yet.
+- Added deterministic JSON, JUnit, and SARIF output formats to the benchmark CLI.
+- Preserved the legacy `--json` benchmark flag and added `--format text|json|junit|sarif`.
+- Added CI-friendly failure details for false passes and false blocks without fabricating benchmark results.
 
 ## 0.3.0 - 2026-09-29
 
