@@ -1,4 +1,11 @@
-export type ProxyProviderProfileName = "azure" | "cohere" | "groq" | "mistral" | "openrouter";
+export const PROXY_PROVIDER_PROFILE_NAMES = ["azure", "cohere", "groq", "mistral", "openrouter"] as const;
+
+export type ProxyProviderProfileName = (typeof PROXY_PROVIDER_PROFILE_NAMES)[number];
+
+export function formatProxyProviderProfileNames(): string {
+  const last = PROXY_PROVIDER_PROFILE_NAMES[PROXY_PROVIDER_PROFILE_NAMES.length - 1];
+  return `${PROXY_PROVIDER_PROFILE_NAMES.slice(0, -1).join(", ")}, or ${last}`;
+}
 
 export interface ProxyProviderProfileOptions {
   siteUrl?: string;
@@ -58,7 +65,9 @@ export function resolveProxyProviderProfile(
       upstreamChatCompletionsPath: "/chat/completions",
     };
   }
-  throw new Error(`Unsupported proxy provider profile: ${profile}. Use azure, cohere, groq, mistral, or openrouter.`);
+  throw new Error(
+    `Unsupported proxy provider profile: ${profile}. Use ${formatProxyProviderProfileNames()}.`,
+  );
 }
 
 function requireNonEmpty(value: string | undefined, name: string): string {
