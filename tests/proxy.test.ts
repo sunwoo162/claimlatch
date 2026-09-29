@@ -904,6 +904,43 @@ test("proxy supports provider-specific upstream chat completions paths and query
   );
 });
 
+test("proxy supports a custom provider compatibility profile", async () => {
+  let capturedUrl: string | undefined;
+  let capturedHeaders: Headers | undefined;
+  await withProxyOptions({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://provider.example",
+    upstreamApiKey: "profile-key",
+    upstreamApiKeyHeader: "x-api-key",
+    upstreamChatCompletionsPath: "/v1/chat/completions?profile=custom",
+    fetchImpl: (async (input, init) => {
+      capturedUrl = String(input);
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({
+        id: "chatcmpl_provider_profile",
+        object: "chat.completion",
+        choices: [{ message: { role: "assistant", content: "Profile-compatible answer." } }],
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: "Bearer client-key",
+        "x-provider-request-id": "profile-request",
+      },
+      body: JSON.stringify({ messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 200);
+  });
+
+  assert.equal(capturedUrl, "https://provider.example/v1/chat/completions?profile=custom");
+  assert.equal(capturedHeaders?.get("x-api-key"), "profile-key");
+  assert.equal(capturedHeaders?.get("authorization"), null);
+  assert.equal(capturedHeaders?.get("x-provider-request-id"), "profile-request");
+});
+
 test("proxy rejects an absolute upstream chat completions path configuration", () => {
   assert.throws(() => createOpenAIProxy({
     gate: fixtureGate(),
