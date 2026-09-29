@@ -199,6 +199,17 @@ async function handleRequest(input: {
     return;
   }
 
+  const modelId = request.method === "GET" ? extractModelId(path) : undefined;
+  if (request.method === "GET" && modelId !== undefined) {
+    await handleModelsRequest({
+      ...input,
+      ...(input.options.upstreamApiKey ? { upstreamApiKey: input.options.upstreamApiKey } : {}),
+      upstreamModelsPath: appendModelId(input.upstreamModelsPath, modelId),
+      requestQuery: query,
+    });
+    return;
+  }
+
   if (request.method === "GET" && (path === "/v1/models" || path === "/models")) {
     await handleModelsRequest({
       ...input,
@@ -1113,6 +1124,30 @@ function normalizeUpstreamRelativePath(value: string, optionName: string): strin
 function appendQuery(path: string, query: string): string {
   if (!query) return path;
   return `${path}${path.includes("?") ? "&" : "?"}${query}`;
+}
+
+function extractModelId(path: string): string | undefined {
+  const prefixes = ["/v1/models/", "/models/"];
+  const prefix = prefixes.find((candidate) => path.startsWith(candidate));
+  if (!prefix) return undefined;
+
+  const rawModelId = path.slice(prefix.length);
+  if (!rawModelId || rawModelId.includes("/")) return undefined;
+
+  try {
+    const modelId = decodeURIComponent(rawModelId);
+    if (!modelId || modelId === "." || modelId === "..") return undefined;
+    return modelId;
+  } catch {
+    return undefined;
+  }
+}
+
+function appendModelId(path: string, modelId: string): string {
+  const queryStart = path.indexOf("?");
+  const pathname = queryStart === -1 ? path : path.slice(0, queryStart);
+  const query = queryStart === -1 ? "" : path.slice(queryStart);
+  return `${pathname.replace(/\/+$/u, "")}/${encodeURIComponent(modelId)}${query}`;
 }
 
 function createUpstreamAbortControl(
