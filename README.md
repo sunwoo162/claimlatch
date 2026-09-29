@@ -400,7 +400,7 @@ PASS is not proof of universal truth. Claim extraction, search, source selection
 
 ## Project status
 
-`0.3.3` adds hardened provenance, core provider invariant enforcement, an OpenAI-compatible proxy, an independent benchmark runner, signed verification receipts, multi-choice and structured-output proxy verification, provider-specific credential header and completion path compatibility, and guarded application integration examples. Before `1.0`, public APIs and provider behavior may change.
+`0.3.4` adds hardened provenance, core provider invariant enforcement, an OpenAI-compatible proxy, an independent benchmark runner, signed verification receipts, multi-choice and structured-output proxy verification, provider-specific credential header and completion path compatibility, fail-closed upstream URL validation, and guarded application integration examples. Before `1.0`, public APIs and provider behavior may change.
 
 ## License
 
