@@ -11,6 +11,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
     "azure",
   "cerebras",
     "cohere",
+    "deepinfra",
     "deepseek",
     "fireworks",
     "groq",
@@ -26,7 +27,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
   ]);
   assert.equal(
     formatProxyProviderProfileNames(),
-    "azure, cerebras, cohere, deepseek, fireworks, groq, huggingface, mistral, nvidia, openai, openrouter, perplexity, sambanova, together, or xai",
+    "azure, cerebras, cohere, deepinfra, deepseek, fireworks, groq, huggingface, mistral, nvidia, openai, openrouter, perplexity, sambanova, together, or xai",
   );
 });
 
@@ -111,6 +112,14 @@ test("proxy profiles provide Cohere-compatible Chat Completions defaults", () =>
 test("proxy profiles provide DeepSeek-compatible Chat Completions defaults", () => {
   assert.deepEqual(resolveProxyProviderProfile("deepseek"), {
     upstreamBaseUrl: "https://api.deepseek.com",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  });
+});
+
+test("proxy profiles provide DeepInfra-compatible Chat Completions defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("deepinfra"), {
+    upstreamBaseUrl: "https://api.deepinfra.com/v1/openai",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
   });
