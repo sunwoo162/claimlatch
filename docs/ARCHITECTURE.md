@@ -40,7 +40,9 @@ The core does not assume plugins behave perfectly.
 
 ## Provenance
 
-A `retrieved-document` evidence record contains a quote, normalized-document character offsets, final URL, retrieval time, content type, and SHA-256. Search snippets remain explicitly labeled `search-snippet`.
+A `retrieved-document` evidence record contains a quote, normalized-document character offsets, final URL, retrieval time, content type, and SHA-256. PDF evidence also records the 1-based page number and page-local quote offsets. Search snippets remain explicitly labeled `search-snippet`.
+
+PDF text is extracted page by page with PDF.js. If parsing or text extraction fails, the provider preserves the original search-snippet provenance instead of creating unverifiable document provenance.
 
 The strict `requireRetrievedDocumentForDecisiveClaims` policy requires every selected decisive verdict to cite at least one fetched-document evidence item.
 

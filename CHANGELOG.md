@@ -5,6 +5,7 @@
 - Added supporting and contradicting evidence relations to verifier results.
 - Added deterministic cross-source contradiction detection based on normalized source URLs.
 - Added a default fail-closed policy violation for unresolved disagreement between distinct sources.
+- Added PDF.js-based page-level text extraction with page-local quote offsets and safe fallback on parse failure.
 
 ## 0.2.0 - 2026-09-28
 

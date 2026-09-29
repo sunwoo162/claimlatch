@@ -49,5 +49,8 @@
     "reverse-proxy",
     "provenance"
   ],
-  "sideEffects": false
+  "sideEffects": false,
+  "dependencies": {
+    "pdfjs-dist": "^4.10.38"
+  }
 }

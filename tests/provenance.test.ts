@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { ProvenanceEvidenceProvider, isSafePublicHttpUrl } from "../src/providers/provenance.js";
+import { extractPdfPages } from "../src/providers/pdf.js";
 import { StaticEvidenceProvider } from "../src/providers/static.js";
 
 const claim = { id: "claim_1", text: "Mars is known as the Red Planet.", kind: "fact" as const, importance: "normal" as const };
@@ -133,3 +134,68 @@ test("DNS resolution pins the selected public address for the document request",
   assert.equal(requestedAddress, "93.184.216.34");
   assert.equal(result[0]?.provenance?.kind, "retrieved-document");
 });
+
+test("PDF provenance records the matching page and page-local quote offsets", async () => {
+  const options = {
+    provider: new StaticEvidenceProvider(() => [
+      {
+        id: "e1",
+        claimId: "claim_1",
+        title: "Mars PDF",
+        url: "https://example.test/mars.pdf",
+        snippet: "Search snippet",
+        sourceType: "primary",
+        retrievedAt: "2026-09-28T00:00:00.000Z",
+        provider: "fixture",
+      },
+    ]),
+    fetchImpl: (async () => new Response(new Uint8Array([37, 80, 68, 70]), {
+      status: 200,
+      headers: { "content-type": "application/pdf" },
+    })) as typeof fetch,
+    pdfParser: async () => [
+      { page: 1, text: "Introduction to Mars." },
+      { page: 2, text: "Mars is known as the Red Planet." },
+    ],
+  };
+  const provider = new ProvenanceEvidenceProvider(
+    options as ConstructorParameters<typeof ProvenanceEvidenceProvider>[0],
+  );
+
+  const result = await provider.search(claim);
+  const provenance = result[0]?.provenance as (typeof result[0]["provenance"] & { page?: number });
+  assert.equal(provenance?.kind, "retrieved-document");
+  assert.equal(provenance?.page, 2);
+  assert.equal(provenance?.quoteStart, 0);
+  assert.equal(provenance?.quoteEnd, "Mars is known as the Red Planet.".length);
+});
+
+test("PDF parser extracts text from a PDF page", async () => {
+  const pages = await extractPdfPages(makePdf("Mars is known as the Red Planet."));
+  assert.equal(pages.length, 1);
+  assert.match(pages[0]?.text ?? "", /Mars is known as the Red Planet/);
+});
+
+function makePdf(text: string): Uint8Array {
+  const stream = `BT /F1 12 Tf 20 100 Td (${text}) Tj ET`;
+  const objects = [
+    "<< /Type /Catalog /Pages 2 0 R >>",
+    "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+    "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 200 200] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>",
+    `<< /Length ${new TextEncoder().encode(stream).byteLength} >>\nstream\n${stream}\nendstream`,
+    "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+  ];
+  let document = "%PDF-1.4\n";
+  const offsets = [0];
+
+  objects.forEach((object, index) => {
+    offsets[index + 1] = new TextEncoder().encode(document).byteLength;
+    document += `${index + 1} 0 obj\n${object}\nendobj\n`;
+  });
+
+  const xrefOffset = new TextEncoder().encode(document).byteLength;
+  document += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+  document += offsets.slice(1).map((offset) => `${offset.toString().padStart(10, "0")} 00000 n \n`).join("");
+  document += `trailer\n<< /Root 1 0 R /Size ${objects.length + 1} >>\nstartxref\n${xrefOffset}\n%%EOF\n`;
+  return new TextEncoder().encode(document);
+}
