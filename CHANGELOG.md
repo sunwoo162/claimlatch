@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.56 - 2026-09-30
+
+- Added verified receipt `decision` (`PASS` or `BLOCK`) and `generatedAt` metadata to `claimlatch-receipt verify --json` output, while omitting decision metadata for invalid signatures.
+
 ## 0.3.55 - 2026-09-30
 
 - Added signed receipt `version`, `algorithm`, and `keyId` metadata to `claimlatch-receipt verify --json` output for audit automation.
