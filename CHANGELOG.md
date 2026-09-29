@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.60 - 2026-09-30
+
+- Hardened signed receipt verification to reject malformed claim verification and policy violation entries.
+
 ## 0.3.59 - 2026-09-30
 
 - Hardened signed receipt verification so cryptographically valid receipts with malformed verification report shapes fail closed.
