@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { resolveProviderCompatibleProxyConfiguration } from "../examples/provider-compatible-proxy.js";
 import {
   parseProxyHeaderMap,
   renderProxyHelp,
@@ -87,4 +88,13 @@ test("proxy CLI resolves every hosted built-in profile without an explicit base 
       upstreamModelsPath: "/models",
     });
   }
+});
+
+test("provider-compatible proxy example preserves the configured model route", () => {
+  const configuration = resolveProviderCompatibleProxyConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "openai",
+    CLAIMLATCH_PROXY_UPSTREAM_MODELS_PATH: "/v1/custom-models",
+  });
+
+  assert.equal(configuration.upstreamModelsPath, "/v1/custom-models");
 });
