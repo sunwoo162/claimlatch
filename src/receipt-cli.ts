@@ -13,11 +13,13 @@ async function main(): Promise<void> {
 
   if (argv[0] !== "verify") throw new Error("Use `claimlatch-receipt verify --file <path>`.");
   const filePath = argumentValue(argv, "--file");
+  const publicKeyPath = argumentValueOptional(argv, "--public-key-file");
   const json = argv.includes("--json");
   const parsed = JSON.parse(await readFile(filePath, "utf8")) as SignedVerificationReceipt;
-  const valid = verifySignedVerificationReceipt(parsed);
+  const publicKeyPem = publicKeyPath ? await readFile(publicKeyPath, "utf8") : undefined;
+  const valid = verifySignedVerificationReceipt(parsed, publicKeyPem ? { publicKeyPem } : {});
   if (json) {
-    process.stdout.write(`${JSON.stringify({ valid, file: filePath })}\n`);
+    process.stdout.write(`${JSON.stringify({ valid, file: filePath, ...(publicKeyPath ? { publicKeyFile: publicKeyPath } : {}) })}\n`);
   } else {
     process.stdout.write(`Receipt ${valid ? "valid" : "invalid"}: ${filePath}\n`);
   }
@@ -29,6 +31,12 @@ function argumentValue(argv: string[], name: string): string {
   const value = argv[index + 1];
   if (index === -1 || !value || value.startsWith("-")) throw new Error(`${name} requires a value.`);
   return value;
+}
+
+function argumentValueOptional(argv: string[], name: string): string | undefined {
+  const index = argv.indexOf(name);
+  if (index === -1) return undefined;
+  return argumentValue(argv, name);
 }
 
 main().catch((error: unknown) => {
