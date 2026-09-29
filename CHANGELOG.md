@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.51 - 2026-09-29
+
+- Exposed benchmark aggregate metrics in JUnit suite properties and SARIF run properties.
+
 ## 0.3.50 - 2026-09-29
 
 - Added a DeepInfra-compatible proxy profile for OpenAI-compatible Chat Completions.

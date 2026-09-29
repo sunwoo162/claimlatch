@@ -536,6 +536,8 @@ PASS is not proof of universal truth. Claim extraction, search, source selection
 
 ## Project status
 
+`0.3.51` exposes benchmark aggregate metrics in JUnit suite properties and SARIF run properties.
+
 `0.3.50` adds a DeepInfra-compatible proxy profile for OpenAI-compatible Chat Completions.
 
 `0.3.49` adds a direct OpenAI API-compatible proxy profile while preserving the existing Azure-style default.
