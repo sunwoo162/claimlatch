@@ -157,6 +157,8 @@ For Mistral's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY
 
 For Cohere's Compatibility API, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="cohere"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.cohere.ai/compatibility/v1`, bearer authentication, and `/chat/completions`.
 
+For DeepSeek's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="deepseek"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.deepseek.com`, bearer authentication, and `/chat/completions`.
+
 For a custom provider profile, the same example can use a different credential header and relative completion path while retaining the proxy's restricted header policy:
 
 ```bash
