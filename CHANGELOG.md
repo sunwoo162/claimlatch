@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+No changes yet.
+
+## 0.3.0 - 2026-09-29
+
 - Added supporting and contradicting evidence relations to verifier results.
 - Added deterministic cross-source contradiction detection based on normalized source URLs.
 - Added a default fail-closed policy violation for unresolved disagreement between distinct sources.
