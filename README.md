@@ -305,6 +305,23 @@ curl -X POST http://127.0.0.1:4318/answer \
 
 The complete service example is in [`examples/guarded-http-service.ts`](examples/guarded-http-service.ts). The service keeps the gate at the final delivery boundary and never returns a blocked draft as an answer.
 
+For Fetch-native runtimes such as Next.js Route Handlers, Cloudflare Workers, Deno, or Bun, use `createGuardedAnswerFetchHandler`. It accepts `Request` objects and returns `Response` objects without adding a web framework dependency:
+
+```ts
+import { createDefaultClaimLatch, createGuardedAnswerFetchHandler } from "claimlatch";
+
+const gate = createDefaultClaimLatch({
+  llmModel: process.env.CLAIMLATCH_LLM_MODEL!,
+  tavilyApiKey: process.env.TAVILY_API_KEY!,
+});
+const guarded = createGuardedAnswerFetchHandler({ gate });
+
+export const GET = guarded;
+export const POST = guarded;
+```
+
+The complete route-oriented example is in [`examples/fetch-route-handler.ts`](examples/fetch-route-handler.ts). It keeps the same `/health` and `/answer` contract as the Node HTTP integration, including 413 request-size limits, 422 blocked reports, and 502 fail-closed verification errors.
+
 ### Structured-output proxy policy example
 
 `structuredOutputVerifier` is the application-owned safety boundary for tool calls and multimodal output. The runnable example below allows only the comma-separated tool names in `CLAIMLATCH_ALLOWED_TOOLS`; any other tool call is returned as a deterministic BLOCK report. The example uses a local policy report for structured output and the configured ClaimLatch gate for ordinary textual responses.
