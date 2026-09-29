@@ -542,6 +542,80 @@ test("proxy fails closed when a non-streaming assistant output includes tool cal
   });
 });
 
+test("proxy releases a structured output only through an explicit verifier", async () => {
+  let verifierCalled = false;
+  await withProxyOptions({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://upstream.example/v1",
+    structuredOutputVerifier: {
+      async verify({ question, choice, stream }) {
+        verifierCalled = true;
+        assert.equal(question, "question");
+        assert.equal(stream, false);
+        const message = (choice as { message?: { tool_calls?: unknown[] } }).message;
+        assert.equal(message?.tool_calls?.length, 1);
+        return fixtureGate().verify({ question, answer: "The structured tool call is verified." });
+      },
+    },
+    fetchImpl: upstreamFetchPayload({
+      id: "chatcmpl_verified_tool_call",
+      object: "chat.completion",
+      choices: [{
+        message: {
+          role: "assistant",
+          content: null,
+          tool_calls: [{
+            id: "call_1",
+            type: "function",
+            function: { name: "lookup", arguments: "{}" },
+          }],
+        },
+      }],
+    }),
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get("x-claimlatch-result"), "pass");
+  });
+  assert.equal(verifierCalled, true);
+});
+
+test("proxy fails closed when the structured output verifier throws", async () => {
+  await withProxyOptions({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://upstream.example/v1",
+    structuredOutputVerifier: {
+      async verify() {
+        throw new Error("structured verifier unavailable");
+      },
+    },
+    fetchImpl: upstreamFetchPayload({
+      id: "chatcmpl_structured_error",
+      object: "chat.completion",
+      choices: [{
+        message: {
+          role: "assistant",
+          content: null,
+          tool_calls: [{ id: "call_1", type: "function", function: { name: "lookup", arguments: "{}" } }],
+        },
+      }],
+    }),
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 502);
+    const body = await response.json() as { error?: { code?: string } };
+    assert.equal(body.error?.code, "claimlatch_structured_output_verifier_error");
+  });
+});
+
 test("proxy forwards compatible request headers and configured authentication", async () => {
   let capturedHeaders: Headers | undefined;
   await withProxyOptions({

@@ -8,12 +8,21 @@ export interface OpenAIProxyOptions {
   upstreamBaseUrl: string;
   upstreamApiKey?: string;
   policy?: Partial<GatePolicy>;
+  structuredOutputVerifier?: OpenAIProxyStructuredOutputVerifier;
   fetchImpl?: typeof fetch;
   maxRequestBytes?: number;
   maxBufferedResponseBytes?: number;
   maxBufferedChoices?: number;
   maxBufferedChoiceBytes?: number;
   upstreamTimeoutMs?: number;
+}
+
+export interface OpenAIProxyStructuredOutputVerifier {
+  verify(input: {
+    question: string;
+    choice: unknown;
+    stream: false;
+  }): Promise<VerificationReport>;
 }
 
 export interface OpenAIProxyServer {
@@ -309,8 +318,25 @@ async function handleRequest(input: {
     return;
   }
 
-  const answers = assistantTexts(payload);
-  if (!answers) {
+  let reports: VerificationReport[] | null;
+  try {
+    reports = await verifyNonStreamingChoices({
+      payload,
+      question,
+      options: input.options,
+    });
+  } catch {
+    writeJson(response, 502, {
+      error: {
+        type: "claimlatch_upstream_error",
+        code: "claimlatch_structured_output_verifier_error",
+        message: "The configured structured output verifier failed closed.",
+      },
+    });
+    return;
+  }
+
+  if (!reports) {
     writeJson(response, 502, {
       error: {
         type: "claimlatch_upstream_error",
@@ -321,11 +347,6 @@ async function handleRequest(input: {
     return;
   }
 
-  const reports = await Promise.all(answers.map((answer) => input.options.gate.verify({
-    question,
-    answer,
-    ...(input.options.policy ? { policy: input.options.policy } : {}),
-  })));
   const report = aggregateReports(reports);
 
   setGateHeaders(response, report);
@@ -392,20 +413,46 @@ function lastUserMessageText(messages: unknown): string | null {
   return null;
 }
 
-function assistantTexts(payload: ChatCompletionResponse): string[] | null {
-  if (!Array.isArray(payload.choices) || payload.choices.length === 0) return null;
-
-  const messages = payload.choices.map((choice) => choice?.message);
-  if (messages.some((message) => hasUnsupportedAssistantMetadata(message))) return null;
-  const texts = messages.map((message) => contentToText(message?.content));
-  if (texts.some((text): text is null => text === null)) return null;
-  return texts as string[];
-}
-
 function hasUnsupportedAssistantMetadata(message: unknown): boolean {
   if (!message || typeof message !== "object") return false;
   const record = message as Record<string, unknown>;
   return record.tool_calls !== undefined || record.function_call !== undefined;
+}
+
+async function verifyNonStreamingChoices(input: {
+  payload: ChatCompletionResponse;
+  question: string;
+  options: OpenAIProxyOptions;
+}): Promise<VerificationReport[] | null> {
+  if (!Array.isArray(input.payload.choices) || input.payload.choices.length === 0) return null;
+
+  const reports: VerificationReport[] = [];
+  for (const choice of input.payload.choices) {
+    const message = choice?.message;
+    const text = contentToText(message?.content);
+    if (text !== null && !hasUnsupportedAssistantMetadata(message)) {
+      reports.push(await input.options.gate.verify({
+        question: input.question,
+        answer: text,
+        ...(input.options.policy ? { policy: input.options.policy } : {}),
+      }));
+      continue;
+    }
+
+    if (!input.options.structuredOutputVerifier || !isStructuredChoice(choice)) return null;
+    reports.push(await input.options.structuredOutputVerifier.verify({
+      question: input.question,
+      choice,
+      stream: false,
+    }));
+  }
+  return reports;
+}
+
+function isStructuredChoice(choice: unknown): choice is Record<string, unknown> & { message: Record<string, unknown> } {
+  if (!choice || typeof choice !== "object") return false;
+  const message = (choice as Record<string, unknown>).message;
+  return Boolean(message && typeof message === "object");
 }
 
 function streamingAssistantTexts(streamText: string, maxChoices: number, maxChoiceBytes: number): string[] | null {
