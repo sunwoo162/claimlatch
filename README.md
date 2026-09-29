@@ -513,6 +513,8 @@ PASS is not proof of universal truth. Claim extraction, search, source selection
 
 `0.3.45` adds average evidence coverage to benchmark reports while keeping coverage distinct from decision accuracy and probability calibration.
 
+`0.3.44` adds a credential-free provider-compatible proxy environment variable example covering hosted, Azure-style, OpenRouter, and custom configurations.
+
 `0.3.43` adds an NVIDIA NIM-compatible provider profile for the proxy's OpenAI-compatible Chat Completions path.
 
 `0.3.42` adds a SambaNova-compatible provider profile for the proxy's OpenAI-compatible Chat Completions path.
