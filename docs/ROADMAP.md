@@ -25,7 +25,7 @@
 ## Next
 
 - Calibration experiments only after enough independent labels exist
-- Extend buffered/verified streaming to explicitly supported tool-call and multimodal response semantics
+- Add more provider-specific proxy compatibility tests and examples
 
 ## Explicitly not promised
 

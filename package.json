@@ -35,6 +35,7 @@
     "demo": "npm run build && node dist/examples/offline-demo.js",
     "example:guarded": "npm run build && node dist/examples/guarded-answer.js",
     "example:receipts": "npm run build && node dist/examples/receipt-storage.js",
+    "example:structured": "npm run build && node dist/examples/structured-output-verifier.js",
     "prepublishOnly": "npm run check",
     "bench": "npm run build && node dist/src/benchmark-cli.js --dataset benchmarks/independent.jsonl"
   },
