@@ -21,7 +21,7 @@ export interface OpenAIProxyStructuredOutputVerifier {
   verify(input: {
     question: string;
     choice: unknown;
-    stream: false;
+    stream: boolean;
   }): Promise<VerificationReport>;
 }
 
@@ -229,14 +229,14 @@ async function handleRequest(input: {
 
   if (body.stream === true) {
     let streamText: string;
-    let answers: string[] | null;
+    let streamingChoices: StreamingChoice[] | null;
     try {
       streamText = await readBufferedResponse(upstream, input.maxBufferedResponseBytes);
       if (upstreamAbort.aborted()) {
         handleUpstreamAbort(upstreamAbort, response);
         return;
       }
-      answers = streamingAssistantTexts(streamText, input.maxBufferedChoices, input.maxBufferedChoiceBytes);
+      streamingChoices = parseStreamingChoices(streamText, input.maxBufferedChoices, input.maxBufferedChoiceBytes);
     } catch (error) {
       if (handleUpstreamAbort(upstreamAbort, response)) return;
       upstreamAbort.cleanup();
@@ -251,7 +251,7 @@ async function handleRequest(input: {
     }
     upstreamAbort.cleanup();
 
-    if (!answers) {
+    if (!streamingChoices) {
       writeJson(response, 502, {
         error: {
           type: "claimlatch_upstream_error",
@@ -262,11 +262,35 @@ async function handleRequest(input: {
       return;
     }
 
-    const reports = await Promise.all(answers.map((answer) => input.options.gate.verify({
-      question,
-      answer,
-      ...(input.options.policy ? { policy: input.options.policy } : {}),
-    })));
+    let reports: VerificationReport[] | null;
+    try {
+      reports = await verifyStreamingChoices({
+        choices: streamingChoices,
+        question,
+        options: input.options,
+      });
+    } catch {
+      writeJson(response, 502, {
+        error: {
+          type: "claimlatch_upstream_error",
+          code: "claimlatch_structured_output_verifier_error",
+          message: "The configured structured output verifier failed closed.",
+        },
+      });
+      return;
+    }
+
+    if (!reports) {
+      writeJson(response, 502, {
+        error: {
+          type: "claimlatch_upstream_error",
+          code: "claimlatch_missing_assistant_text",
+          message: "Upstream chat completion stream did not contain textual assistant output.",
+        },
+      });
+      return;
+    }
+
     const report = aggregateReports(reports);
 
     setGateHeaders(response, report);
@@ -455,12 +479,36 @@ function isStructuredChoice(choice: unknown): choice is Record<string, unknown> 
   return Boolean(message && typeof message === "object");
 }
 
-function streamingAssistantTexts(streamText: string, maxChoices: number, maxChoiceBytes: number): string[] | null {
+interface StreamingChoice {
+  text: string | null;
+  choice: Record<string, unknown>;
+}
+
+interface StreamingChoiceAccumulator {
+  index: number;
+  role?: unknown;
+  content?: string | unknown[];
+  toolCalls: Map<number, StreamingToolCallAccumulator>;
+  functionCall?: StreamingFunctionCallAccumulator;
+  finishReason?: unknown;
+}
+
+interface StreamingToolCallAccumulator {
+  id?: unknown;
+  type?: unknown;
+  function?: StreamingFunctionCallAccumulator;
+}
+
+interface StreamingFunctionCallAccumulator {
+  name?: string;
+  arguments: string;
+}
+
+function parseStreamingChoices(streamText: string, maxChoices: number, maxChoiceBytes: number): StreamingChoice[] | null {
   const normalized = streamText.replace(/\r\n/gu, "\n").replace(/\r/gu, "\n");
   if (!normalized.endsWith("\n\n")) throw new Error("SSE stream did not end at a complete frame.");
 
-  const contentByIndex = new Map<number, string>();
-  const choiceIndexes = new Set<number>();
+  const choicesByIndex = new Map<number, StreamingChoiceAccumulator>();
   const blocks = normalized.split("\n\n");
   let done = false;
 
@@ -503,42 +551,163 @@ function streamingAssistantTexts(streamText: string, maxChoices: number, maxChoi
       const index = choice.index as number;
       if (frameIndexes.has(index)) throw new Error("SSE frame contained a duplicate choice index.");
       frameIndexes.add(index);
-      if (!choiceIndexes.has(index) && choiceIndexes.size >= maxChoices) {
+      if (!choicesByIndex.has(index) && choicesByIndex.size >= maxChoices) {
         throw new Error("SSE stream exceeded the configured choice limit.");
       }
-      choiceIndexes.add(index);
       if (!choice.delta || typeof choice.delta !== "object") throw new Error("SSE delta is malformed.");
-      const delta = choice.delta as Record<string, unknown>;
-      if (delta.content === undefined || delta.content === null) continue;
-      const content = streamingContentToText(delta.content);
-      const combined = `${contentByIndex.get(index) ?? ""}${content}`;
-      if (new TextEncoder().encode(combined).byteLength > maxChoiceBytes) {
+      const accumulator = choicesByIndex.get(index) ?? {
+        index,
+        toolCalls: new Map<number, StreamingToolCallAccumulator>(),
+      } satisfies StreamingChoiceAccumulator;
+      mergeStreamingDelta(accumulator, choice.delta as Record<string, unknown>);
+      if (choice.finish_reason !== undefined) accumulator.finishReason = choice.finish_reason;
+      if (streamingChoiceByteSize(accumulator) > maxChoiceBytes) {
         throw new Error("SSE choice exceeded the configured text limit.");
       }
-      contentByIndex.set(index, combined);
+      choicesByIndex.set(index, accumulator);
     }
   }
 
-  if (!done || choiceIndexes.size === 0) throw new Error("SSE stream did not contain a complete textual response.");
-  const answers = [...choiceIndexes].sort((left, right) => left - right).map((index) => contentByIndex.get(index));
-  if (answers.some((answer): answer is undefined => answer === undefined || answer.length === 0)) return null;
-  return answers as string[];
+  if (!done || choicesByIndex.size === 0) throw new Error("SSE stream did not contain a complete response.");
+
+  return [...choicesByIndex.values()]
+    .sort((left, right) => left.index - right.index)
+    .map(toStreamingChoice);
 }
 
-function streamingContentToText(content: unknown): string {
-  if (typeof content === "string") return content;
-  if (!Array.isArray(content)) throw new Error("SSE delta content is not textual.");
+function mergeStreamingDelta(accumulator: StreamingChoiceAccumulator, delta: Record<string, unknown>): void {
+  if (delta.role !== undefined) accumulator.role = delta.role;
 
-  let text = "";
-  for (const part of content) {
-    if (!part || typeof part !== "object") throw new Error("SSE delta content part is malformed.");
-    const record = part as Record<string, unknown>;
-    if (record.type !== "text" || typeof record.text !== "string") {
-      throw new Error("SSE delta contains unsupported non-text content.");
+  if (delta.content !== undefined && delta.content !== null) {
+    if (typeof delta.content === "string") {
+      if (Array.isArray(accumulator.content)) throw new Error("SSE delta mixed textual and structured content.");
+      accumulator.content = `${typeof accumulator.content === "string" ? accumulator.content : ""}${delta.content}`;
+    } else if (Array.isArray(delta.content)) {
+      if (typeof accumulator.content === "string") throw new Error("SSE delta mixed textual and structured content.");
+      for (const part of delta.content) {
+        if (!part || typeof part !== "object") throw new Error("SSE delta content part is malformed.");
+      }
+      accumulator.content = [...(accumulator.content ?? []), ...delta.content];
+    } else {
+      throw new Error("SSE delta content is malformed.");
     }
-    text += record.text;
   }
-  return text;
+
+  if (delta.tool_calls !== undefined) {
+    if (!Array.isArray(delta.tool_calls)) throw new Error("SSE tool calls are malformed.");
+    for (const rawToolCall of delta.tool_calls) {
+      if (!rawToolCall || typeof rawToolCall !== "object") throw new Error("SSE tool call is malformed.");
+      const toolCall = rawToolCall as Record<string, unknown>;
+      if (!Number.isInteger(toolCall.index) || (toolCall.index as number) < 0) {
+        throw new Error("SSE tool call index is malformed.");
+      }
+      const index = toolCall.index as number;
+      const toolCallAccumulator = accumulatorForToolCall(accumulator.toolCalls, index);
+      if (toolCall.id !== undefined) toolCallAccumulator.id = toolCall.id;
+      if (toolCall.type !== undefined) toolCallAccumulator.type = toolCall.type;
+      if (toolCall.function !== undefined) {
+        toolCallAccumulator.function = mergeFunctionCall(toolCallAccumulator.function, toolCall.function);
+      }
+    }
+  }
+
+  if (delta.function_call !== undefined) {
+    accumulator.functionCall = mergeFunctionCall(accumulator.functionCall, delta.function_call);
+  }
+}
+
+function accumulatorForToolCall(
+  toolCalls: Map<number, StreamingToolCallAccumulator>,
+  index: number,
+): StreamingToolCallAccumulator {
+  const existing = toolCalls.get(index) ?? {};
+  toolCalls.set(index, existing);
+  return existing;
+}
+
+function mergeFunctionCall(existing: StreamingFunctionCallAccumulator | undefined, rawFunction: unknown): StreamingFunctionCallAccumulator {
+  if (!rawFunction || typeof rawFunction !== "object") throw new Error("SSE function call is malformed.");
+  const functionCall = rawFunction as Record<string, unknown>;
+  const merged = existing ?? { arguments: "" };
+  if (functionCall.name !== undefined) {
+    if (typeof functionCall.name !== "string") throw new Error("SSE function name is malformed.");
+    merged.name = `${merged.name ?? ""}${functionCall.name}`;
+  }
+  if (functionCall.arguments !== undefined) {
+    if (typeof functionCall.arguments !== "string") throw new Error("SSE function arguments are malformed.");
+    merged.arguments += functionCall.arguments;
+  }
+  return merged;
+}
+
+function toStreamingChoice(accumulator: StreamingChoiceAccumulator): StreamingChoice {
+  const message: Record<string, unknown> = {};
+  if (accumulator.role !== undefined) message.role = accumulator.role;
+  if (accumulator.content !== undefined) message.content = accumulator.content;
+  if (accumulator.content === undefined && (accumulator.toolCalls.size > 0 || accumulator.functionCall !== undefined)) {
+    message.content = null;
+  }
+  if (accumulator.toolCalls.size > 0) {
+    message.tool_calls = [...accumulator.toolCalls.entries()]
+      .sort(([left], [right]) => left - right)
+      .map(([, toolCall]) => ({
+        ...(toolCall.id === undefined ? {} : { id: toolCall.id }),
+        ...(toolCall.type === undefined ? {} : { type: toolCall.type }),
+        ...(toolCall.function === undefined ? {} : { function: toolCall.function }),
+      }));
+  }
+  if (accumulator.functionCall !== undefined) message.function_call = accumulator.functionCall;
+
+  const choice = {
+    index: accumulator.index,
+    message,
+    ...(accumulator.finishReason === undefined ? {} : { finish_reason: accumulator.finishReason }),
+  };
+  const text = typeof accumulator.content === "string" && accumulator.content.length > 0 && accumulator.toolCalls.size === 0 && accumulator.functionCall === undefined
+    ? accumulator.content
+    : null;
+  if (text === null && accumulator.content === undefined && accumulator.toolCalls.size === 0 && accumulator.functionCall === undefined) {
+    throw new Error("SSE choice did not contain assistant output.");
+  }
+  return { text, choice };
+}
+
+function streamingChoiceByteSize(accumulator: StreamingChoiceAccumulator): number {
+  return new TextEncoder().encode(JSON.stringify({
+    index: accumulator.index,
+    role: accumulator.role,
+    content: accumulator.content,
+    tool_calls: [...accumulator.toolCalls.entries()]
+      .sort(([left], [right]) => left - right)
+      .map(([, toolCall]) => toolCall),
+    function_call: accumulator.functionCall,
+    finish_reason: accumulator.finishReason,
+  })).byteLength;
+}
+
+async function verifyStreamingChoices(input: {
+  choices: StreamingChoice[];
+  question: string;
+  options: OpenAIProxyOptions;
+}): Promise<VerificationReport[] | null> {
+  const reports: VerificationReport[] = [];
+  for (const choice of input.choices) {
+    if (choice.text !== null) {
+      reports.push(await input.options.gate.verify({
+        question: input.question,
+        answer: choice.text,
+        ...(input.options.policy ? { policy: input.options.policy } : {}),
+      }));
+      continue;
+    }
+    if (!input.options.structuredOutputVerifier) return null;
+    reports.push(await input.options.structuredOutputVerifier.verify({
+      question: input.question,
+      choice: choice.choice,
+      stream: true,
+    }));
+  }
+  return reports;
 }
 
 async function readBufferedResponse(response: Response, maxBytes: number): Promise<string> {

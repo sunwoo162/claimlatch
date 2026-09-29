@@ -114,7 +114,7 @@ Behavior:
 - Upstream `OpenAI-*`, `X-RateLimit-*`, `RateLimit-*`, `Retry-After`, `X-Request-Id`, and `Content-Type` response headers are preserved on released responses.
 - BLOCK: returns HTTP `422` with `error.code = "claimlatch_blocked"` and verification reports.
 - If any choice is blocked, the entire response is blocked and per-choice reports are returned as `claimlatchReports`.
-- `stream: true`: the upstream SSE stream is buffered privately, every textual choice is verified, and the stream is replayed only after PASS. Blocked, malformed, truncated, or over-limit streams fail closed.
+- `stream: true`: the upstream SSE stream is buffered privately, every textual choice is verified, and the stream is replayed only after PASS. Structured choices can be released only through an explicit `structuredOutputVerifier`; otherwise blocked, malformed, truncated, or over-limit streams fail closed.
 - `/health`: a lightweight local health endpoint.
 
 If no upstream API key is configured, the incoming `Authorization` header is forwarded to the upstream provider. The proxy binds to `127.0.0.1` by default.
@@ -130,11 +130,11 @@ export CLAIMLATCH_REQUIRE_DOCUMENT_PROVENANCE="1"
 export CLAIMLATCH_PROXY_UPSTREAM_TIMEOUT_MS="120000"
 ```
 
-SDK callers can set `maxBufferedResponseBytes`, `maxBufferedChoices`, `maxBufferedChoiceBytes`, and `upstreamTimeoutMs` on `createOpenAIProxy`; they bound the private stream buffer, number of choices, reconstructed text per choice, and upstream request duration before verification. The upstream timeout defaults to 120 seconds; set it to `0` only when the deployment intentionally manages the deadline elsewhere. A client disconnect aborts the in-flight upstream request.
+SDK callers can set `maxBufferedResponseBytes`, `maxBufferedChoices`, `maxBufferedChoiceBytes`, and `upstreamTimeoutMs` on `createOpenAIProxy`; they bound the private stream buffer, number of choices, reconstructed choice payload per choice, and upstream request duration before verification. The upstream timeout defaults to 120 seconds; set it to `0` only when the deployment intentionally manages the deadline elsewhere. A client disconnect aborts the in-flight upstream request.
 
-By default, non-streaming tool-call and multimodal choices fail closed because ClaimLatch cannot infer safe semantics for an action or non-text output. An application may explicitly provide `structuredOutputVerifier` to `createOpenAIProxy`; the hook receives the raw choice and must return a `VerificationReport` after applying the application's tool or multimodal safety policy. Hook failures return `502`, and buffered streaming structured outputs remain unsupported until their frame-level semantics are defined.
+By default, non-streaming and buffered streaming tool-call or multimodal choices fail closed because ClaimLatch cannot infer safe semantics for an action or non-text output. An application may explicitly provide `structuredOutputVerifier` to `createOpenAIProxy`; the hook receives the reconstructed raw choice and a `stream` boolean, and must return a `VerificationReport` after applying the application's tool or multimodal safety policy. Hook failures return `502`, and no SSE frame is released before every choice passes.
 
-The V0.2 proxy intentionally has a small scope: Chat Completions, text-form user/assistant content, multiple textual choices, and buffered verified streaming. Tool-call-only responses and multimodal output parts are not supported yet; mixed or unsupported non-streaming output shapes fail closed instead of dropping unknown parts. Hop-by-hop headers, cookies, host metadata, and request body framing headers are not forwarded to the upstream. See [the streaming protocol](docs/STREAMING.md) for the limits and fail-closed behavior.
+The proxy intentionally has a small scope: Chat Completions, text-form user/assistant content, multiple choices, and buffered verified streaming. Structured output requires an application-provided verifier; mixed or unsupported output shapes fail closed instead of dropping unknown parts. Hop-by-hop headers, cookies, host metadata, and request body framing headers are not forwarded to the upstream. See [the streaming protocol](docs/STREAMING.md) for the limits and fail-closed behavior.
 
 ## SDK
 

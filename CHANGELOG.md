@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Added an explicit non-streaming structured-output verifier hook while keeping tool-call and multimodal output fail-closed by default.
+- Extended the structured-output verifier hook to buffered streaming tool-call and multimodal choices without releasing SSE frames before verification.
 
 ## 0.3.1 - 2026-09-29
 
