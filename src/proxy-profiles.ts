@@ -28,17 +28,50 @@ export interface ProxyProviderProfile {
   upstreamRequestHeaders?: Record<string, string>;
 }
 
+type StaticProxyProviderProfileName = Exclude<ProxyProviderProfileName, "openrouter">;
+
+const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfileName, ProxyProviderProfile>> = {
+  azure: {
+    upstreamApiKeyHeader: "api-key",
+    upstreamChatCompletionsPath: "/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-10-21",
+  },
+  cohere: {
+    upstreamBaseUrl: "https://api.cohere.ai/compatibility/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  },
+  deepseek: {
+    upstreamBaseUrl: "https://api.deepseek.com",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  },
+  fireworks: {
+    upstreamBaseUrl: "https://api.fireworks.ai/inference/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  },
+  groq: {
+    upstreamBaseUrl: "https://api.groq.com/openai/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  },
+  mistral: {
+    upstreamBaseUrl: "https://api.mistral.ai/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  },
+  together: {
+    upstreamBaseUrl: "https://api.together.xyz/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  },
+};
+
 export function resolveProxyProviderProfile(
   name: string | undefined,
   options: ProxyProviderProfileOptions = {},
 ): ProxyProviderProfile {
   const profile = name ?? "azure";
-  if (profile === "azure") {
-    return {
-      upstreamApiKeyHeader: "api-key",
-      upstreamChatCompletionsPath: "/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-10-21",
-    };
-  }
   if (profile === "openrouter") {
     const siteUrl = requireNonEmpty(options.siteUrl, "siteUrl");
     const appName = requireNonEmpty(options.appName, "appName");
@@ -53,47 +86,9 @@ export function resolveProxyProviderProfile(
       },
     };
   }
-  if (profile === "groq") {
-    return {
-      upstreamBaseUrl: "https://api.groq.com/openai/v1",
-      upstreamApiKeyHeader: "authorization",
-      upstreamChatCompletionsPath: "/chat/completions",
-    };
-  }
-  if (profile === "mistral") {
-    return {
-      upstreamBaseUrl: "https://api.mistral.ai/v1",
-      upstreamApiKeyHeader: "authorization",
-      upstreamChatCompletionsPath: "/chat/completions",
-    };
-  }
-  if (profile === "cohere") {
-    return {
-      upstreamBaseUrl: "https://api.cohere.ai/compatibility/v1",
-      upstreamApiKeyHeader: "authorization",
-      upstreamChatCompletionsPath: "/chat/completions",
-    };
-  }
-  if (profile === "deepseek") {
-    return {
-      upstreamBaseUrl: "https://api.deepseek.com",
-      upstreamApiKeyHeader: "authorization",
-      upstreamChatCompletionsPath: "/chat/completions",
-    };
-  }
-  if (profile === "fireworks") {
-    return {
-      upstreamBaseUrl: "https://api.fireworks.ai/inference/v1",
-      upstreamApiKeyHeader: "authorization",
-      upstreamChatCompletionsPath: "/chat/completions",
-    };
-  }
-  if (profile === "together") {
-    return {
-      upstreamBaseUrl: "https://api.together.xyz/v1",
-      upstreamApiKeyHeader: "authorization",
-      upstreamChatCompletionsPath: "/chat/completions",
-    };
+  const staticProfile = STATIC_PROXY_PROVIDER_PROFILES[profile as StaticProxyProviderProfileName];
+  if (staticProfile) {
+    return { ...staticProfile };
   }
   throw new Error(
     `Unsupported proxy provider profile: ${profile}. Use ${formatProxyProviderProfileNames()}.`,
