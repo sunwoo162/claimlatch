@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.28 - 2026-09-29
+
+- Connected provider compatibility profiles to the proxy CLI with explicit override support.
+
 ## 0.3.27 - 2026-09-29
 
 - Added an OpenRouter-compatible provider profile to the proxy example with fail-closed attribution metadata validation.
