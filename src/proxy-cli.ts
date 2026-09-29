@@ -38,6 +38,7 @@ async function main(): Promise<void> {
       : {}),
     upstreamApiKeyHeader: providerConfiguration.upstreamApiKeyHeader,
     upstreamChatCompletionsPath: providerConfiguration.upstreamChatCompletionsPath,
+    upstreamModelsPath: providerConfiguration.upstreamModelsPath,
     ...(providerConfiguration.upstreamRequestHeaders
       ? { upstreamRequestHeaders: providerConfiguration.upstreamRequestHeaders }
       : {}),

@@ -131,6 +131,91 @@ test("proxy blocks a contradicted completion with a structured 422", async () =>
   });
 });
 
+test("proxy forwards OpenAI-compatible model listing without invoking the gate", async () => {
+  let capturedUrl: string | undefined;
+  let capturedMethod: string | undefined;
+  let capturedAuthorization: string | null | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://upstream.example/v1",
+    fetchImpl: (async (url, init) => {
+      capturedUrl = String(url);
+      capturedMethod = init?.method;
+      capturedAuthorization = new Headers(init?.headers).get("authorization");
+      return new Response(JSON.stringify({ object: "list", data: [{ id: "fixture-model", object: "model" }] }), {
+        status: 200,
+        headers: {
+          "content-type": "application/json",
+          "openai-processing-ms": "4",
+        },
+      });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/models?limit=1`, {
+      headers: { authorization: "Bearer client-key" },
+    });
+
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get("content-type"), "application/json");
+    assert.equal(response.headers.get("openai-processing-ms"), "4");
+    assert.deepEqual(await response.json(), {
+      object: "list",
+      data: [{ id: "fixture-model", object: "model" }],
+    });
+    assert.equal(capturedUrl, "https://upstream.example/v1/models?limit=1");
+    assert.equal(capturedMethod, "GET");
+    assert.equal(capturedAuthorization, "Bearer client-key");
+  });
+});
+
+test("proxy applies provider-specific model path and authentication settings", async () => {
+  let capturedUrl: string | undefined;
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://upstream.example",
+    upstreamApiKey: "provider-key",
+    upstreamApiKeyHeader: "x-api-key",
+    upstreamModelsPath: "/v1/models?scope=active",
+    fetchImpl: (async (url, init) => {
+      capturedUrl = String(url);
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({ object: "list", data: [] }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/models?limit=1`, {
+      headers: { authorization: "Bearer client-key" },
+    });
+    assert.equal(response.status, 200);
+  });
+
+  assert.equal(capturedUrl, "https://upstream.example/v1/models?scope=active&limit=1");
+  assert.equal(capturedHeaders?.get("x-api-key"), "provider-key");
+  assert.equal(capturedHeaders?.get("authorization"), null);
+});
+
+test("proxy fails closed when the upstream model listing exceeds the response limit", async () => {
+  await withProxyOptions({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://upstream.example/v1",
+    maxBufferedResponseBytes: 1_024,
+    fetchImpl: (async () => new Response(`{"data":"${"x".repeat(2_000)}"}`, {
+      status: 200,
+      headers: { "content-type": "application/json" },
+    })) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/models`);
+    assert.equal(response.status, 502);
+    const body = await response.json() as { error?: { code?: string } };
+    assert.equal(body.error?.code, "claimlatch_invalid_upstream_models_response");
+  });
+});
+
 test("proxy replays a buffered stream only after every choice passes", async () => {
   await withProxyOptions({
     gate: fixtureGate(),

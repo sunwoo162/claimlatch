@@ -4,6 +4,7 @@ export interface ProxyProviderConfiguration {
   upstreamBaseUrl: string;
   upstreamApiKeyHeader: string;
   upstreamChatCompletionsPath: string;
+  upstreamModelsPath: string;
   upstreamRequestHeaders?: Record<string, string>;
 }
 
@@ -48,6 +49,7 @@ export function resolveProxyProviderConfiguration(
     upstreamApiKeyHeader: env.CLAIMLATCH_PROXY_UPSTREAM_API_KEY_HEADER ?? profile.upstreamApiKeyHeader,
     upstreamChatCompletionsPath:
       env.CLAIMLATCH_PROXY_UPSTREAM_CHAT_COMPLETIONS_PATH ?? profile.upstreamChatCompletionsPath,
+    upstreamModelsPath: env.CLAIMLATCH_PROXY_UPSTREAM_MODELS_PATH ?? "/models",
     ...(Object.keys(upstreamRequestHeaders).length > 0 ? { upstreamRequestHeaders } : {}),
   };
 }
@@ -72,6 +74,7 @@ export function renderProxyHelp(): string {
     "  CLAIMLATCH_PROXY_HOST / _PORT        Bind host and port (127.0.0.1 / 4317)",
     "  CLAIMLATCH_PROXY_UPSTREAM_API_KEY_HEADER",
     "  CLAIMLATCH_PROXY_UPSTREAM_CHAT_COMPLETIONS_PATH",
+    "  CLAIMLATCH_PROXY_UPSTREAM_MODELS_PATH       Relative model-list path (default /models)",
     "  CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS   Comma-separated name=value headers",
     "  CLAIMLATCH_PROXY_UPSTREAM_RESPONSE_HEADER_NAMES",
     "  CLAIMLATCH_PROXY_UPSTREAM_RESPONSE_HEADER_PREFIXES",
@@ -80,6 +83,7 @@ export function renderProxyHelp(): string {
     "",
     "Routes:",
     "  GET  /health",
+    "  GET  /v1/models, /models",
     "  POST /v1/chat/completions",
     "  POST /chat/completions",
     "",

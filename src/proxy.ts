@@ -9,6 +9,7 @@ export interface OpenAIProxyOptions {
   upstreamApiKey?: string;
   upstreamApiKeyHeader?: string;
   upstreamChatCompletionsPath?: string;
+  upstreamModelsPath?: string;
   upstreamRequestHeaders?: Record<string, string>;
   upstreamResponseHeaderNames?: string[];
   upstreamResponseHeaderPrefixes?: string[];
@@ -108,6 +109,7 @@ export function createOpenAIProxy(options: OpenAIProxyOptions): OpenAIProxyServe
   const upstreamChatCompletionsPath = normalizeUpstreamChatCompletionsPath(
     options.upstreamChatCompletionsPath ?? "/chat/completions",
   );
+  const upstreamModelsPath = normalizeUpstreamModelsPath(options.upstreamModelsPath ?? "/models");
   const upstreamRequestHeaders = normalizeUpstreamRequestHeaders(options.upstreamRequestHeaders ?? {});
   const upstreamResponseHeaderNames = normalizeResponseHeaderConfiguration(
     options.upstreamResponseHeaderNames ?? [],
@@ -133,6 +135,7 @@ export function createOpenAIProxy(options: OpenAIProxyOptions): OpenAIProxyServe
         upstreamTimeoutMs,
         upstreamApiKeyHeader,
         upstreamChatCompletionsPath,
+        upstreamModelsPath,
         upstreamRequestHeaders,
         upstreamResponseHeaderNames,
         upstreamResponseHeaderPrefixes,
@@ -180,15 +183,28 @@ async function handleRequest(input: {
   upstreamTimeoutMs: number;
   upstreamApiKeyHeader: string;
   upstreamChatCompletionsPath: string;
+  upstreamModelsPath: string;
   upstreamRequestHeaders: ReadonlyMap<string, string>;
   upstreamResponseHeaderNames: ReadonlySet<string>;
   upstreamResponseHeaderPrefixes: ReadonlySet<string>;
 }): Promise<void> {
   const { request, response } = input;
-  const path = request.url?.split("?")[0] ?? "/";
+  const requestTarget = request.url ?? "/";
+  const queryStart = requestTarget.indexOf("?");
+  const path = queryStart === -1 ? requestTarget : requestTarget.slice(0, queryStart);
+  const query = queryStart === -1 ? "" : requestTarget.slice(queryStart + 1);
 
   if (request.method === "GET" && path === "/health") {
     writeJson(response, 200, { ok: true, service: "claimlatch-proxy" });
+    return;
+  }
+
+  if (request.method === "GET" && (path === "/v1/models" || path === "/models")) {
+    await handleModelsRequest({
+      ...input,
+      ...(input.options.upstreamApiKey ? { upstreamApiKey: input.options.upstreamApiKey } : {}),
+      requestQuery: query,
+    });
     return;
   }
 
@@ -441,6 +457,79 @@ async function handleRequest(input: {
   }
 
   response.statusCode = 200;
+  const copiedContentType = copyResponseHeaders(
+    upstream,
+    response,
+    input.upstreamResponseHeaderNames,
+    input.upstreamResponseHeaderPrefixes,
+  );
+  if (!copiedContentType) response.setHeader("content-type", "application/json; charset=utf-8");
+  response.end(upstreamText);
+}
+
+async function handleModelsRequest(input: {
+  request: IncomingMessage;
+  response: ServerResponse;
+  baseUrl: string;
+  fetchImpl: typeof fetch;
+  maxBufferedResponseBytes: number;
+  upstreamTimeoutMs: number;
+  upstreamApiKey?: string;
+  upstreamApiKeyHeader: string;
+  upstreamModelsPath: string;
+  upstreamRequestHeaders: ReadonlyMap<string, string>;
+  upstreamResponseHeaderNames: ReadonlySet<string>;
+  upstreamResponseHeaderPrefixes: ReadonlySet<string>;
+  requestQuery: string;
+}): Promise<void> {
+  const { request, response } = input;
+  const upstreamAbort = createUpstreamAbortControl(request, response, input.upstreamTimeoutMs);
+  const upstreamPath = appendQuery(input.upstreamModelsPath, input.requestQuery);
+  let upstream: Response;
+  try {
+    upstream = await input.fetchImpl(`${input.baseUrl}${upstreamPath}`, {
+      method: "GET",
+      headers: upstreamRequestHeaders(
+        request,
+        headerValue(request.headers.authorization),
+        input.upstreamApiKey,
+        input.upstreamApiKeyHeader,
+        input.upstreamRequestHeaders,
+      ),
+      signal: upstreamAbort.signal,
+    });
+  } catch (error) {
+    if (handleUpstreamAbort(upstreamAbort, response)) return;
+    upstreamAbort.cleanup();
+    throw error;
+  }
+  if (upstreamAbort.aborted()) {
+    handleUpstreamAbort(upstreamAbort, response);
+    return;
+  }
+
+  let upstreamText: string;
+  try {
+    upstreamText = await readBufferedResponse(upstream, input.maxBufferedResponseBytes);
+  } catch {
+    if (handleUpstreamAbort(upstreamAbort, response)) return;
+    upstreamAbort.cleanup();
+    writeJson(response, 502, {
+      error: {
+        type: "claimlatch_upstream_error",
+        code: "claimlatch_invalid_upstream_models_response",
+        message: "Upstream returned an unreadable or over-limit model listing.",
+      },
+    });
+    return;
+  }
+  if (upstreamAbort.aborted()) {
+    handleUpstreamAbort(upstreamAbort, response);
+    return;
+  }
+  upstreamAbort.cleanup();
+
+  response.statusCode = upstream.status;
   const copiedContentType = copyResponseHeaders(
     upstream,
     response,
@@ -991,6 +1080,14 @@ function normalizeUpstreamApiKeyHeader(value: string): string {
 }
 
 function normalizeUpstreamChatCompletionsPath(value: string): string {
+  return normalizeUpstreamRelativePath(value, "upstreamChatCompletionsPath");
+}
+
+function normalizeUpstreamModelsPath(value: string): string {
+  return normalizeUpstreamRelativePath(value, "upstreamModelsPath");
+}
+
+function normalizeUpstreamRelativePath(value: string, optionName: string): string {
   const path = value.trim();
   if (
     !path.startsWith("/") ||
@@ -998,7 +1095,7 @@ function normalizeUpstreamChatCompletionsPath(value: string): string {
     path.includes("#") ||
     /^[a-z][a-z\d+.-]*:/iu.test(path)
   ) {
-    throw new Error("upstreamChatCompletionsPath must be a relative HTTP path with optional query.");
+    throw new Error(`${optionName} must be a relative HTTP path with optional query.`);
   }
 
   try {
@@ -1007,10 +1104,15 @@ function normalizeUpstreamChatCompletionsPath(value: string): string {
       throw new Error("invalid path");
     }
   } catch {
-    throw new Error("upstreamChatCompletionsPath must be a valid HTTP path.");
+    throw new Error(`${optionName} must be a valid HTTP path.`);
   }
 
   return path;
+}
+
+function appendQuery(path: string, query: string): string {
+  if (!query) return path;
+  return `${path}${path.includes("?") ? "&" : "?"}${query}`;
 }
 
 function createUpstreamAbortControl(
