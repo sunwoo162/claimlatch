@@ -245,6 +245,21 @@ npm run example:guarded
 
 The complete example is in [`examples/guarded-answer.ts`](examples/guarded-answer.ts). In a real application, replace `CLAIMLATCH_EXAMPLE_DRAFT` with the result of the generation call and deliver only the `answer` returned by `verifyBeforeRelease`.
 
+For an HTTP integration, ClaimLatch also provides `createGuardedAnswerServer`. It exposes `GET /health` and `POST /answer`; a passing request returns the verified answer, a blocked request returns `422` with its report, and verification failures return `502` without releasing the draft.
+
+```bash
+export CLAIMLATCH_LLM_MODEL="your-verifier-model"
+export CLAIMLATCH_LLM_API_KEY="..."
+export TAVILY_API_KEY="..."
+
+npm run example:guarded-http
+curl -X POST http://127.0.0.1:4318/answer \
+  -H 'content-type: application/json' \
+  -d '{"question":"What is the current release status?","draft":"The current release is stable."}'
+```
+
+The complete service example is in [`examples/guarded-http-service.ts`](examples/guarded-http-service.ts). The service keeps the gate at the final delivery boundary and never returns a blocked draft as an answer.
+
 ### Structured-output proxy policy example
 
 `structuredOutputVerifier` is the application-owned safety boundary for tool calls and multimodal output. The runnable example below allows only the comma-separated tool names in `CLAIMLATCH_ALLOWED_TOOLS`; any other tool call is returned as a deterministic BLOCK report. The example uses a local policy report for structured output and the configured ClaimLatch gate for ordinary textual responses.

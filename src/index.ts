@@ -31,8 +31,8 @@ export { LlmClaimExtractor, LlmClaimVerifier, OpenAICompatibleClient } from "./p
 export { StaticEvidenceProvider } from "./providers/static.js";
 export { TavilyEvidenceProvider } from "./providers/tavily.js";
 export type { DomainPolicy, OfficialDomainResolver } from "./providers/tavily.js";
-export { ClaimLatchBlockedError, verifyBeforeRelease } from "./integrations.js";
-export type { VerifiedAnswer } from "./integrations.js";
+export { ClaimLatchBlockedError, createGuardedAnswerServer, verifyBeforeRelease } from "./integrations.js";
+export type { GuardedAnswerServer, GuardedAnswerServerOptions, VerifiedAnswer } from "./integrations.js";
 export {
   createSignedVerificationReceipt,
   FileVerificationReceiptStore,

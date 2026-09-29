@@ -34,6 +34,7 @@
     "check": "npm run build && node --test dist/tests/*.test.js",
     "demo": "npm run build && node dist/examples/offline-demo.js",
     "example:guarded": "npm run build && node dist/examples/guarded-answer.js",
+    "example:guarded-http": "npm run build && node dist/examples/guarded-http-service.js",
     "example:receipts": "npm run build && node dist/examples/receipt-storage.js",
     "example:structured": "npm run build && node dist/examples/structured-output-verifier.js",
     "example:provider-proxy": "npm run build && node dist/examples/provider-compatible-proxy.js",
