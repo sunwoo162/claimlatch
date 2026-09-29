@@ -17,7 +17,7 @@
 - Literal private-target and redirect SSRF guards
 - Core invariant enforcement for custom extractors/verifiers
 - OpenAI-compatible non-streaming Chat Completions reverse proxy
-- 32-case human-authored independent-label benchmark seed
+- 48-case frozen human-authored independent-label benchmark with train/dev/test splits
 - False-pass / false-block metrics
 - Ed25519-signed verification receipt API
 - Runnable guarded-application integration example
@@ -25,7 +25,7 @@
 ## Next
 
 - Calibration experiments only after enough independent labels exist
-- Implement safe buffered/verified streaming after the protocol design and compatibility tests are complete
+- Extend buffered/verified streaming to explicitly supported tool-call and multimodal response semantics
 
 ## Explicitly not promised
 

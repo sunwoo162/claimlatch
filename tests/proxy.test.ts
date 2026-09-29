@@ -49,6 +49,17 @@ function upstreamFetch(answer: string): typeof fetch {
   });
 }
 
+function sseData(payload: unknown): string {
+  return `data: ${JSON.stringify(payload)}\n\n`;
+}
+
+function upstreamFetchSse(frames: string[]): typeof fetch {
+  return (async () => new Response(frames.join(""), {
+    status: 200,
+    headers: { "content-type": "text/event-stream" },
+  })) as typeof fetch;
+}
+
 async function withProxyOptions(
   options: OpenAIProxyOptions,
   run: (url: string) => Promise<void>,
@@ -120,16 +131,177 @@ test("proxy blocks a contradicted completion with a structured 422", async () =>
   });
 });
 
-test("proxy rejects streaming because pre-release verification requires buffering", async () => {
-  await withProxy("supported", async (url) => {
+test("proxy replays a buffered stream only after every choice passes", async () => {
+  await withProxyOptions({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://upstream.example/v1",
+    fetchImpl: upstreamFetchSse([
+      sseData({
+        id: "chatcmpl_stream",
+        object: "chat.completion.chunk",
+        choices: [{ index: 0, delta: { role: "assistant", content: "This is " } }],
+      }),
+      sseData({
+        id: "chatcmpl_stream",
+        object: "chat.completion.chunk",
+        choices: [{ index: 0, delta: { content: "supported." }, finish_reason: "stop" }],
+      }),
+      "data: [DONE]\n\n",
+    ]),
+  }, async (url) => {
     const response = await fetch(`${url}/v1/chat/completions`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ stream: true, messages: [{ role: "user", content: "question" }] }),
     });
-    assert.equal(response.status, 400);
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get("content-type"), "text/event-stream");
+    assert.equal(response.headers.get("x-claimlatch-result"), "pass");
+    const body = await response.text();
+    assert.match(body, /This is /);
+    assert.match(body, /supported\./);
+    assert.match(body, /data: \[DONE\]/);
+  });
+});
+
+test("proxy blocks a buffered stream without releasing any SSE frame", async () => {
+  await withProxyOptions({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://upstream.example/v1",
+    fetchImpl: upstreamFetchSse([
+      sseData({
+        id: "chatcmpl_blocked_stream",
+        object: "chat.completion.chunk",
+        choices: [{ index: 0, delta: { role: "assistant", content: "This is wrong." } }],
+      }),
+      sseData({
+        id: "chatcmpl_blocked_stream",
+        object: "chat.completion.chunk",
+        choices: [{ index: 0, delta: {}, finish_reason: "stop" }],
+      }),
+      "data: [DONE]\n\n",
+    ]),
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ stream: true, messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 422);
+    assert.equal(response.headers.get("x-claimlatch-result"), "blocked");
+    assert.ok(response.headers.get("content-type") !== "text/event-stream");
+    const body = await response.text();
+    assert.ok(!/data: /u.test(body));
+  });
+});
+
+test("proxy fails closed for a truncated or malformed upstream stream", async () => {
+  await withProxyOptions({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://upstream.example/v1",
+    fetchImpl: upstreamFetchSse([
+      sseData({
+        id: "chatcmpl_truncated_stream",
+        object: "chat.completion.chunk",
+        choices: [{ index: 0, delta: { role: "assistant", content: "partial" } }],
+      }),
+    ]),
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ stream: true, messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 502);
     const body = await response.json() as { error?: { code?: string } };
-    assert.equal(body.error?.code, "claimlatch_streaming_unsupported");
+    assert.equal(body.error?.code, "claimlatch_invalid_upstream_stream");
+  });
+});
+
+test("proxy verifies every buffered streaming choice", async () => {
+  await withProxyOptions({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://upstream.example/v1",
+    fetchImpl: upstreamFetchSse([
+      sseData({
+        id: "chatcmpl_multi_stream",
+        object: "chat.completion.chunk",
+        choices: [
+          { index: 0, delta: { role: "assistant", content: "First supported." } },
+          { index: 1, delta: { role: "assistant", content: "Second supported." } },
+        ],
+      }),
+      sseData({
+        id: "chatcmpl_multi_stream",
+        object: "chat.completion.chunk",
+        choices: [
+          { index: 0, delta: {}, finish_reason: "stop" },
+          { index: 1, delta: {}, finish_reason: "stop" },
+        ],
+      }),
+      "data: [DONE]\n\n",
+    ]),
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ stream: true, n: 2, messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get("x-claimlatch-claims"), "2");
+  });
+});
+
+test("proxy fails closed when a buffered stream exceeds its size limit", async () => {
+  await withProxyOptions({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://upstream.example/v1",
+    maxBufferedResponseBytes: 1_024,
+    fetchImpl: upstreamFetchSse([
+      sseData({
+        id: "chatcmpl_large_stream",
+        object: "chat.completion.chunk",
+        choices: [{ index: 0, delta: { role: "assistant", content: "x".repeat(2_000) } }],
+      }),
+      "data: [DONE]\n\n",
+    ]),
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ stream: true, messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 502);
+    const body = await response.json() as { error?: { code?: string } };
+    assert.equal(body.error?.code, "claimlatch_invalid_upstream_stream");
+  });
+});
+
+test("proxy fails closed when a buffered stream exceeds its choice limit", async () => {
+  await withProxyOptions({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://upstream.example/v1",
+    maxBufferedChoices: 1,
+    fetchImpl: upstreamFetchSse([
+      sseData({
+        id: "chatcmpl_choice_limit",
+        object: "chat.completion.chunk",
+        choices: [
+          { index: 0, delta: { role: "assistant", content: "First supported." } },
+          { index: 1, delta: { role: "assistant", content: "Second supported." } },
+        ],
+      }),
+      "data: [DONE]\n\n",
+    ]),
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ stream: true, n: 2, messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 502);
+    const body = await response.json() as { error?: { code?: string } };
+    assert.equal(body.error?.code, "claimlatch_invalid_upstream_stream");
   });
 });
 

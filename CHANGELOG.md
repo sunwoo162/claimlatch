@@ -12,7 +12,8 @@
 - Expanded the frozen independent benchmark to 48 balanced cases across 24 paired topics with train/dev/test splits.
 - Improved proxy compatibility by forwarding safe client metadata and preserving selected upstream request, rate-limit, and retry headers.
 - Added a runnable receipt-storage integration example with ephemeral demo keys and key-resolver verification.
-- Documented the fail-closed buffered and verified streaming protocol required before streaming support can be enabled.
+- Documented the fail-closed buffered and verified streaming protocol and its implementation boundaries.
+- Added buffered, post-verification replay for textual Chat Completions streams with size limits and fail-closed malformed-stream handling.
 
 ## 0.3.0 - 2026-09-29
 
