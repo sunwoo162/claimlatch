@@ -65,8 +65,9 @@ test("verifyBeforeRelease throws a report-bearing error on BLOCK", async () => {
 
 async function withGuardedAnswerServer(
   run: (url: string) => Promise<void>,
+  gate: ClaimLatch = fixtureGate(),
 ): Promise<void> {
-  const service = createGuardedAnswerServer({ gate: fixtureGate() });
+  const service = createGuardedAnswerServer({ gate });
   await service.listen(0, "127.0.0.1");
   const address = service.server.address();
   if (!address || typeof address === "string") throw new Error("missing guarded answer address");
@@ -120,4 +121,35 @@ test("guarded answer HTTP integration rejects malformed requests", async () => {
     const body = await response.json() as { error?: { code?: string } };
     assert.equal(body.error?.code, "invalid_request_error");
   });
+});
+
+test("guarded answer HTTP integration fails closed when verification throws", async () => {
+  const failingGate = new ClaimLatch({
+    extractor: {
+      async extract() {
+        throw new Error("fixture verifier failure");
+      },
+    },
+    evidenceProvider: {
+      async search() {
+        return [];
+      },
+    },
+    verifier: {
+      async verify() {
+        throw new Error("fixture verifier failure");
+      },
+    },
+  });
+  await withGuardedAnswerServer(async (url) => {
+    const response = await fetch(`${url}/answer`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ question: "question", draft: "supported draft" }),
+    });
+    assert.equal(response.status, 502);
+    const body = await response.json() as { answer?: string; error?: { code?: string } };
+    assert.equal(body.answer, undefined);
+    assert.equal(body.error?.code, "claimlatch_verification_error");
+  }, failingGate);
 });
