@@ -2,6 +2,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "azure",
   "cohere",
   "deepseek",
+  "fireworks",
   "groq",
   "mistral",
   "openrouter",
@@ -76,6 +77,13 @@ export function resolveProxyProviderProfile(
   if (profile === "deepseek") {
     return {
       upstreamBaseUrl: "https://api.deepseek.com",
+      upstreamApiKeyHeader: "authorization",
+      upstreamChatCompletionsPath: "/chat/completions",
+    };
+  }
+  if (profile === "fireworks") {
+    return {
+      upstreamBaseUrl: "https://api.fireworks.ai/inference/v1",
       upstreamApiKeyHeader: "authorization",
       upstreamChatCompletionsPath: "/chat/completions",
     };

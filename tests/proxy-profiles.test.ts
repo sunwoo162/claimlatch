@@ -11,6 +11,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
     "azure",
     "cohere",
     "deepseek",
+    "fireworks",
     "groq",
     "mistral",
     "openrouter",
@@ -18,7 +19,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
   ]);
   assert.equal(
     formatProxyProviderProfileNames(),
-    "azure, cohere, deepseek, groq, mistral, openrouter, or together",
+    "azure, cohere, deepseek, fireworks, groq, mistral, openrouter, or together",
   );
 });
 
@@ -71,6 +72,14 @@ test("proxy profiles provide Cohere-compatible Chat Completions defaults", () =>
 test("proxy profiles provide DeepSeek-compatible Chat Completions defaults", () => {
   assert.deepEqual(resolveProxyProviderProfile("deepseek"), {
     upstreamBaseUrl: "https://api.deepseek.com",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  });
+});
+
+test("proxy profiles provide Fireworks-compatible Chat Completions defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("fireworks"), {
+    upstreamBaseUrl: "https://api.fireworks.ai/inference/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
   });
