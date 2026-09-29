@@ -1004,3 +1004,45 @@ test("proxy preserves compatible upstream response headers on pass", async () =>
     connection: "close",
   });
 });
+
+test("proxy forwards explicitly configured provider response headers", async () => {
+  await withProxyOptions({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://upstream.example/v1",
+    upstreamResponseHeaderNames: ["x-vendor-request-id"],
+    upstreamResponseHeaderPrefixes: ["x-vendor-rate-"],
+    fetchImpl: upstreamFetchPayload({
+      id: "chatcmpl_custom_response_headers",
+      object: "chat.completion",
+      choices: [{ message: { role: "assistant", content: "Custom response headers." } }],
+    }, {
+      "content-type": "application/json",
+      "x-vendor-request-id": "vendor-request",
+      "x-vendor-rate-limit": "20",
+      "x-vendor-private": "not-forwarded",
+    }),
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get("x-vendor-request-id"), "vendor-request");
+    assert.equal(response.headers.get("x-vendor-rate-limit"), "20");
+    assert.equal(response.headers.get("x-vendor-private"), null);
+  });
+});
+
+test("proxy rejects unsafe configured response headers", () => {
+  assert.throws(() => createOpenAIProxy({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://upstream.example/v1",
+    upstreamResponseHeaderNames: ["content-length"],
+  }), /restricted proxy response header/);
+  assert.throws(() => createOpenAIProxy({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://upstream.example/v1",
+    upstreamResponseHeaderPrefixes: ["bad prefix"],
+  }), /valid HTTP header prefix/);
+});
