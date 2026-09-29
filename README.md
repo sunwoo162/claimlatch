@@ -230,6 +230,36 @@ const isAuthentic = verifySignedVerificationReceipt(receipt);
 
 The signature does not establish that the report is factually correct. It only authenticates that the signed report payload has not changed and was verified against a particular public key. Manage the private key using an environment-appropriate secure mechanism such as a secret manager.
 
+For a simple persistent backend, ClaimLatch includes a filesystem store. Receipt IDs are validated as safe filenames, writes use a temporary file followed by rename, and missing receipts return `undefined`; the store does not replace signature verification.
+
+```ts
+import {
+  FileVerificationReceiptStore,
+  verifySignedVerificationReceipt,
+} from "claimlatch";
+
+const store = new FileVerificationReceiptStore({ directory: "./var/claimlatch-receipts" });
+await store.save("answer-2026-09-29-001", receipt);
+
+const stored = await store.load("answer-2026-09-29-001");
+const authentic = stored !== undefined && verifySignedVerificationReceipt(stored);
+```
+
+For key rotation, issue a unique `keyId` for each signing key and keep old public keys available for the receipt retention period. Resolve the key by `keyId` when verifying; removing a retired key intentionally makes receipts signed by it fail closed.
+
+```ts
+const publicKeys: Record<string, string> = {
+  "production-verifier-2026": process.env.CLAIMLATCH_RECEIPT_PUBLIC_KEY_2026!,
+  "production-verifier-2027": process.env.CLAIMLATCH_RECEIPT_PUBLIC_KEY_2027!,
+};
+
+const authenticAfterRotation = verifySignedVerificationReceipt(stored!, {
+  keyResolver: (keyId) => (keyId ? publicKeys[keyId] : undefined),
+});
+```
+
+Do not put private keys in the receipt directory or source control. Use a secret manager/HSM, restrict receipt directory permissions, define a retention policy, and back up receipts with their public-key registry if historical verification is required.
+
 ## Evidence provenance
 
 When document hydration succeeds, ClaimLatch stores:

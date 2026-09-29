@@ -1,4 +1,6 @@
 import { sign, verify } from "node:crypto";
+import { mkdir, readFile, rename, unlink, writeFile } from "node:fs/promises";
+import { join } from "node:path";
 import type {
   SignedVerificationReceipt,
   VerificationReceiptPayload,
@@ -13,6 +15,73 @@ export interface SignedVerificationReceiptOptions {
 
 export interface ReceiptVerificationOptions {
   publicKeyPem?: string;
+  keyResolver?: ReceiptKeyResolver;
+}
+
+export type ReceiptKeyResolver = (keyId: string | undefined) => string | undefined;
+
+export interface VerificationReceiptStore {
+  save(id: string, receipt: SignedVerificationReceipt): Promise<void>;
+  load(id: string): Promise<SignedVerificationReceipt | undefined>;
+}
+
+export interface FileVerificationReceiptStoreOptions {
+  directory: string;
+}
+
+export class FileVerificationReceiptStore implements VerificationReceiptStore {
+  readonly #directory: string;
+
+  constructor(options: FileVerificationReceiptStoreOptions) {
+    if (!options.directory.trim()) throw new TypeError("Receipt store directory is required.");
+    this.#directory = options.directory;
+  }
+
+  async save(id: string, receipt: SignedVerificationReceipt): Promise<void> {
+    const path = this.#pathFor(id);
+    if (!isSignedVerificationReceipt(receipt)) throw new TypeError("Invalid signed verification receipt.");
+
+    await mkdir(this.#directory, { recursive: true });
+    const temporaryPath = `${path}.tmp-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    await writeFile(temporaryPath, `${JSON.stringify(receipt, null, 2)}\n`, "utf8");
+    try {
+      await rename(temporaryPath, path);
+    } catch (error) {
+      try {
+        await unlink(temporaryPath);
+      } catch {
+        // Preserve the original write/rename error.
+      }
+      throw error;
+    }
+  }
+
+  async load(id: string): Promise<SignedVerificationReceipt | undefined> {
+    const path = this.#pathFor(id);
+    let serialized: string;
+    try {
+      serialized = await readFile(path, "utf8");
+    } catch (error) {
+      if (isFileNotFound(error)) return undefined;
+      throw error;
+    }
+
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(serialized);
+    } catch (error) {
+      throw new Error(`Stored receipt ${id} is not valid JSON: ${error instanceof Error ? error.message : String(error)}`);
+    }
+    if (!isSignedVerificationReceipt(parsed)) throw new Error(`Stored receipt ${id} has an invalid shape.`);
+    return parsed;
+  }
+
+  #pathFor(id: string): string {
+    if (!/^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/u.test(id)) {
+      throw new TypeError("Receipt ID must contain only letters, numbers, dots, underscores, or hyphens.");
+    }
+    return join(this.#directory, `${id}.json`);
+  }
 }
 
 function canonicalize(value: unknown): string {
@@ -95,7 +164,9 @@ export function verifySignedVerificationReceipt(
       return false;
     }
 
-    const publicKeyPem = options.publicKeyPem ?? receipt.payload.publicKeyPem;
+    const publicKeyPem = options.publicKeyPem
+      ?? (options.keyResolver ? options.keyResolver(receipt.payload.keyId) : receipt.payload.publicKeyPem);
+    if (!publicKeyPem) return false;
     const serializedPayload = serializeVerificationReceiptPayload(receipt.payload);
     return verify(
       null,
@@ -106,4 +177,22 @@ export function verifySignedVerificationReceipt(
   } catch {
     return false;
   }
+}
+
+function isFileNotFound(error: unknown): boolean {
+  return typeof error === "object" && error !== null && (error as { code?: unknown }).code === "ENOENT";
+}
+
+function isSignedVerificationReceipt(value: unknown): value is SignedVerificationReceipt {
+  if (!value || typeof value !== "object") return false;
+  const receipt = value as Partial<SignedVerificationReceipt>;
+  const payload = receipt.payload;
+  return receipt.version === 1
+    && receipt.algorithm === "Ed25519"
+    && typeof receipt.signature === "string"
+    && !!payload
+    && typeof payload === "object"
+    && typeof (payload as { publicKeyPem?: unknown }).publicKeyPem === "string"
+    && !!(payload as { report?: unknown }).report
+    && typeof (payload as { report?: unknown }).report === "object";
 }

@@ -1,7 +1,11 @@
 import assert from "node:assert/strict";
+import { mkdtemp, rm } from "node:fs/promises";
 import test from "node:test";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import {
   createSignedVerificationReceipt,
+  FileVerificationReceiptStore,
   verifySignedVerificationReceipt,
 } from "../src/receipt.js";
 import type { VerificationReport } from "../src/types.js";
@@ -59,4 +63,34 @@ MCowBQYDK2VwAyEAMAv2OQLdt6DNpnq/zf54mdeV98ZScwOYfIDXKRLU6/0=
   assert.equal(verifySignedVerificationReceipt(receipt, { publicKeyPem: otherKey }), false);
   assert.equal(verifySignedVerificationReceipt({ ...receipt, signature: "invalid" }), false);
   assert.equal(verifySignedVerificationReceipt(null as unknown as typeof receipt), false);
+});
+
+test("file receipt store persists receipts and rejects unsafe IDs", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "claimlatch-receipts-"));
+  try {
+    const store = new FileVerificationReceiptStore({ directory });
+    const receipt = createSignedVerificationReceipt(report, { privateKeyPem, publicKeyPem, keyId: "fixture-key" });
+
+    await store.save("receipt-001", receipt);
+    await store.save("receipt-001", receipt);
+    assert.deepEqual(await store.load("receipt-001"), receipt);
+    assert.equal(await store.load("missing"), undefined);
+    await assert.rejects(store.save("malformed", {} as typeof receipt), /Invalid signed verification receipt/);
+    await assert.rejects(store.save("../escape", receipt), /Receipt ID/);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+test("receipt key resolver supports rotation by key ID and fails closed for unknown keys", () => {
+  const receipt = createSignedVerificationReceipt(report, { privateKeyPem, publicKeyPem, keyId: "old-key" });
+
+  assert.equal(
+    verifySignedVerificationReceipt(receipt, { keyResolver: (keyId) => keyId === "old-key" ? publicKeyPem : undefined }),
+    true,
+  );
+  assert.equal(
+    verifySignedVerificationReceipt(receipt, { keyResolver: () => undefined }),
+    false,
+  );
 });
