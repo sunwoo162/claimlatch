@@ -1,7 +1,18 @@
 export { createDefaultClaimLatch } from "./default-gate.js";
 export type { DefaultClaimLatchOptions } from "./default-gate.js";
-export { parseBenchmarkJsonl, runBenchmark } from "./benchmark.js";
-export type { BenchmarkCase, BenchmarkCaseResult, BenchmarkReport } from "./benchmark.js";
+export {
+  parseBenchmarkJsonl,
+  parseBenchmarkManifest,
+  runBenchmark,
+  verifyBenchmarkManifestEntry,
+} from "./benchmark.js";
+export type {
+  BenchmarkCase,
+  BenchmarkCaseResult,
+  BenchmarkManifest,
+  BenchmarkManifestEntry,
+  BenchmarkReport,
+} from "./benchmark.js";
 export { formatBenchmarkReport, renderBenchmarkText, resolveBenchmarkOutputFormat } from "./benchmark-formatters.js";
 export type { BenchmarkFormatOptions, BenchmarkOutputFormat } from "./benchmark-formatters.js";
 export { createOpenAIProxy } from "./proxy.js";
