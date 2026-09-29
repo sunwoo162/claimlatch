@@ -40,7 +40,8 @@
     "example:structured": "npm run build && node dist/examples/structured-output-verifier.js",
     "example:provider-proxy": "npm run build && node dist/examples/provider-compatible-proxy.js",
     "prepublishOnly": "npm run check",
-    "bench": "npm run build && node dist/src/benchmark-cli.js --dataset benchmarks/independent.jsonl"
+    "bench": "npm run build && node dist/src/benchmark-cli.js --dataset benchmarks/independent.jsonl",
+    "bench:validate": "npm run build && node dist/src/benchmark-cli.js --validate --dataset benchmarks/independent.jsonl --manifest benchmarks/MANIFEST.json --format json"
   },
   "devDependencies": {
     "typescript": "^5.8.3"

@@ -436,6 +436,8 @@ Benchmark reports include decision accuracy, false-pass/false-block rates, and `
 
 Use `claimlatch-bench --validate` to verify the selected JSONL dataset and manifest without provider credentials or live model/evidence calls. Add `--json` for machine-readable validation output; `--validate` supports only text and JSON formats.
 
+For a credential-free repository check, run `npm run bench:validate`. The same command runs in [the benchmark validation workflow](.github/workflows/benchmark-validation.yml) when benchmark inputs or validation code change.
+
 Run it with configured live providers:
 
 ```bash
