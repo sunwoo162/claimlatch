@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.24 - 2026-09-29
+
+- Added strict validation for benchmark label source URLs so malformed provenance metadata fails closed.
+
 ## 0.3.23 - 2026-09-29
 
 - Added fail-closed validation for unknown `claimlatch-receipt` CLI options.
