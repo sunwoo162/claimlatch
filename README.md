@@ -503,6 +503,8 @@ PASS is not proof of universal truth. Claim extraction, search, source selection
 
 ## Project status
 
+`0.3.41` adds a Cerebras-compatible provider profile for the proxy's OpenAI-compatible Chat Completions path.
+
 `0.3.40` adds a Perplexity Router API-compatible provider profile for the proxy's OpenAI-compatible Chat Completions path.
 
 `0.3.39` adds an xAI-compatible provider profile for the proxy's OpenAI-compatible Chat Completions path.
