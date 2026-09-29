@@ -143,6 +143,7 @@ export CLAIMLATCH_PROXY_UPSTREAM_BASE_URL="https://provider.example"
 export CLAIMLATCH_PROXY_UPSTREAM_API_KEY="..."
 export CLAIMLATCH_PROXY_UPSTREAM_API_KEY_HEADER="x-api-key"
 export CLAIMLATCH_PROXY_UPSTREAM_CHAT_COMPLETIONS_PATH="/v1/chat/completions?profile=custom"
+export CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS="x-provider-tenant=prod,x-provider-version=2026-09"
 npm run example:provider-proxy
 ```
 
