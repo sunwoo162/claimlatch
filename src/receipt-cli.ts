@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { readFile } from "node:fs/promises";
-import { renderReceiptHelp } from "./receipt-cli-options.js";
+import { parseReceiptCliArguments, renderReceiptHelp } from "./receipt-cli-options.js";
 import { verifySignedVerificationReceipt } from "./receipt.js";
 import type { SignedVerificationReceipt } from "./types.js";
 
@@ -11,10 +11,7 @@ async function main(): Promise<void> {
     return;
   }
 
-  if (argv[0] !== "verify") throw new Error("Use `claimlatch-receipt verify --file <path>`.");
-  const filePath = argumentValue(argv, "--file");
-  const publicKeyPath = argumentValueOptional(argv, "--public-key-file");
-  const json = argv.includes("--json");
+  const { filePath, publicKeyPath, json } = parseReceiptCliArguments(argv);
   const parsed = JSON.parse(await readFile(filePath, "utf8")) as SignedVerificationReceipt;
   const publicKeyPem = publicKeyPath ? await readFile(publicKeyPath, "utf8") : undefined;
   const valid = verifySignedVerificationReceipt(parsed, publicKeyPem ? { publicKeyPem } : {});
@@ -24,19 +21,6 @@ async function main(): Promise<void> {
     process.stdout.write(`Receipt ${valid ? "valid" : "invalid"}: ${filePath}\n`);
   }
   process.exitCode = valid ? 0 : 1;
-}
-
-function argumentValue(argv: string[], name: string): string {
-  const index = argv.indexOf(name);
-  const value = argv[index + 1];
-  if (index === -1 || !value || value.startsWith("-")) throw new Error(`${name} requires a value.`);
-  return value;
-}
-
-function argumentValueOptional(argv: string[], name: string): string | undefined {
-  const index = argv.indexOf(name);
-  if (index === -1) return undefined;
-  return argumentValue(argv, name);
 }
 
 main().catch((error: unknown) => {

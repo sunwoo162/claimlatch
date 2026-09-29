@@ -1,3 +1,41 @@
+export interface ReceiptCliArguments {
+  filePath: string;
+  publicKeyPath?: string;
+  json: boolean;
+}
+
+export function parseReceiptCliArguments(argv: string[]): ReceiptCliArguments {
+  if (argv[0] !== "verify") throw new Error("Use `claimlatch-receipt verify --file <path>`." );
+
+  let filePath: string | undefined;
+  let publicKeyPath: string | undefined;
+  let json = false;
+
+  for (let index = 1; index < argv.length; index += 1) {
+    const argument = argv[index];
+    if (argument === "--json") {
+      json = true;
+      continue;
+    }
+    if (argument === "--file" || argument === "--public-key-file") {
+      const value = argv[index + 1];
+      if (!value || value.startsWith("-")) throw new Error(`${argument} requires a value.`);
+      if (argument === "--file") filePath = value;
+      else publicKeyPath = value;
+      index += 1;
+      continue;
+    }
+    throw new Error(`Unknown option: ${argument}`);
+  }
+
+  if (!filePath) throw new Error("--file requires a value.");
+  return {
+    filePath,
+    ...(publicKeyPath ? { publicKeyPath } : {}),
+    json,
+  };
+}
+
 export function renderReceiptHelp(): string {
   return [
     "ClaimLatch signed verification receipt tool",
