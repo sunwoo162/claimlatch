@@ -47,7 +47,7 @@ DNS failures and empty or unsafe resolution results fail closed. An optional out
 
 ## Proxy boundary
 
-The reverse proxy buffers the full completion before verification. It intentionally rejects streaming in V0.2. Tool-call-only/model-specific payloads are not yet a compatibility target.
+The reverse proxy buffers the full completion before verification, including `stream: true` SSE responses. It releases no response bytes until every choice passes. Tool-call and model-specific payloads require an explicit application verifier; otherwise they fail closed. Provider-specific credential headers can be configured, but operators remain responsible for protecting the proxy endpoint and its upstream credentials.
 
 The proxy binds to loopback by default. Exposing it publicly can turn configured upstream credentials into a relay if authentication is not added by the operator.
 

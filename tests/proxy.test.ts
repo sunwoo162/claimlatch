@@ -844,6 +844,45 @@ test("proxy forwards compatible request headers and configured authentication", 
   assert.equal(capturedHeaders?.get("connection"), null);
 });
 
+test("proxy supports provider-specific upstream API key headers", async () => {
+  let capturedHeaders: Headers | undefined;
+  await withProxyOptions({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://upstream.example/v1",
+    upstreamApiKey: "provider-key",
+    upstreamApiKeyHeader: "api-key",
+    fetchImpl: (async (_input, init) => {
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({
+        id: "chatcmpl_provider_auth",
+        object: "chat.completion",
+        choices: [{ message: { role: "assistant", content: "Provider-compatible answer." } }],
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: "Bearer client-key",
+      },
+      body: JSON.stringify({ messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 200);
+  });
+
+  assert.equal(capturedHeaders?.get("api-key"), "provider-key");
+  assert.equal(capturedHeaders?.get("authorization"), null);
+});
+
+test("proxy rejects restricted upstream API key header configuration", () => {
+  assert.throws(() => createOpenAIProxy({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://upstream.example/v1",
+    upstreamApiKeyHeader: "content-type",
+  }), /restricted proxy header/);
+});
+
 test("proxy preserves compatible upstream response headers on pass", async () => {
   await withProxyPayload({
     id: "chatcmpl_response_headers",
