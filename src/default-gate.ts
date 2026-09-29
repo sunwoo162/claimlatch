@@ -1,6 +1,6 @@
 import { ClaimLatch } from "./gate.js";
 import { LlmClaimExtractor, LlmClaimVerifier, OpenAICompatibleClient } from "./providers/openai-compatible.js";
-import { ProvenanceEvidenceProvider } from "./providers/provenance.js";
+import { ProvenanceEvidenceProvider, type OutboundAllowlist } from "./providers/provenance.js";
 import { TavilyEvidenceProvider } from "./providers/tavily.js";
 
 export interface DefaultClaimLatchOptions {
@@ -11,6 +11,7 @@ export interface DefaultClaimLatchOptions {
   primaryDomains?: string[];
   hydrateDocuments?: boolean;
   fetchImpl?: typeof fetch;
+  outboundAllowlist?: OutboundAllowlist;
   concurrency?: number;
 }
 
@@ -36,6 +37,7 @@ export function createDefaultClaimLatch(options: DefaultClaimLatchOptions): Clai
         : new ProvenanceEvidenceProvider({
             provider: search,
             ...(options.fetchImpl ? { fetchImpl: options.fetchImpl } : {}),
+            ...(options.outboundAllowlist ? { outboundAllowlist: options.outboundAllowlist } : {}),
           }),
     verifier: new LlmClaimVerifier(client),
     ...(options.concurrency !== undefined ? { concurrency: options.concurrency } : {}),

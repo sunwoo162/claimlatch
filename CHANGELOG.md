@@ -5,6 +5,8 @@
 - Added deterministic JSON, JUnit, and SARIF output formats to the benchmark CLI.
 - Preserved the legacy `--json` benchmark flag and added `--format text|json|junit|sarif`.
 - Added CI-friendly failure details for false passes and false blocks without fabricating benchmark results.
+- Added optional provenance egress host and port allowlists with redirect revalidation.
+- Exposed outbound allowlist configuration through `createDefaultClaimLatch`.
 
 ## 0.3.0 - 2026-09-29
 

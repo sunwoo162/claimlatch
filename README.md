@@ -176,6 +176,21 @@ if (!report.passed) {
 
 All extraction, search, and verification components are defined as interfaces. You can replace the default adapters with a local model, private corpus, official API, or custom RAG system.
 
+When using `createDefaultClaimLatch`, document hydration can be restricted with an outbound allowlist. Host entries match the exact host and its subdomains; configured ports are checked against explicit URL ports or the scheme defaults (`80` for HTTP and `443` for HTTPS). The allowlist is checked again for every redirect.
+
+```ts
+import { createDefaultClaimLatch } from "claimlatch";
+
+const gate = createDefaultClaimLatch({
+  llmModel: "your-verifier-model",
+  tavilyApiKey: process.env.TAVILY_API_KEY!,
+  outboundAllowlist: {
+    hosts: ["docs.example.com", "www.example.org"],
+    ports: [443],
+  },
+});
+```
+
 ## Application integration example
 
 `verifyBeforeRelease` returns a draft only when it passes at the application's final delivery boundary. On BLOCK it throws `ClaimLatchBlockedError` with the verification report, so the error path can keep the draft away from the user.
@@ -227,6 +242,8 @@ When document hydration succeeds, ClaimLatch stores:
 This makes a verdict auditable. It does not prove that the publisher is correct or that HTML extraction preserved every piece of context.
 
 The built-in fetcher blocks common localhost/private-network targets and resolves DNS addresses before making a request. If any resolved address is not public, it fails closed and pins the connection to a selected public IP. Redirects are validated again, and response size and timeout are limited. If you provide a custom fetch/request transport, you must preserve the same protections yourself. See `docs/TRUST_MODEL.md` and `SECURITY.md` for remaining network risks.
+
+For deployments with a restricted egress policy, configure `outboundAllowlist` on `ProvenanceEvidenceProvider` or `createDefaultClaimLatch`. A blocked host or port never reaches the configured fetch transport and falls back to search-snippet provenance.
 
 `application/pdf` documents are extracted page by page with PDF.js. Quotes are linked to the most relevant page, and the page number plus page-local offsets are recorded in provenance. If PDF parsing or text extraction fails, the document is not used as decisive document evidence and the provider falls back to search-snippet provenance.
 
