@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+No unreleased changes.
+
+## 0.3.12 - 2026-09-29
+
 - Added credential-free `claimlatch-bench --help` output documenting dataset, split, manifest, and format options.
 
 ## 0.3.11 - 2026-09-29
