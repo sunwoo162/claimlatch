@@ -25,7 +25,7 @@
 ## Next
 
 - Calibration experiments only after enough independent labels exist
-- Add more provider-specific proxy compatibility tests and examples
+- Add more provider-specific proxy compatibility tests and examples (initial Azure-style example is available)
 
 ## Explicitly not promised
 
