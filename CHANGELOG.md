@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+No unreleased changes.
+
+## 0.3.9 - 2026-09-29
+
 - Added a custom provider compatibility profile regression test and configuration example for provider-specific API key headers and relative completion paths.
 
 ## 0.3.8 - 2026-09-29
