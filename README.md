@@ -497,6 +497,8 @@ PASS is not proof of universal truth. Claim extraction, search, source selection
 
 ## Project status
 
+`0.3.37` consolidates static proxy provider profile definitions into a single immutable map while preserving resolver behavior.
+
 `0.3.36` clarifies conditional upstream base URL requirements in proxy CLI help and adds hosted profile resolver coverage.
 
 `0.3.35` adds a Fireworks-compatible provider profile for the proxy's Chat Completions path.

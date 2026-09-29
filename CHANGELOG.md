@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.37 - 2026-09-29
+
+- Consolidated static proxy provider profile definitions into a single immutable map.
+
 ## 0.3.36 - 2026-09-29
 
 - Clarified conditional upstream base URL requirements in proxy CLI help and added hosted profile resolver coverage.
