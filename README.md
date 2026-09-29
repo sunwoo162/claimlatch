@@ -132,7 +132,7 @@ export CLAIMLATCH_PROXY_UPSTREAM_TIMEOUT_MS="120000"
 
 SDK callers can set `maxBufferedResponseBytes`, `maxBufferedChoices`, `maxBufferedChoiceBytes`, and `upstreamTimeoutMs` on `createOpenAIProxy`; they bound the private stream buffer, number of choices, reconstructed text per choice, and upstream request duration before verification. The upstream timeout defaults to 120 seconds; set it to `0` only when the deployment intentionally manages the deadline elsewhere. A client disconnect aborts the in-flight upstream request.
 
-The V0.2 proxy intentionally has a small scope: Chat Completions, text-form user/assistant content, multiple textual choices, and buffered verified streaming. Tool-call-only responses and multimodal output parts are not supported yet. Hop-by-hop headers, cookies, host metadata, and request body framing headers are not forwarded to the upstream. See [the streaming protocol](docs/STREAMING.md) for the limits and fail-closed behavior.
+The V0.2 proxy intentionally has a small scope: Chat Completions, text-form user/assistant content, multiple textual choices, and buffered verified streaming. Tool-call-only responses and multimodal output parts are not supported yet; mixed or unsupported non-streaming output shapes fail closed instead of dropping unknown parts. Hop-by-hop headers, cookies, host metadata, and request body framing headers are not forwarded to the upstream. See [the streaming protocol](docs/STREAMING.md) for the limits and fail-closed behavior.
 
 ## SDK
 

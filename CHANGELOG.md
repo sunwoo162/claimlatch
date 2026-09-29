@@ -15,6 +15,7 @@
 - Documented the fail-closed buffered and verified streaming protocol and its implementation boundaries.
 - Added buffered, post-verification replay for textual Chat Completions streams with size limits and fail-closed malformed-stream handling.
 - Added configurable upstream deadlines and client-disconnect cancellation for buffered proxy requests.
+- Made non-streaming proxy responses fail closed for mixed multimodal content and tool-call metadata.
 
 ## 0.3.0 - 2026-09-29
 
