@@ -25,7 +25,7 @@
 ## Next
 
 - Calibration experiments only after enough independent labels exist
-- Safe buffered/verified streaming protocol design
+- Implement safe buffered/verified streaming after the protocol design and compatibility tests are complete
 
 ## Explicitly not promised
 

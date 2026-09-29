@@ -129,7 +129,7 @@ export CLAIMLATCH_PROXY_PORT="4317"
 export CLAIMLATCH_REQUIRE_DOCUMENT_PROVENANCE="1"
 ```
 
-The V0.2 proxy intentionally has a small scope: Chat Completions, text-form user/assistant content, multiple textual choices, and non-streaming requests. Tool-call-only responses and streaming are not supported yet. Hop-by-hop headers, cookies, host metadata, and request body framing headers are not forwarded to the upstream.
+The V0.2 proxy intentionally has a small scope: Chat Completions, text-form user/assistant content, multiple textual choices, and non-streaming requests. Tool-call-only responses and streaming are not supported yet. Hop-by-hop headers, cookies, host metadata, and request body framing headers are not forwarded to the upstream. See [the streaming design](docs/STREAMING.md) for the fail-closed protocol required before streaming support can be enabled.
 
 ## SDK
 
