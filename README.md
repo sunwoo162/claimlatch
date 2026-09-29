@@ -345,12 +345,20 @@ Core invariants are checked again after custom providers return. Duplicate claim
 
 `benchmarks/independent.jsonl` contains 48 cases across 24 paired topics, with one positive and one negative answer per topic. Each case records a public label-source URL, and labels were not generated from ClaimLatch output. The same frozen aggregate is partitioned into `benchmarks/train.jsonl` (32 cases), `benchmarks/dev.jsonl` (8 cases), and `benchmarks/test.jsonl` (8 cases), with balanced positive and negative labels in every split.
 
+The default `claimlatch-bench` command verifies `benchmarks/independent.jsonl` against `benchmarks/MANIFEST.json` before contacting any model or evidence provider. For a custom dataset, pass `--manifest <path>` to enable the same SHA-256 and case-count check; a mismatch fails closed before a benchmark report is produced.
+
 Run it with configured live providers:
 
 ```bash
 claimlatch-bench --dataset benchmarks/independent.jsonl
 # or
 npm run bench
+```
+
+For an explicit integrity check, pass the manifest alongside the dataset:
+
+```bash
+claimlatch-bench --dataset benchmarks/independent.jsonl --manifest benchmarks/MANIFEST.json
 ```
 
 Run an individual frozen split when tuning or validating a configuration:

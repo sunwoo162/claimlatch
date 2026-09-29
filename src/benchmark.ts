@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import type { ClaimLatch } from "./gate.js";
 import type { VerificationReport } from "./types.js";
 
@@ -33,6 +34,16 @@ export interface BenchmarkReport {
   falsePassRate: number;
   falseBlockRate: number;
   cases: BenchmarkCaseResult[];
+}
+
+export interface BenchmarkManifestEntry {
+  sha256: string;
+  cases: number;
+}
+
+export interface BenchmarkManifest {
+  version: 1;
+  files: Record<string, BenchmarkManifestEntry>;
 }
 
 export async function runBenchmark(gate: ClaimLatch, cases: readonly BenchmarkCase[]): Promise<BenchmarkReport> {
@@ -117,6 +128,62 @@ export function parseBenchmarkJsonl(input: string): BenchmarkCase[] {
 
   if (cases.length === 0) throw new Error("Benchmark dataset contains no cases.");
   return cases;
+}
+
+export function parseBenchmarkManifest(input: string): BenchmarkManifest {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(input);
+  } catch (error) {
+    throw new Error(`Invalid benchmark manifest JSON: ${error instanceof Error ? error.message : String(error)}`);
+  }
+
+  if (!parsed || typeof parsed !== "object") throw new Error("Benchmark manifest must be a JSON object.");
+  const value = parsed as Record<string, unknown>;
+  if (value.version !== 1) throw new Error("Benchmark manifest version must be 1.");
+  if (!value.files || typeof value.files !== "object" || Array.isArray(value.files)) {
+    throw new Error("Benchmark manifest files must be an object.");
+  }
+
+  const files: Record<string, BenchmarkManifestEntry> = {};
+  for (const [fileName, rawEntry] of Object.entries(value.files as Record<string, unknown>)) {
+    if (!/^[a-z\d][a-z\d._-]*\.jsonl$/iu.test(fileName)) {
+      throw new Error(`Benchmark manifest file name is unsafe: ${fileName}`);
+    }
+    if (!rawEntry || typeof rawEntry !== "object" || Array.isArray(rawEntry)) {
+      throw new Error(`Benchmark manifest entry is invalid: ${fileName}`);
+    }
+    const entry = rawEntry as Record<string, unknown>;
+    if (typeof entry.sha256 !== "string" || !/^[a-f\d]{64}$/iu.test(entry.sha256)) {
+      throw new Error(`Benchmark manifest SHA-256 is invalid: ${fileName}`);
+    }
+    if (typeof entry.cases !== "number" || !Number.isInteger(entry.cases) || entry.cases <= 0) {
+      throw new Error(`Benchmark manifest case count is invalid: ${fileName}`);
+    }
+    files[fileName] = { sha256: entry.sha256.toLowerCase(), cases: entry.cases };
+  }
+
+  if (Object.keys(files).length === 0) throw new Error("Benchmark manifest contains no files.");
+  return { version: 1, files };
+}
+
+export function verifyBenchmarkManifestEntry(
+  manifest: BenchmarkManifest,
+  fileName: string,
+  content: string,
+  caseCount: number,
+): void {
+  const expected = manifest.files[fileName];
+  if (!expected) throw new Error(`Benchmark manifest does not list ${fileName}.`);
+
+  const canonical = content.replace(/\r\n?/gu, "\n");
+  const actualHash = createHash("sha256").update(canonical).digest("hex");
+  if (actualHash !== expected.sha256) {
+    throw new Error(`Benchmark manifest SHA-256 mismatch for ${fileName}.`);
+  }
+  if (caseCount !== expected.cases) {
+    throw new Error(`Benchmark manifest case count mismatch for ${fileName}.`);
+  }
 }
 
 function ratio(numerator: number, denominator: number): number {

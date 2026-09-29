@@ -1,16 +1,27 @@
 #!/usr/bin/env node
 import { readFile } from "node:fs/promises";
-import { parseBenchmarkJsonl, runBenchmark } from "./benchmark.js";
+import {
+  parseBenchmarkJsonl,
+  parseBenchmarkManifest,
+  runBenchmark,
+  verifyBenchmarkManifestEntry,
+} from "./benchmark.js";
 import { formatBenchmarkReport, resolveBenchmarkOutputFormat } from "./benchmark-formatters.js";
 import { createDefaultClaimLatch } from "./default-gate.js";
 
 async function main(): Promise<void> {
   const argv = process.argv.slice(2);
   const format = resolveBenchmarkOutputFormat(argv);
-  const datasetPath = argumentValue(argv, "--dataset")
-    ?? new URL("../../benchmarks/independent.jsonl", import.meta.url);
+  const datasetArgument = argumentValue(argv, "--dataset");
+  const datasetPath = datasetArgument ?? new URL("../../benchmarks/independent.jsonl", import.meta.url);
+  const manifestPath = argumentValue(argv, "--manifest")
+    ?? (datasetArgument ? undefined : new URL("../../benchmarks/MANIFEST.json", import.meta.url));
   const raw = await readFile(datasetPath, "utf8");
   const cases = parseBenchmarkJsonl(raw);
+  if (manifestPath) {
+    const manifest = parseBenchmarkManifest(await readFile(manifestPath, "utf8"));
+    verifyBenchmarkManifestEntry(manifest, fileName(datasetPath), raw, cases.length);
+  }
 
   const llmModel = process.env.CLAIMLATCH_LLM_MODEL;
   const tavilyApiKey = process.env.TAVILY_API_KEY;
@@ -39,6 +50,12 @@ function argumentValue(argv: string[], name: string): string | undefined {
   const value = argv[index + 1];
   if (!value || value.startsWith("-")) throw new Error(`${name} requires a value.`);
   return value;
+}
+
+function fileName(path: string | URL): string {
+  const value = typeof path === "string" ? path : path.pathname;
+  const segments = value.split(/[\\/]/u);
+  return decodeURIComponent(segments[segments.length - 1] ?? "");
 }
 
 main().catch((error: unknown) => {

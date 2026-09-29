@@ -68,7 +68,7 @@ For `stream: true`, the proxy buffers the complete upstream SSE response private
 
 ## Benchmark
 
-The benchmark runner compares end-to-end gate decisions to labels authored independently of the gate output. False-pass rate is treated as the primary safety regression metric.
+The benchmark runner compares end-to-end gate decisions to labels authored independently of the gate output. The default frozen dataset is verified against its SHA-256 manifest before any provider calls. False-pass rate is treated as the primary safety regression metric.
 
 ## Failure philosophy
 

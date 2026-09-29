@@ -2,7 +2,12 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
-import { parseBenchmarkJsonl, runBenchmark } from "../src/benchmark.js";
+import {
+  parseBenchmarkJsonl,
+  parseBenchmarkManifest,
+  runBenchmark,
+  verifyBenchmarkManifestEntry,
+} from "../src/benchmark.js";
 import { ClaimLatch } from "../src/gate.js";
 import type { ClaimExtractor, ClaimVerifier, EvidenceProvider } from "../src/types.js";
 
@@ -103,10 +108,7 @@ test("benchmark dataset is partitioned into balanced train, dev, and test splits
 
 test("benchmark files match the committed integrity manifest", async () => {
   const manifestUrl = new URL("../../benchmarks/MANIFEST.json", import.meta.url);
-  const manifest = JSON.parse(await readFile(manifestUrl, "utf8")) as {
-    version?: unknown;
-    files?: Record<string, { sha256?: unknown; cases?: unknown }>;
-  };
+  const manifest = parseBenchmarkManifest(await readFile(manifestUrl, "utf8"));
 
   assert.equal(manifest.version, 1);
   assert.deepEqual(Object.keys(manifest.files ?? {}).sort(), [
@@ -118,8 +120,22 @@ test("benchmark files match the committed integrity manifest", async () => {
 
   for (const [fileName, metadata] of Object.entries(manifest.files ?? {})) {
     const raw = await readFile(new URL(`../../benchmarks/${fileName}`, import.meta.url), "utf8");
-    const canonical = raw.replace(/\r\n?/gu, "\n");
-    assert.equal(createHash("sha256").update(canonical).digest("hex"), metadata.sha256);
-    assert.equal(parseBenchmarkJsonl(raw).length, metadata.cases);
+    verifyBenchmarkManifestEntry(manifest, fileName, raw, parseBenchmarkJsonl(raw).length);
+    assert.equal(createHash("sha256").update(raw.replace(/\r\n?/gu, "\n")).digest("hex"), metadata.sha256);
   }
+});
+
+test("benchmark manifest verification fails closed for tampered content or case counts", async () => {
+  const manifest = parseBenchmarkManifest(await readFile(new URL("../../benchmarks/MANIFEST.json", import.meta.url), "utf8"));
+  const raw = await readFile(new URL("../../benchmarks/dev.jsonl", import.meta.url), "utf8");
+
+  assert.equal(verifyBenchmarkManifestEntry(manifest, "dev.jsonl", raw, 8), undefined);
+  assert.throws(
+    () => verifyBenchmarkManifestEntry(manifest, "dev.jsonl", `${raw}\n`, 8),
+    /SHA-256 mismatch/,
+  );
+  assert.throws(
+    () => verifyBenchmarkManifestEntry(manifest, "dev.jsonl", raw, 7),
+    /case count mismatch/,
+  );
 });
