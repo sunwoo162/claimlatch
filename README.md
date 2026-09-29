@@ -455,7 +455,7 @@ Core invariants are checked again after custom providers return. Duplicate claim
 
 The default `claimlatch-bench` command verifies `benchmarks/independent.jsonl` against `benchmarks/MANIFEST.json` before contacting any model or evidence provider. For a custom dataset, pass `--manifest <path>` to enable the same SHA-256 and case-count check; a mismatch fails closed before a benchmark report is produced.
 
-Benchmark reports include decision accuracy, false-pass/false-block rates, and `averageCoverage`, the arithmetic mean of the per-case evidence coverage reported by the gate. Coverage is not accuracy and is not a probability calibration score.
+Benchmark reports include decision accuracy, false-pass/false-block rates, and `averageCoverage`, the arithmetic mean of the per-case evidence coverage reported by the gate. Text and JSON expose these as top-level fields; JUnit emits suite properties and SARIF emits run properties. Coverage is not accuracy and is not a probability calibration score.
 
 Use `claimlatch-bench --validate` to verify the selected JSONL dataset and manifest without provider credentials or live model/evidence calls. Add `--json` for machine-readable validation output; `--validate` supports only text and JSON formats.
 

@@ -82,9 +82,21 @@ function renderBenchmarkJUnit(report: BenchmarkReport): string {
   return [
     '<?xml version="1.0" encoding="UTF-8"?>',
     `<testsuite name="ClaimLatch benchmark" tests="${report.total}" failures="${report.total - report.correct}" errors="0" skipped="0" time="0">`,
+    renderBenchmarkJUnitAggregateProperties(report),
     testcases,
     "</testsuite>",
     "",
+  ].join("\n");
+}
+
+function renderBenchmarkJUnitAggregateProperties(report: BenchmarkReport): string {
+  return [
+    "  <properties>",
+    `    <property name="decisionAccuracy" value="${report.decisionAccuracy.toFixed(6)}"/>`,
+    `    <property name="averageCoverage" value="${report.averageCoverage.toFixed(6)}"/>`,
+    `    <property name="falsePassRate" value="${report.falsePassRate.toFixed(6)}"/>`,
+    `    <property name="falseBlockRate" value="${report.falseBlockRate.toFixed(6)}"/>`,
+    "  </properties>",
   ].join("\n");
 }
 
@@ -138,6 +150,12 @@ function renderBenchmarkSarif(report: BenchmarkReport, options: BenchmarkFormatO
             { id: "FALSE_BLOCK", name: "False block", shortDescription: { text: "The gate blocked a benchmark case labeled PASS." } },
           ],
         },
+      },
+      properties: {
+        decisionAccuracy: report.decisionAccuracy,
+        averageCoverage: report.averageCoverage,
+        falsePassRate: report.falsePassRate,
+        falseBlockRate: report.falseBlockRate,
       },
       results,
     }],
