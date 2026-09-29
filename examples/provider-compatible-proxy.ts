@@ -92,17 +92,25 @@ function parseHeaderList(value: string): string[] {
   return value.split(",").map((header) => header.trim()).filter(Boolean);
 }
 
-if (isMainModule()) {
+if (isProviderCompatibleProxyMainModule(import.meta.url, process.argv[1])) {
   main().catch((error: unknown) => {
     process.stderr.write(`provider-compatible-proxy: ${error instanceof Error ? error.message : String(error)}\n`);
     process.exitCode = 1;
   });
 }
 
-function isMainModule(): boolean {
-  if (!process.argv[1]) return false;
-  const modulePath = decodeURIComponent(import.meta.url.slice("file:///".length))
-    .replace(/^([A-Za-z]:)\//u, "$1/")
-    .replace(/\//gu, "\\");
-  return modulePath.toLowerCase() === process.argv[1].toLowerCase();
+export function isProviderCompatibleProxyMainModule(moduleUrl: string, scriptPath: string | undefined): boolean {
+  if (!scriptPath) return false;
+  try {
+    const modulePath = decodeURIComponent(moduleUrl.replace(/^file:\/\//u, ""))
+      .replace(/^\/([A-Za-z]:)\//u, "$1/")
+      .replace(/\\/gu, "/");
+    const normalizedScriptPath = scriptPath.replace(/\\/gu, "/");
+    const isWindowsPath = /^[A-Za-z]:\//u.test(modulePath) || /^[A-Za-z]:\//u.test(normalizedScriptPath);
+    return isWindowsPath
+      ? modulePath.toLowerCase() === normalizedScriptPath.toLowerCase()
+      : modulePath === normalizedScriptPath;
+  } catch {
+    return false;
+  }
 }

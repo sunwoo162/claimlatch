@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { resolveProviderCompatibleProxyConfiguration } from "../examples/provider-compatible-proxy.js";
+import {
+  isProviderCompatibleProxyMainModule,
+  resolveProviderCompatibleProxyConfiguration,
+} from "../examples/provider-compatible-proxy.js";
 import {
   parseProxyHeaderMap,
   renderProxyHelp,
@@ -97,4 +100,28 @@ test("provider-compatible proxy example preserves the configured model route", (
   });
 
   assert.equal(configuration.upstreamModelsPath, "/v1/custom-models");
+});
+
+test("provider-compatible proxy example main guard normalizes POSIX and Windows paths", () => {
+  assert.equal(
+    isProviderCompatibleProxyMainModule(
+      "file:///home/runner/claimlatch/dist/examples/provider-compatible-proxy.js",
+      "/home/runner/claimlatch/dist/examples/provider-compatible-proxy.js",
+    ),
+    true,
+  );
+  assert.equal(
+    isProviderCompatibleProxyMainModule(
+      "file:///C:/claimlatch/dist/examples/provider-compatible-proxy.js",
+      "C:\\claimlatch\\dist\\examples\\provider-compatible-proxy.js",
+    ),
+    true,
+  );
+  assert.equal(
+    isProviderCompatibleProxyMainModule(
+      "file:///home/runner/claimlatch/dist/examples/provider-compatible-proxy.js",
+      "/home/runner/claimlatch/dist/examples/other.js",
+    ),
+    false,
+  );
 });
