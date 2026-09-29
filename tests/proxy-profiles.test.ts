@@ -32,6 +32,14 @@ test("proxy profiles provide Groq-compatible Chat Completions defaults", () => {
   });
 });
 
+test("proxy profiles provide Mistral-compatible Chat Completions defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("mistral"), {
+    upstreamBaseUrl: "https://api.mistral.ai/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  });
+});
+
 test("proxy profiles fail closed for unknown names and incomplete OpenRouter metadata", () => {
   assert.throws(() => resolveProxyProviderProfile("unknown"), /Unsupported proxy provider profile/);
   assert.throws(() => resolveProxyProviderProfile("openrouter"), /siteUrl and appName/);
