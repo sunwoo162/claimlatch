@@ -544,6 +544,8 @@ PASS is not proof of universal truth. Claim extraction, search, source selection
 
 ## Project status
 
+`0.3.55` exposes signed receipt version, algorithm, and key ID metadata in `claimlatch-receipt verify --json` output for audit automation.
+
 `0.3.54` adds bounded OpenAI-compatible model retrieval passthrough for `/v1/models/:id` and `/models/:id` with path-safe model ID encoding.
 
 `0.3.53` adds fail-closed custom route paths for the guarded Node HTTP and Fetch integrations.
