@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.3.3 - 2026-09-29
+
 - Added configurable provider-specific upstream Chat Completions paths and query parameters.
 - Added an SDK proxy example for provider-specific credential headers and deployment paths.
 
