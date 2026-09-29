@@ -111,7 +111,7 @@ Behavior:
 - PASS: returns the original upstream Chat Completions JSON with `x-claimlatch-result: pass`.
 - When upstream returns multiple textual choices, such as with `n > 1`, every choice is verified and the response headers report aggregate coverage and claim counts.
 - Compatible end-to-end request headers such as `Accept`, `OpenAI-Organization`, `OpenAI-Project`, and client request IDs are forwarded. A configured `CLAIMLATCH_PROXY_UPSTREAM_API_KEY` overrides the incoming `Authorization` header.
-- Upstream `OpenAI-*`, `X-RateLimit-*`, `RateLimit-*`, `X-MS-*`, `Retry-After`, `X-Request-Id`, and `Content-Type` response headers are preserved on released responses.
+- Upstream `OpenAI-*`, `X-RateLimit-*`, `RateLimit-*`, `X-MS-*`, `X-Goog-*`, `X-Amzn-*`, `Anthropic-*`, `Retry-After`, `X-Request-Id`, and `Content-Type` response headers are preserved on released responses.
 - BLOCK: returns HTTP `422` with `error.code = "claimlatch_blocked"` and verification reports.
 - If any choice is blocked, the entire response is blocked and per-choice reports are returned as `claimlatchReports`.
 - `stream: true`: the upstream SSE stream is buffered privately, every textual choice is verified, and the stream is replayed only after PASS. Structured choices can be released only through an explicit `structuredOutputVerifier`; otherwise blocked, malformed, truncated, or over-limit streams fail closed.

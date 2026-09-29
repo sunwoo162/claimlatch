@@ -440,6 +440,9 @@ function copyResponseHeaders(upstream: Response, response: ServerResponse): bool
       || normalizedName.startsWith("x-ratelimit-")
       || normalizedName.startsWith("ratelimit-")
       || normalizedName.startsWith("x-ms-")
+      || normalizedName.startsWith("x-goog-")
+      || normalizedName.startsWith("x-amzn-")
+      || normalizedName.startsWith("anthropic-")
     ) {
       response.setHeader(name, value);
       if (normalizedName === "content-type") copiedContentType = true;

@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-No unreleased changes.
+- Preserved additional provider diagnostic response headers with `X-Goog-*`, `X-Amzn-*`, and `Anthropic-*` prefixes.
 
 ## 0.3.9 - 2026-09-29
 
