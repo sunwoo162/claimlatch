@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { parseBenchmarkJsonl, runBenchmark } from "../src/benchmark.js";
@@ -98,4 +99,26 @@ test("benchmark dataset is partitioned into balanced train, dev, and test splits
     const negative = cases.filter((item) => !item.expectedPassed).length;
     return positive === negative;
   }));
+});
+
+test("benchmark files match the committed integrity manifest", async () => {
+  const manifestUrl = new URL("../../benchmarks/MANIFEST.json", import.meta.url);
+  const manifest = JSON.parse(await readFile(manifestUrl, "utf8")) as {
+    version?: unknown;
+    files?: Record<string, { sha256?: unknown; cases?: unknown }>;
+  };
+
+  assert.equal(manifest.version, 1);
+  assert.deepEqual(Object.keys(manifest.files ?? {}).sort(), [
+    "dev.jsonl",
+    "independent.jsonl",
+    "test.jsonl",
+    "train.jsonl",
+  ]);
+
+  for (const [fileName, metadata] of Object.entries(manifest.files ?? {})) {
+    const raw = await readFile(new URL(`../../benchmarks/${fileName}`, import.meta.url), "utf8");
+    assert.equal(createHash("sha256").update(raw).digest("hex"), metadata.sha256);
+    assert.equal(parseBenchmarkJsonl(raw).length, metadata.cases);
+  }
 });

@@ -2,6 +2,8 @@
 
 `independent.jsonl` is a 48-case, human-authored end-to-end benchmark dataset with 24 positive and 24 negative cases across 24 paired topics. Labels are written independently of ClaimLatch output and each case records one or more public label-source URLs.
 
+`MANIFEST.json` records the SHA-256 and case count for every frozen benchmark file. The test suite verifies these entries so accidental label or split edits fail CI instead of silently changing the evaluation set.
+
 The aggregate is partitioned into frozen, balanced splits:
 
 - `train.jsonl`: 32 cases across the original 16 paired topics

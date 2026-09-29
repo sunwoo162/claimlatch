@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "files": {
+    "dev.jsonl": {
+      "sha256": "24ec97a4b10169501258315f7a2d01526c83b9d9d39fad45a72742ef4687de35",
+      "cases": 8
+    },
+    "independent.jsonl": {
+      "sha256": "6741a9b8b439bb265589c578f1bada1353b40244a651ae2ae18d2ead2c445c27",
+      "cases": 48
+    },
+    "test.jsonl": {
+      "sha256": "3423c645a08919198f08b39c03b8e689e4db10f63744c3ac51e833d0e6059aa9",
+      "cases": 8
+    },
+    "train.jsonl": {
+      "sha256": "8177e26b491f894a95f0270975364906efa724f382861615a062d8562018bcab",
+      "cases": 32
+    }
+  }
+}
