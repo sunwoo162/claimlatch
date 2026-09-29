@@ -66,6 +66,10 @@ ClaimLatch gate
 
 For `stream: true`, the proxy buffers the complete upstream SSE response privately, verifies every reconstructed choice, and replays the original frames only after PASS. Structured streaming choices remain fail-closed without an explicit verifier. The configured upstream base must be an absolute HTTP(S) URL without credentials, query, or fragment. A configured upstream API key can target a provider-specific header such as `api-key`; the completion endpoint can also use a provider-specific relative path and query; otherwise the proxy uses `Authorization` and `/chat/completions`.
 
+## Application integration
+
+`createGuardedAnswerServer` and `createGuardedAnswerFetchHandler` use `/health` and `/answer` by default. Both accept absolute `healthPath` and `answerPath` overrides without query strings or fragments, so Fetch-native framework routes can mount the same fail-closed verification boundary under an application-specific prefix.
+
 ## Benchmark
 
 The benchmark runner compares end-to-end gate decisions to labels authored independently of the gate output. The default frozen dataset is verified against its SHA-256 manifest before any provider calls. False-pass rate is treated as the primary safety regression metric.

@@ -233,3 +233,57 @@ test("guarded answer Fetch integration fails closed when verification throws", a
   assert.equal(body.answer, undefined);
   assert.equal(body.error?.code, "claimlatch_verification_error");
 });
+
+test("guarded answer Fetch integration supports framework-specific route paths", async () => {
+  const handler = createGuardedAnswerFetchHandler({
+    gate: fixtureGate(),
+    healthPath: "/status",
+    answerPath: "/api/answer",
+  });
+
+  const health = await handler(new Request("https://example.test/status"));
+  assert.equal(health.status, 200);
+
+  const passed = await handler(new Request("https://example.test/api/answer", {
+    method: "POST",
+    body: JSON.stringify({ question: "question", draft: "supported draft" }),
+  }));
+  assert.equal(passed.status, 200);
+
+  const defaultRoute = await handler(new Request("https://example.test/answer", {
+    method: "POST",
+    body: JSON.stringify({ question: "question", draft: "supported draft" }),
+  }));
+  assert.equal(defaultRoute.status, 404);
+
+  const service = createGuardedAnswerServer({
+    gate: fixtureGate(),
+    healthPath: "/status",
+    answerPath: "/api/answer",
+  });
+  await service.listen(0, "127.0.0.1");
+  const address = service.server.address();
+  if (!address || typeof address === "string") throw new Error("missing custom route address");
+  try {
+    const serverHealth = await fetch(`http://127.0.0.1:${address.port}/status`);
+    assert.equal(serverHealth.status, 200);
+    const serverAnswer = await fetch(`http://127.0.0.1:${address.port}/api/answer`, {
+      method: "POST",
+      body: JSON.stringify({ question: "question", draft: "supported draft" }),
+    });
+    assert.equal(serverAnswer.status, 200);
+  } finally {
+    await service.close();
+  }
+});
+
+test("guarded answer integration rejects unsafe custom route paths", () => {
+  assert.throws(
+    () => createGuardedAnswerFetchHandler({ gate: fixtureGate(), answerPath: "https://evil.example/answer" }),
+    /answerPath must be an absolute path/,
+  );
+  assert.throws(
+    () => createGuardedAnswerFetchHandler({ gate: fixtureGate(), healthPath: "/health?full=1" }),
+    /healthPath must be an absolute path/,
+  );
+});
