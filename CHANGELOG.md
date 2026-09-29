@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+No unreleased changes.
+
+## 0.3.15 - 2026-09-29
+
 - Added credential-free `claimlatch-proxy --help` output documenting setup, routes, compatibility settings, and fail-closed behavior.
 
 ## 0.3.14 - 2026-09-29
