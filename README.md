@@ -110,6 +110,8 @@ Behavior:
 
 - PASS: returns the original upstream Chat Completions JSON with `x-claimlatch-result: pass`.
 - When upstream returns multiple textual choices, such as with `n > 1`, every choice is verified and the response headers report aggregate coverage and claim counts.
+- Compatible end-to-end request headers such as `Accept`, `OpenAI-Organization`, `OpenAI-Project`, and client request IDs are forwarded. A configured `CLAIMLATCH_PROXY_UPSTREAM_API_KEY` overrides the incoming `Authorization` header.
+- Upstream `OpenAI-*`, `X-RateLimit-*`, `RateLimit-*`, `Retry-After`, `X-Request-Id`, and `Content-Type` response headers are preserved on released responses.
 - BLOCK: returns HTTP `422` with `error.code = "claimlatch_blocked"` and verification reports.
 - If any choice is blocked, the entire response is blocked and per-choice reports are returned as `claimlatchReports`.
 - `stream: true`: still rejected. Releasing tokens before verification would bypass the gate.
@@ -127,7 +129,7 @@ export CLAIMLATCH_PROXY_PORT="4317"
 export CLAIMLATCH_REQUIRE_DOCUMENT_PROVENANCE="1"
 ```
 
-The V0.2 proxy intentionally has a small scope: Chat Completions, text-form user/assistant content, multiple textual choices, and non-streaming requests. Tool-call-only responses and streaming are not supported yet.
+The V0.2 proxy intentionally has a small scope: Chat Completions, text-form user/assistant content, multiple textual choices, and non-streaming requests. Tool-call-only responses and streaming are not supported yet. Hop-by-hop headers, cookies, host metadata, and request body framing headers are not forwarded to the upstream.
 
 ## SDK
 
