@@ -18,6 +18,8 @@ The model never gets to directly decide whether the answer is released. It can p
 - `UNSUPPORTED`: relevant evidence exists but does not establish the claim.
 - `UNVERIFIABLE`: no usable evidence is available or the evidence is too ambiguous to judge.
 
+The verifier may also return `supportingEvidenceIds` and `contradictingEvidenceIds`. The core keeps only IDs that exist in the retrieved evidence. The policy evaluator treats support and contradiction from distinct normalized source URLs as a cross-source contradiction and blocks it by default.
+
 ## Coverage
 
 Coverage is `(SUPPORTED + CONTRADICTED) / total claims`.
@@ -33,6 +35,7 @@ The core does not assume plugins behave perfectly.
 - Duplicate evidence IDs are discarded.
 - Verifier evidence IDs that do not exist in retrieved evidence are discarded.
 - `SUPPORTED`/`CONTRADICTED` with no valid evidence binding is downgraded to `UNVERIFIABLE`.
+- Supporting and contradicting evidence relations are filtered to retrieved IDs before policy evaluation.
 - The claim/evidence objects included in the final report come from the core pipeline, not arbitrary verifier replacements.
 
 ## Provenance

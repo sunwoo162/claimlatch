@@ -22,6 +22,7 @@ A PASS means the configured pipeline found no policy violation under the evidenc
 - HTML-to-text extraction can lose table structure, footnotes, qualifiers, or surrounding context.
 - Quote selection is heuristic and can choose a relevant-looking but non-decisive passage.
 - The verifier can misclassify entailment or contradiction.
+- Cross-source contradiction detection depends on the verifier correctly identifying supporting and contradicting evidence IDs.
 - A primary source can itself be wrong, stale, compromised, or inappropriate for the claim.
 - Policies can be configured too loosely.
 - A PASS says nothing about omitted facts that were never extracted.
@@ -29,6 +30,8 @@ A PASS means the configured pipeline found no policy violation under the evidenc
 ## Provenance is auditability, not authority
 
 `retrieved-document` means ClaimLatch fetched the source URL, normalized the text, selected a quote, and stored a SHA-256 of that normalized text. It does not cryptographically prove publisher identity beyond the transport guarantees of the URL fetch, nor does it prove that the quoted publisher is correct.
+
+When a verifier identifies both supporting and contradicting evidence, ClaimLatch compares their normalized source URLs. Evidence from distinct sources creates a deterministic `CROSS_SOURCE_CONTRADICTION` policy violation by default. This does not establish which source is correct; it prevents an unresolved disagreement from silently becoming a PASS.
 
 ## Network boundary
 

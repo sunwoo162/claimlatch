@@ -7,6 +7,7 @@ import type {
 
 export const DEFAULT_POLICY: GatePolicy = {
   blockOnContradiction: true,
+  blockOnCrossSourceContradiction: true,
   maxUnsupportedClaims: 0,
   maxUnverifiableClaims: 0,
   minimumCoverage: 1,
@@ -76,6 +77,22 @@ export function evaluatePolicy(
         code: "CONTRADICTION",
         claimId: item.claim.id,
         message: `Contradicted claim: ${item.claim.text}`,
+      });
+    }
+  }
+
+  if (policy.blockOnCrossSourceContradiction ?? true) {
+    for (const item of claims.filter(hasCrossSourceContradiction)) {
+      const sourceCount = new Set(
+        [...(item.supportingEvidenceIds ?? []), ...(item.contradictingEvidenceIds ?? [])]
+          .map((id) => item.evidence.find((evidence) => evidence.id === id))
+          .filter((evidence): evidence is NonNullable<typeof evidence> => evidence !== undefined)
+          .map(sourceKey),
+      ).size;
+      violations.push({
+        code: "CROSS_SOURCE_CONTRADICTION",
+        claimId: item.claim.id,
+        message: `Evidence from ${sourceCount} sources directly disagrees about claim: ${item.claim.text}`,
       });
     }
   }
@@ -158,6 +175,38 @@ export function evaluatePolicy(
   }
 
   return deduplicateViolations(violations);
+}
+
+function hasCrossSourceContradiction(item: ClaimVerification): boolean {
+  const supportingSources = sourceKeysFor(item, item.supportingEvidenceIds ?? []);
+  const contradictingSources = sourceKeysFor(item, item.contradictingEvidenceIds ?? []);
+
+  for (const supportingSource of supportingSources) {
+    for (const contradictingSource of contradictingSources) {
+      if (supportingSource !== contradictingSource) return true;
+    }
+  }
+  return false;
+}
+
+function sourceKeysFor(item: ClaimVerification, evidenceIds: string[]): Set<string> {
+  return new Set(
+    evidenceIds
+      .map((id) => item.evidence.find((evidence) => evidence.id === id))
+      .filter((evidence): evidence is NonNullable<typeof evidence> => evidence !== undefined)
+      .map(sourceKey),
+  );
+}
+
+function sourceKey(evidence: NonNullable<ClaimVerification["evidence"][number]>): string {
+  const sourceUrl = evidence.provenance?.sourceUrl ?? evidence.url;
+  try {
+    const normalized = new URL(sourceUrl);
+    normalized.hash = "";
+    return normalized.toString();
+  } catch {
+    return sourceUrl;
+  }
 }
 
 function deduplicateViolations(violations: PolicyViolation[]): PolicyViolation[] {

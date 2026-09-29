@@ -193,6 +193,7 @@ if (!report.passed) {
 기본 정책은 의도적으로 엄격합니다.
 
 - 모든 contradiction을 차단합니다.
+- 서로 다른 source가 같은 claim을 지지하고 반박하면 교차 출처 contradiction으로 차단합니다.
 - unsupported claim을 허용하지 않습니다.
 - unverifiable claim을 허용하지 않습니다.
 - evidence coverage 100%를 요구합니다.

@@ -67,3 +67,75 @@ test("document provenance policy rejects decisive verdicts backed only by search
   const violations = evaluatePolicy([item], mergePolicy({ requireRetrievedDocumentForDecisiveClaims: true }));
   assert.ok(violations.some((violation) => violation.code === "DECISIVE_CLAIM_MISSING_DOCUMENT_PROVENANCE"));
 });
+
+test("default policy blocks a contradiction reported across distinct sources", () => {
+  const item: ClaimVerification = {
+    claim: { id: "cross_source", text: "The release is stable.", kind: "fact", importance: "normal" },
+    status: "SUPPORTED",
+    reason: "Sources disagree.",
+    evidenceIds: ["support", "contradiction"],
+    supportingEvidenceIds: ["support"],
+    contradictingEvidenceIds: ["contradiction"],
+    evidence: [
+      {
+        id: "support",
+        claimId: "cross_source",
+        title: "Source A",
+        url: "https://source-a.example/release",
+        snippet: "The release is stable.",
+        sourceType: "primary",
+        retrievedAt: "2026-09-29T00:00:00.000Z",
+        provider: "fixture",
+      },
+      {
+        id: "contradiction",
+        claimId: "cross_source",
+        title: "Source B",
+        url: "https://source-b.example/release",
+        snippet: "The release is not stable.",
+        sourceType: "secondary",
+        retrievedAt: "2026-09-29T00:00:00.000Z",
+        provider: "fixture",
+      },
+    ],
+  } as ClaimVerification;
+
+  const violations = evaluatePolicy([item], mergePolicy());
+  assert.ok(violations.some((violation) => violation.code === "CROSS_SOURCE_CONTRADICTION"));
+});
+
+test("same-source supporting and contradicting evidence is not a cross-source contradiction", () => {
+  const item: ClaimVerification = {
+    claim: { id: "same_source", text: "The release is stable.", kind: "fact", importance: "normal" },
+    status: "SUPPORTED",
+    reason: "The same source contains qualifying context.",
+    evidenceIds: ["support", "qualification"],
+    supportingEvidenceIds: ["support"],
+    contradictingEvidenceIds: ["qualification"],
+    evidence: [
+      {
+        id: "support",
+        claimId: "same_source",
+        title: "Source",
+        url: "https://source.example/release#summary",
+        snippet: "The release is stable.",
+        sourceType: "primary",
+        retrievedAt: "2026-09-29T00:00:00.000Z",
+        provider: "fixture",
+      },
+      {
+        id: "qualification",
+        claimId: "same_source",
+        title: "Source",
+        url: "https://source.example/release#details",
+        snippet: "The release is not stable under load.",
+        sourceType: "primary",
+        retrievedAt: "2026-09-29T00:00:00.000Z",
+        provider: "fixture",
+      },
+    ],
+  } as ClaimVerification;
+
+  const violations = evaluatePolicy([item], mergePolicy());
+  assert.equal(violations.some((violation) => violation.code === "CROSS_SOURCE_CONTRADICTION"), false);
+});

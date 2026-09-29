@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Added supporting and contradicting evidence relations to verifier results.
+- Added deterministic cross-source contradiction detection based on normalized source URLs.
+- Added a default fail-closed policy violation for unresolved disagreement between distinct sources.
+
 ## 0.2.0 - 2026-09-28
 
 - Added best-effort source-document hydration with quote offsets, content type, final URL, retrieval timestamp, and SHA-256 provenance.

@@ -112,12 +112,17 @@ function sanitizeVerification(
   raw: import("./types.js").ClaimVerification,
 ): import("./types.js").ClaimVerification {
   const validIds = new Set(evidence.map((item) => item.id));
-  const evidenceIds = Array.isArray(raw.evidenceIds)
-    ? raw.evidenceIds.filter((id): id is string => typeof id === "string" && validIds.has(id))
-    : [];
+  const evidenceIds = sanitizeEvidenceIds(raw.evidenceIds, validIds);
+  const supportingEvidenceIds = sanitizeEvidenceIds(raw.supportingEvidenceIds, validIds);
+  const contradictingEvidenceIds = sanitizeEvidenceIds(raw.contradictingEvidenceIds, validIds);
+  const boundEvidenceIds = uniqueStrings([
+    ...evidenceIds,
+    ...supportingEvidenceIds,
+    ...contradictingEvidenceIds,
+  ]);
   const requestedStatus = normalizeVerificationStatus(raw.status);
   const decisiveWithoutEvidence =
-    (requestedStatus === "SUPPORTED" || requestedStatus === "CONTRADICTED") && evidenceIds.length === 0;
+    (requestedStatus === "SUPPORTED" || requestedStatus === "CONTRADICTED") && boundEvidenceIds.length === 0;
 
   return {
     claim,
@@ -127,9 +132,20 @@ function sanitizeVerification(
       : typeof raw.reason === "string" && raw.reason.trim()
         ? raw.reason.trim()
         : "Verifier did not provide a reason.",
-    evidenceIds,
+    evidenceIds: boundEvidenceIds,
+    supportingEvidenceIds,
+    contradictingEvidenceIds,
     evidence,
   };
+}
+
+function sanitizeEvidenceIds(value: unknown, validIds: Set<string>): string[] {
+  if (!Array.isArray(value)) return [];
+  return uniqueStrings(value.filter((id): id is string => typeof id === "string" && validIds.has(id)));
+}
+
+function uniqueStrings(values: string[]): string[] {
+  return [...new Set(values)];
 }
 
 function normalizeVerificationStatus(value: unknown): import("./types.js").VerificationStatus {

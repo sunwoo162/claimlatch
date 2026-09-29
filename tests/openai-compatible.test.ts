@@ -87,3 +87,48 @@ test("decisive verifier status without valid evidence binding is downgraded", as
 
   assert.equal(result.status, "UNVERIFIABLE");
 });
+
+test("verifier preserves valid supporting and contradicting evidence relations", async () => {
+  const client = new OpenAICompatibleClient({
+    model: "test",
+    fetchImpl: fakeFetch({
+      status: "SUPPORTED",
+      reason: "Sources disagree",
+      evidenceIds: ["support"],
+      supportingEvidenceIds: ["support", "invented"],
+      contradictingEvidenceIds: ["contradiction"],
+    }),
+  });
+  const verifier = new LlmClaimVerifier(client);
+  const evidence: Evidence[] = [
+    {
+      id: "support",
+      claimId: "claim_1",
+      title: "Source A",
+      url: "https://source-a.example",
+      snippet: "support",
+      sourceType: "primary",
+      retrievedAt: "2026-09-28T00:00:00.000Z",
+      provider: "test",
+    },
+    {
+      id: "contradiction",
+      claimId: "claim_1",
+      title: "Source B",
+      url: "https://source-b.example",
+      snippet: "contradiction",
+      sourceType: "secondary",
+      retrievedAt: "2026-09-28T00:00:00.000Z",
+      provider: "test",
+    },
+  ];
+
+  const result = await verifier.verify({
+    claim: { id: "claim_1", text: "A", kind: "fact", importance: "normal" },
+    evidence,
+  });
+
+  assert.deepEqual(result.evidenceIds, ["support", "contradiction"]);
+  assert.deepEqual(result.supportingEvidenceIds, ["support"]);
+  assert.deepEqual(result.contradictingEvidenceIds, ["contradiction"]);
+});

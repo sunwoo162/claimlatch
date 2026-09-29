@@ -98,3 +98,53 @@ test("core gate rejects duplicate claim IDs from custom extractors", async () =>
   }
   assert.ok(message.includes("duplicate claim id"));
 });
+
+test("core gate preserves evidence relations for cross-source contradiction detection", async () => {
+  const relationEvidenceProvider: EvidenceProvider = {
+    async search(claim) {
+      return [
+        {
+          id: "support",
+          claimId: claim.id,
+          title: "Source A",
+          url: "https://source-a.example/release",
+          snippet: "support",
+          sourceType: "primary",
+          retrievedAt: "2026-09-29T00:00:00.000Z",
+          provider: "fixture",
+        },
+        {
+          id: "contradiction",
+          claimId: claim.id,
+          title: "Source B",
+          url: "https://source-b.example/release",
+          snippet: "contradiction",
+          sourceType: "secondary",
+          retrievedAt: "2026-09-29T00:00:00.000Z",
+          provider: "fixture",
+        },
+      ];
+    },
+  };
+  const relationVerifier: ClaimVerifier = {
+    async verify({ claim, evidence }) {
+      return {
+        claim,
+        status: "SUPPORTED",
+        reason: "Sources disagree.",
+        evidenceIds: evidence.map((item) => item.id),
+        supportingEvidenceIds: ["support"],
+        contradictingEvidenceIds: ["contradiction"],
+        evidence,
+      };
+    },
+  };
+
+  const gate = new ClaimLatch({ extractor, evidenceProvider: relationEvidenceProvider, verifier: relationVerifier });
+  const report = await gate.verify({ question: "q", answer: "a" });
+
+  assert.deepEqual(report.claims[0]?.supportingEvidenceIds, ["support"]);
+  assert.deepEqual(report.claims[0]?.contradictingEvidenceIds, ["contradiction"]);
+  assert.ok(report.violations.some((violation) => violation.code === "CROSS_SOURCE_CONTRADICTION"));
+  assert.equal(report.passed, false);
+});

@@ -45,11 +45,14 @@ export interface ClaimVerification {
   status: VerificationStatus;
   reason: string;
   evidenceIds: string[];
+  supportingEvidenceIds?: string[];
+  contradictingEvidenceIds?: string[];
   evidence: Evidence[];
 }
 
 export interface GatePolicy {
   blockOnContradiction: boolean;
+  blockOnCrossSourceContradiction?: boolean;
   maxUnsupportedClaims: number;
   maxUnverifiableClaims: number;
   minimumCoverage: number;
@@ -62,6 +65,7 @@ export interface GatePolicy {
 
 export type ViolationCode =
   | "CONTRADICTION"
+  | "CROSS_SOURCE_CONTRADICTION"
   | "UNSUPPORTED_LIMIT"
   | "UNVERIFIABLE_LIMIT"
   | "COVERAGE_BELOW_MINIMUM"

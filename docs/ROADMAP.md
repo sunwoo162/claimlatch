@@ -25,7 +25,6 @@
 - Hardened egress fetcher and outbound allowlist options
 - PDF evidence extraction with page/quote provenance
 - Official-source resolvers and domain policies
-- Cross-source contradiction detection
 - Persistent signed verification receipts
 - SARIF/JUnit outputs for CI
 - Larger frozen benchmark with train/dev/test separation
