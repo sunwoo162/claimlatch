@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.36 - 2026-09-29
+
+- Clarified conditional upstream base URL requirements in proxy CLI help and added hosted profile resolver coverage.
+
 ## 0.3.35 - 2026-09-29
 
 - Added a Fireworks-compatible provider profile for the proxy's Chat Completions path.
