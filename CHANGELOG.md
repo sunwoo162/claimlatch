@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.62 - 2026-09-30
+
+- Hardened signed receipt key metadata validation so empty signatures, empty public keys, and non-string key IDs fail closed.
+
 ## 0.3.61 - 2026-09-30
 
 - Fixed provider-compatible proxy example entrypoint detection for POSIX and Windows paths.
