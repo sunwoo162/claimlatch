@@ -8,6 +8,12 @@ export interface ReceiptVerificationJsonInput {
 export function renderReceiptVerificationJson(input: ReceiptVerificationJsonInput): string {
   const receipt = asRecord(input.receipt);
   const payload = asRecord(receipt?.payload);
+  const report = asRecord(payload?.report);
+  const passed = input.valid && typeof report?.passed === "boolean" ? report.passed : undefined;
+  const generatedAt =
+    input.valid && typeof report?.generatedAt === "string" && report.generatedAt.length > 0
+      ? report.generatedAt
+      : undefined;
   return JSON.stringify({
     valid: input.valid,
     file: input.filePath,
@@ -15,6 +21,8 @@ export function renderReceiptVerificationJson(input: ReceiptVerificationJsonInpu
     ...(receipt?.algorithm === "Ed25519" ? { algorithm: "Ed25519" } : {}),
     ...(typeof payload?.keyId === "string" ? { keyId: payload.keyId } : {}),
     ...(input.publicKeyPath ? { publicKeyFile: input.publicKeyPath } : {}),
+    ...(passed !== undefined ? { decision: passed ? "PASS" : "BLOCK" } : {}),
+    ...(generatedAt !== undefined ? { generatedAt } : {}),
   });
 }
 

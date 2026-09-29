@@ -58,3 +58,43 @@ test("receipt CLI JSON output omits untrusted metadata with an invalid receipt s
     file: "receipts/invalid.json",
   });
 });
+
+test("receipt CLI JSON output includes the signed decision only after verification succeeds", () => {
+  const validOutput = renderReceiptVerificationJson({
+    valid: true,
+    filePath: "receipts/blocked.json",
+    receipt: {
+      version: 1,
+      algorithm: "Ed25519",
+      payload: {
+        report: { passed: false, generatedAt: "2026-09-30T00:00:00.000Z" },
+      },
+    },
+  });
+  assert.deepEqual(JSON.parse(validOutput), {
+    valid: true,
+    file: "receipts/blocked.json",
+    version: 1,
+    algorithm: "Ed25519",
+    decision: "BLOCK",
+    generatedAt: "2026-09-30T00:00:00.000Z",
+  });
+
+  const invalidOutput = renderReceiptVerificationJson({
+    valid: false,
+    filePath: "receipts/tampered.json",
+    receipt: {
+      version: 1,
+      algorithm: "Ed25519",
+      payload: {
+        report: { passed: true, generatedAt: "2026-09-30T00:00:00.000Z" },
+      },
+    },
+  });
+  assert.deepEqual(JSON.parse(invalidOutput), {
+    valid: false,
+    file: "receipts/tampered.json",
+    version: 1,
+    algorithm: "Ed25519",
+  });
+});
