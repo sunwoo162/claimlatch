@@ -336,6 +336,8 @@ claimlatch-receipt verify --file ./var/claimlatch-receipts/answer-2026-09-29-001
 
 The command exits `0` for a valid signature, `1` for an invalid receipt or signature, and `2` for usage or file errors.
 
+The default mode verifies against the public key embedded in the receipt. For an external trust anchor, pass `--public-key-file <path>`; verification then fails closed if the receipt was signed by a different key.
+
 Do not put private keys in the receipt directory or source control. Use a secret manager/HSM, restrict receipt directory permissions, define a retention policy, and back up receipts with their public-key registry if historical verification is required.
 
 The runnable [`examples/receipt-storage.ts`](examples/receipt-storage.ts) example generates an ephemeral Ed25519 key, saves a receipt, loads it from the filesystem store, and verifies it through a key resolver:
