@@ -62,6 +62,20 @@ test("receipt verification fails for a signed report with an invalid shape", () 
   assert.equal(verifySignedVerificationReceipt(malformedReceipt), false);
 });
 
+test("receipt verification fails for malformed claim or violation entries", () => {
+  const malformedClaimReceipt = createSignedVerificationReceipt(
+    { ...report, claims: [{ status: "SUPPORTED" }] } as unknown as VerificationReport,
+    { privateKeyPem, publicKeyPem },
+  );
+  const malformedViolationReceipt = createSignedVerificationReceipt(
+    { ...report, violations: [{ code: "CONTRADICTION" }] } as unknown as VerificationReport,
+    { privateKeyPem, publicKeyPem },
+  );
+
+  assert.equal(verifySignedVerificationReceipt(malformedClaimReceipt), false);
+  assert.equal(verifySignedVerificationReceipt(malformedViolationReceipt), false);
+});
+
 test("receipt verification fails for a different public key or invalid signature", () => {
   const receipt = createSignedVerificationReceipt(report, { privateKeyPem, publicKeyPem });
   const otherKey = `-----BEGIN PUBLIC KEY-----

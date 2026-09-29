@@ -202,7 +202,9 @@ function isVerificationReport(value: unknown): value is VerificationReport {
     && isCoverage(report.coverage)
     && isVerificationCounts(report.counts)
     && Array.isArray(report.claims)
+    && report.claims.every(isClaimVerification)
     && Array.isArray(report.violations)
+    && report.violations.every(isPolicyViolation)
     && typeof report.generatedAt === "string"
     && report.generatedAt.length > 0;
 }
@@ -216,4 +218,62 @@ function isVerificationCounts(value: unknown): value is VerificationCounts {
   const counts = value as Partial<VerificationCounts>;
   return [counts.total, counts.supported, counts.contradicted, counts.unsupported, counts.unverifiable]
     .every((count) => typeof count === "number" && Number.isInteger(count) && count >= 0);
+}
+
+function isClaimVerification(value: unknown): boolean {
+  const record = asRecord(value);
+  const claim = asRecord(record?.claim);
+  return typeof claim?.id === "string"
+    && claim.id.length > 0
+    && typeof claim.text === "string"
+    && claim.text.length > 0
+    && isOneOf(claim.kind, ["fact", "number", "date", "current"])
+    && isOneOf(claim.importance, ["critical", "normal", "minor"])
+    && isOneOf(record?.status, ["SUPPORTED", "CONTRADICTED", "UNSUPPORTED", "UNVERIFIABLE"])
+    && typeof record?.reason === "string"
+    && isStringArray(record.evidenceIds)
+    && isObjectArray(record.evidence)
+    && isOptionalStringArray(record.supportingEvidenceIds)
+    && isOptionalStringArray(record.contradictingEvidenceIds);
+}
+
+function isPolicyViolation(value: unknown): boolean {
+  const record = asRecord(value);
+  return isOneOf(record?.code, [
+    "CONTRADICTION",
+    "CROSS_SOURCE_CONTRADICTION",
+    "UNSUPPORTED_LIMIT",
+    "UNVERIFIABLE_LIMIT",
+    "COVERAGE_BELOW_MINIMUM",
+    "CRITICAL_CLAIM_NOT_SUPPORTED",
+    "CURRENT_CLAIM_MISSING_FRESH_EVIDENCE",
+    "DECISIVE_CLAIM_MISSING_DOCUMENT_PROVENANCE",
+    "NO_CLAIMS_EXTRACTED",
+  ])
+    && typeof record?.message === "string"
+    && record.message.length > 0
+    && (record.claimId === undefined || (typeof record.claimId === "string" && record.claimId.length > 0));
+}
+
+function isOneOf(value: unknown, values: readonly string[]): boolean {
+  return typeof value === "string" && values.includes(value);
+}
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === "string");
+}
+
+function isOptionalStringArray(value: unknown): boolean {
+  return value === undefined || isStringArray(value);
+}
+
+function isObjectArray(value: unknown): boolean {
+  return Array.isArray(value)
+    && value.every((item) => item !== null && typeof item === "object" && !Array.isArray(item));
+}
+
+function asRecord(value: unknown): Record<string, unknown> | undefined {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : undefined;
 }
