@@ -40,6 +40,14 @@ test("proxy profiles provide Mistral-compatible Chat Completions defaults", () =
   });
 });
 
+test("proxy profiles provide Cohere-compatible Chat Completions defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("cohere"), {
+    upstreamBaseUrl: "https://api.cohere.ai/compatibility/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  });
+});
+
 test("proxy profiles fail closed for unknown names and incomplete OpenRouter metadata", () => {
   assert.throws(() => resolveProxyProviderProfile("unknown"), /Unsupported proxy provider profile/);
   assert.throws(() => resolveProxyProviderProfile("openrouter"), /siteUrl and appName/);
