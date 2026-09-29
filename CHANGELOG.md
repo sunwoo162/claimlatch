@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+No unreleased changes.
+
+## 0.3.17 - 2026-09-29
+
 - Added credential-free `claimlatch-receipt verify` CLI support with fail-closed exit codes for signed receipt automation.
 
 ## 0.3.16 - 2026-09-29
