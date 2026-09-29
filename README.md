@@ -136,6 +136,8 @@ npm run example:provider-proxy
 
 The example defaults to `api-key` and `/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-10-21`; override `CLAIMLATCH_PROXY_UPSTREAM_API_KEY_HEADER` or `CLAIMLATCH_PROXY_UPSTREAM_CHAT_COMPLETIONS_PATH` for another provider.
 
+For Cerebras' OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="cerebras"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.cerebras.ai/v1`, bearer authentication, and `/chat/completions`.
+
 The same example includes an OpenRouter profile. Set the required attribution metadata; the profile supplies the OpenRouter base URL, bearer authentication, and attribution headers:
 
 ```bash
