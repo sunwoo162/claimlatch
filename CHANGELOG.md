@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.53 - 2026-09-30
+
+- Added configurable `healthPath` and `answerPath` options to the guarded Node HTTP and Fetch integrations for framework-specific route mounting, with fail-closed path validation.
+
 ## 0.3.52 - 2026-09-30
 
 - Added bounded OpenAI-compatible model listing passthrough for `/v1/models` and `/models`, with provider-specific paths, authentication, query forwarding, response limits, and timeout protection.
