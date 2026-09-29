@@ -176,6 +176,33 @@ test("PDF parser extracts text from a PDF page", async () => {
   assert.match(pages[0]?.text ?? "", /Mars is known as the Red Planet/);
 });
 
+test("PDF parsing failures fall back to search-snippet provenance", async () => {
+  const provider = new ProvenanceEvidenceProvider({
+    provider: new StaticEvidenceProvider(() => [
+      {
+        id: "e1",
+        claimId: "claim_1",
+        title: "Unreadable PDF",
+        url: "https://example.test/unreadable.pdf",
+        snippet: "fallback",
+        sourceType: "unknown",
+        retrievedAt: "2026-09-28T00:00:00.000Z",
+        provider: "fixture",
+      },
+    ]),
+    fetchImpl: (async () => new Response(new Uint8Array([37, 80, 68, 70]), {
+      status: 200,
+      headers: { "content-type": "application/pdf" },
+    })) as typeof fetch,
+    pdfParser: async () => {
+      throw new Error("invalid PDF");
+    },
+  });
+
+  const result = await provider.search(claim);
+  assert.equal(result[0]?.provenance?.kind, "search-snippet");
+});
+
 function makePdf(text: string): Uint8Array {
   const stream = `BT /F1 12 Tf 20 100 Td (${text}) Tj ET`;
   const objects = [
