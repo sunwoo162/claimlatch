@@ -134,6 +134,18 @@ npm run example:provider-proxy
 
 The example defaults to `api-key` and `/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-10-21`; override `CLAIMLATCH_PROXY_UPSTREAM_API_KEY_HEADER` or `CLAIMLATCH_PROXY_UPSTREAM_CHAT_COMPLETIONS_PATH` for another provider.
 
+For a custom provider profile, the same example can use a different credential header and relative completion path while retaining the proxy's restricted header policy:
+
+```bash
+export CLAIMLATCH_PROXY_UPSTREAM_BASE_URL="https://provider.example"
+export CLAIMLATCH_PROXY_UPSTREAM_API_KEY="..."
+export CLAIMLATCH_PROXY_UPSTREAM_API_KEY_HEADER="x-api-key"
+export CLAIMLATCH_PROXY_UPSTREAM_CHAT_COMPLETIONS_PATH="/v1/chat/completions?profile=custom"
+npm run example:provider-proxy
+```
+
+Client request tracing headers such as `X-Request-Id` and provider-specific non-hop-by-hop headers are forwarded. Hop-by-hop, cookie, host, and request body framing headers remain excluded.
+
 Optional proxy settings:
 
 ```bash
