@@ -9,6 +9,7 @@
 - Exposed outbound allowlist configuration through `createDefaultClaimLatch`.
 - Added fixed and claim-aware official-source domain policies for Tavily search with post-response filtering.
 - Added a filesystem verification-receipt store and key-resolver support for rotation-aware verification.
+- Expanded the frozen independent benchmark to 48 balanced cases across 24 paired topics with train/dev/test splits.
 
 ## 0.3.0 - 2026-09-29
 

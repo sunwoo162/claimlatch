@@ -68,9 +68,34 @@ test("independent benchmark contains a balanced expanded label set", async () =>
   const cases = parseBenchmarkJsonl(raw);
   const sourceUrls = new Set(cases.flatMap((item) => item.labelSourceUrls ?? []));
 
-  assert.equal(cases.length, 32);
-  assert.equal(cases.filter((item) => item.expectedPassed).length, 16);
-  assert.equal(cases.filter((item) => !item.expectedPassed).length, 16);
-  assert.ok(sourceUrls.size >= 8);
+  assert.equal(cases.length, 48);
+  assert.equal(cases.filter((item) => item.expectedPassed).length, 24);
+  assert.equal(cases.filter((item) => !item.expectedPassed).length, 24);
+  assert.ok(sourceUrls.size >= 12);
   assert.ok(cases.every((item) => (item.labelSourceUrls?.length ?? 0) > 0));
+});
+
+test("benchmark dataset is partitioned into balanced train, dev, and test splits", async () => {
+  const splitNames = ["train", "dev", "test"] as const;
+  const splitCases = await Promise.all(splitNames.map(async (split) => {
+    const raw = await readFile(new URL(`../../benchmarks/${split}.jsonl`, import.meta.url), "utf8");
+    return [split, parseBenchmarkJsonl(raw)] as const;
+  }));
+
+  const expectedCounts = [32, 8, 8];
+  const allCases = splitCases.flatMap(([, cases]) => cases);
+  const aggregateRaw = await readFile(new URL("../../benchmarks/independent.jsonl", import.meta.url), "utf8");
+  const aggregateCases = parseBenchmarkJsonl(aggregateRaw);
+
+  assert.deepEqual(splitCases.map(([, cases]) => cases.length), expectedCounts);
+  assert.equal(new Set(allCases.map((item) => item.id)).size, 48);
+  assert.deepEqual(
+    new Set(allCases.map((item) => item.id)),
+    new Set(aggregateCases.map((item) => item.id)),
+  );
+  assert.ok(splitCases.every(([, cases]) => {
+    const positive = cases.filter((item) => item.expectedPassed).length;
+    const negative = cases.filter((item) => !item.expectedPassed).length;
+    return positive === negative;
+  }));
 });
