@@ -17,6 +17,7 @@ async function main(): Promise<void> {
   const llmBaseUrl = process.env.CLAIMLATCH_LLM_BASE_URL;
   const upstreamTimeoutMs = process.env.CLAIMLATCH_PROXY_UPSTREAM_TIMEOUT_MS;
   const upstreamApiKeyHeader = process.env.CLAIMLATCH_PROXY_UPSTREAM_API_KEY_HEADER;
+  const upstreamChatCompletionsPath = process.env.CLAIMLATCH_PROXY_UPSTREAM_CHAT_COMPLETIONS_PATH;
   const gate = createDefaultClaimLatch({
     llmModel,
     tavilyApiKey,
@@ -31,6 +32,7 @@ async function main(): Promise<void> {
       ? { upstreamApiKey: process.env.CLAIMLATCH_PROXY_UPSTREAM_API_KEY }
       : {}),
     ...(upstreamApiKeyHeader ? { upstreamApiKeyHeader } : {}),
+    ...(upstreamChatCompletionsPath ? { upstreamChatCompletionsPath } : {}),
     policy: {
       requireRetrievedDocumentForDecisiveClaims:
         process.env.CLAIMLATCH_REQUIRE_DOCUMENT_PROVENANCE === "1",

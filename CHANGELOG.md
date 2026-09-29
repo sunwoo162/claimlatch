@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added configurable provider-specific upstream Chat Completions paths and query parameters.
+
 ## 0.3.2 - 2026-09-29
 
 - Added an explicit non-streaming structured-output verifier hook while keeping tool-call and multimodal output fail-closed by default.
