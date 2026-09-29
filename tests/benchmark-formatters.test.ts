@@ -54,6 +54,8 @@ test("JUnit formatter escapes XML and records incorrect cases as failures", asyn
 
   assert.match(output, /^<\?xml version="1\.0" encoding="UTF-8"\?>\n/);
   assert.match(output, /<testsuite name="ClaimLatch benchmark" tests="3" failures="2" errors="0" skipped="0" time="0">/);
+  assert.match(output, /<property name="averageCoverage" value="1\.000000"\/>/);
+  assert.match(output, /<property name="falsePassRate" value="1\.000000"\/>/);
   assert.match(output, /<testcase name="passing&amp;case" classname="ClaimLatch benchmark"\/>/);
   assert.match(output, /<testcase name="blocked&lt;case&gt;" classname="ClaimLatch benchmark">/);
   assert.match(output, /<failure message="expected PASS, actual BLOCK">expected PASS, actual BLOCK<\/failure>/);
@@ -70,6 +72,12 @@ test("SARIF formatter emits only incorrect benchmark cases with deterministic lo
     version: string;
     runs: Array<{
       tool: { driver: { name: string; rules: Array<{ id: string }> } };
+      properties: {
+        decisionAccuracy: number;
+        averageCoverage: number;
+        falsePassRate: number;
+        falseBlockRate: number;
+      };
       results: Array<{
         ruleId: string;
         level: string;
@@ -89,6 +97,12 @@ test("SARIF formatter emits only incorrect benchmark cases with deterministic lo
   assert.equal(sarif.version, "2.1.0");
   assert.equal(sarif.runs.length, 1);
   assert.equal(sarif.runs[0]?.tool.driver.name, "ClaimLatch");
+  assert.deepEqual(sarif.runs[0]?.properties, {
+    decisionAccuracy: 1 / 3,
+    averageCoverage: 1,
+    falsePassRate: 1,
+    falseBlockRate: 0.5,
+  });
   assert.deepEqual(sarif.runs[0]?.tool.driver.rules.map((rule) => rule.id), ["FALSE_PASS", "FALSE_BLOCK"]);
   assert.equal(sarif.runs[0]?.results.length, 2);
   assert.deepEqual(sarif.runs[0]?.results.map((result) => result.ruleId), ["FALSE_BLOCK", "FALSE_PASS"]);
