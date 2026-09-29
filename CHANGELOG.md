@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.58 - 2026-09-30
+
+- Fixed the provider-compatible proxy example so it reuses the CLI provider configuration, including custom model-list paths and provider request headers.
+
 ## 0.3.57 - 2026-09-30
 
 - Added verified receipt `coverage` and claim status `counts` metadata to `claimlatch-receipt verify --json`, while omitting malformed or unverified summary fields.
