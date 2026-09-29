@@ -35,6 +35,14 @@ export interface GuardedAnswerServerOptions {
   maxRequestBytes?: number;
 }
 
+export interface GuardedAnswerFetchHandlerOptions {
+  gate: ClaimLatch;
+  policy?: Partial<GatePolicy>;
+  maxRequestBytes?: number;
+}
+
+export type GuardedAnswerFetchHandler = (request: Request) => Promise<Response>;
+
 export interface GuardedAnswerServer {
   server: Server;
   listen(port: number, host?: string): Promise<void>;
@@ -87,6 +95,82 @@ export function createGuardedAnswerServer(options: GuardedAnswerServerOptions): 
         server.close((error) => (error ? reject(error) : resolve()));
       });
     },
+  };
+}
+
+export function createGuardedAnswerFetchHandler(
+  options: GuardedAnswerFetchHandlerOptions,
+): GuardedAnswerFetchHandler {
+  const maxRequestBytes = normalizeMaxRequestBytes(
+    options.maxRequestBytes ?? DEFAULT_GUARDED_ANSWER_MAX_REQUEST_BYTES,
+  );
+
+  return async (request) => {
+    const path = new URL(request.url).pathname;
+    if (request.method === "GET" && path === "/health") {
+      return createIntegrationJsonResponse(200, { ok: true, service: "claimlatch-guarded-answer" });
+    }
+    if (request.method !== "POST" || path !== "/answer") {
+      return createIntegrationJsonResponse(404, {
+        error: { type: "not_found", code: "not_found", message: "Route not found." },
+      });
+    }
+
+    let payload: unknown;
+    try {
+      payload = JSON.parse(await readFetchRequestBody(request, maxRequestBytes)) as unknown;
+    } catch (error) {
+      if (error instanceof RequestBodyTooLargeError) {
+        return createIntegrationJsonResponse(413, {
+          error: {
+            type: "invalid_request_error",
+            code: "request_too_large",
+            message: "Request body exceeds the configured size limit.",
+          },
+        });
+      }
+      return createIntegrationJsonResponse(400, {
+        error: { type: "invalid_request_error", code: "invalid_json", message: "Request body must be valid JSON." },
+      });
+    }
+
+    const input = parseGuardedAnswerInput(payload);
+    if (!input) {
+      return createIntegrationJsonResponse(400, {
+        error: {
+          type: "invalid_request_error",
+          code: "invalid_request_error",
+          message: "Request body must contain non-empty string fields: question and draft.",
+        },
+      });
+    }
+
+    try {
+      const verified = await verifyBeforeRelease(options.gate, {
+        question: input.question,
+        answer: input.draft,
+        ...(options.policy ? { policy: options.policy } : {}),
+      });
+      return createIntegrationJsonResponse(200, verified);
+    } catch (error) {
+      if (error instanceof ClaimLatchBlockedError) {
+        return createIntegrationJsonResponse(422, {
+          error: {
+            type: "claimlatch_blocked",
+            code: "claimlatch_blocked",
+            message: "ClaimLatch blocked the answer; do not release it.",
+            report: error.report,
+          },
+        });
+      }
+      return createIntegrationJsonResponse(502, {
+        error: {
+          type: "claimlatch_integration_error",
+          code: "claimlatch_verification_error",
+          message: "ClaimLatch verification failed; the answer was not released.",
+        },
+      });
+    }
   };
 }
 
@@ -182,10 +266,53 @@ async function readIntegrationRequestBody(request: IncomingMessage, maxBytes: nu
   return new TextDecoder().decode(merged);
 }
 
+async function readFetchRequestBody(request: Request, maxBytes: number): Promise<string> {
+  const contentLength = request.headers.get("content-length");
+  if (contentLength !== null) {
+    const parsed = Number(contentLength);
+    if (Number.isInteger(parsed) && parsed > maxBytes) throw new RequestBodyTooLargeError();
+  }
+  if (!request.body) return "";
+
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  try {
+    while (true) {
+      const next = await reader.read();
+      if (next.done) break;
+      if (!next.value) continue;
+      total += next.value.byteLength;
+      if (total > maxBytes) {
+        await reader.cancel();
+        throw new RequestBodyTooLargeError();
+      }
+      chunks.push(next.value);
+    }
+  } finally {
+    reader.releaseLock();
+  }
+
+  const merged = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    merged.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return new TextDecoder().decode(merged);
+}
+
 function writeIntegrationJson(response: ServerResponse, status: number, body: unknown): void {
   response.statusCode = status;
   response.setHeader("content-type", "application/json; charset=utf-8");
   response.end(`${JSON.stringify(body)}\n`);
+}
+
+function createIntegrationJsonResponse(status: number, body: unknown): Response {
+  return new Response(`${JSON.stringify(body)}\n`, {
+    status,
+    headers: { "content-type": "application/json; charset=utf-8" },
+  });
 }
 
 function normalizeMaxRequestBytes(value: number): number {

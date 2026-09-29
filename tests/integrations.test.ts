@@ -3,6 +3,7 @@ import test from "node:test";
 import { ClaimLatch } from "../src/gate.js";
 import {
   ClaimLatchBlockedError,
+  createGuardedAnswerFetchHandler,
   createGuardedAnswerServer,
   verifyBeforeRelease,
 } from "../src/integrations.js";
@@ -152,4 +153,83 @@ test("guarded answer HTTP integration fails closed when verification throws", as
     assert.equal(body.answer, undefined);
     assert.equal(body.error?.code, "claimlatch_verification_error");
   }, failingGate);
+});
+
+test("guarded answer Fetch integration releases only verified answers", async () => {
+  const handler = createGuardedAnswerFetchHandler({ gate: fixtureGate() });
+
+  const health = await handler(new Request("https://example.test/health"));
+  assert.equal(health.status, 200);
+
+  const passed = await handler(new Request("https://example.test/answer", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ question: "question", draft: "supported draft" }),
+  }));
+  assert.equal(passed.status, 200);
+  const passedBody = await passed.json() as { answer?: string; report?: { passed?: boolean } };
+  assert.equal(passedBody.answer, "supported draft");
+  assert.equal(passedBody.report?.passed, true);
+
+  const blocked = await handler(new Request("https://example.test/answer", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ question: "question", draft: "blocked draft" }),
+  }));
+  assert.equal(blocked.status, 422);
+  const blockedBody = await blocked.json() as { answer?: string; error?: { code?: string; report?: { passed?: boolean } } };
+  assert.equal(blockedBody.answer, undefined);
+  assert.equal(blockedBody.error?.code, "claimlatch_blocked");
+  assert.equal(blockedBody.error?.report?.passed, false);
+});
+
+test("guarded answer Fetch integration fails closed for malformed and oversized requests", async () => {
+  const handler = createGuardedAnswerFetchHandler({ gate: fixtureGate(), maxRequestBytes: 1_024 });
+
+  const malformed = await handler(new Request("https://example.test/answer", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: "not-json",
+  }));
+  assert.equal(malformed.status, 400);
+  const malformedBody = await malformed.json() as { error?: { code?: string } };
+  assert.equal(malformedBody.error?.code, "invalid_json");
+
+  const oversized = await handler(new Request("https://example.test/answer", {
+    method: "POST",
+    body: JSON.stringify({ question: "question", draft: "x".repeat(2_000) }),
+  }));
+  assert.equal(oversized.status, 413);
+  const oversizedBody = await oversized.json() as { error?: { code?: string } };
+  assert.equal(oversizedBody.error?.code, "request_too_large");
+});
+
+test("guarded answer Fetch integration fails closed when verification throws", async () => {
+  const failingGate = new ClaimLatch({
+    extractor: {
+      async extract() {
+        throw new Error("fixture verifier failure");
+      },
+    },
+    evidenceProvider: {
+      async search() {
+        return [];
+      },
+    },
+    verifier: {
+      async verify() {
+        throw new Error("fixture verifier failure");
+      },
+    },
+  });
+  const handler = createGuardedAnswerFetchHandler({ gate: failingGate });
+  const response = await handler(new Request("https://example.test/answer", {
+    method: "POST",
+    body: JSON.stringify({ question: "question", draft: "supported draft" }),
+  }));
+
+  assert.equal(response.status, 502);
+  const body = await response.json() as { answer?: string; error?: { code?: string } };
+  assert.equal(body.answer, undefined);
+  assert.equal(body.error?.code, "claimlatch_verification_error");
 });
