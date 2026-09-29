@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.44 - 2026-09-29
+
+- Added a credential-free provider-compatible proxy environment variable example covering hosted, Azure-style, OpenRouter, and custom configurations.
+
 ## 0.3.43 - 2026-09-29
 
 - Added an NVIDIA NIM-compatible provider profile for the proxy's OpenAI-compatible Chat Completions path.
