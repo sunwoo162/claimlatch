@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added an explicit non-streaming structured-output verifier hook while keeping tool-call and multimodal output fail-closed by default.
+
 ## 0.3.1 - 2026-09-29
 
 - Added deterministic JSON, JUnit, and SARIF output formats to the benchmark CLI.

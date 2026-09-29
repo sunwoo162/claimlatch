@@ -5,7 +5,11 @@ export type { BenchmarkCase, BenchmarkCaseResult, BenchmarkReport } from "./benc
 export { formatBenchmarkReport, renderBenchmarkText, resolveBenchmarkOutputFormat } from "./benchmark-formatters.js";
 export type { BenchmarkFormatOptions, BenchmarkOutputFormat } from "./benchmark-formatters.js";
 export { createOpenAIProxy } from "./proxy.js";
-export type { OpenAIProxyOptions, OpenAIProxyServer } from "./proxy.js";
+export type {
+  OpenAIProxyOptions,
+  OpenAIProxyServer,
+  OpenAIProxyStructuredOutputVerifier,
+} from "./proxy.js";
 export { ProvenanceEvidenceProvider, isSafePublicHttpUrl } from "./providers/provenance.js";
 export type { OutboundAllowlist } from "./providers/provenance.js";
 export { extractPdfPages } from "./providers/pdf.js";
