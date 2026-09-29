@@ -13,7 +13,7 @@ No generated token, delta, or assistant message may be sent to the client before
 1. Validate the request and reject unsupported content shapes before contacting the upstream provider.
 2. Forward the request with streaming enabled and read the upstream SSE response internally.
 3. Parse complete SSE frames, reconstruct every textual choice, and buffer the frames without writing any response bytes to the client.
-4. Enforce maximum buffered bytes, maximum choices, and maximum reconstructed text per choice. Abort and fail closed when a limit is exceeded; an upstream deadline and client-disconnect cancellation remain follow-up hardening work.
+4. Enforce maximum buffered bytes, maximum choices, maximum reconstructed text per choice, and the upstream request deadline. Abort and fail closed when a limit is exceeded or the deadline expires.
 5. Require a clean terminal event and valid JSON for every non-terminal frame. Missing, duplicated, or malformed choice indexes are blocking errors.
 6. Verify every reconstructed textual choice with ClaimLatch. Tool-call-only choices remain unsupported until their semantics and verification boundary are specified explicitly.
 7. If any choice is blocked, return the structured ClaimLatch `422` response. Because no downstream headers or body bytes were sent, the status remains authoritative.
@@ -21,7 +21,7 @@ No generated token, delta, or assistant message may be sent to the client before
 
 ## Required limits and cancellation
 
-- The proxy has separate limits for request bytes, buffered upstream bytes, reconstructed answer bytes, and choice count. An upstream duration limit is a follow-up hardening item.
+- The proxy has separate limits for request bytes, buffered upstream bytes, reconstructed answer bytes, choice count, and upstream duration. The upstream duration defaults to 120 seconds and can be disabled explicitly with `upstreamTimeoutMs: 0`.
 - A disconnected client must abort the upstream request and release buffered memory.
 - An upstream disconnect before a valid terminal event must not become a partial `PASS`.
 - Each request must own its buffers; no stream data may be shared across requests.
@@ -48,4 +48,4 @@ The downstream response should remain `text/event-stream` only after verificatio
 - Tests cover frame parsing, choice reconstruction, limits, cancellation, blocked replay, passing replay, and upstream error propagation.
 - The existing non-streaming path and its OpenAI-compatible header behavior remain unchanged.
 
-The current implementation covers the textual path, complete `[DONE]` framing, blocked replay prevention, malformed/truncated streams, multiple choices, and the buffered response size limit. Upstream deadlines, client-disconnect cancellation, and per-choice limits remain follow-up hardening work. Tool-call-only and unsupported multimodal streams still fail closed until their semantics are specified.
+The current implementation covers the textual path, complete `[DONE]` framing, blocked replay prevention, malformed/truncated streams, multiple choices, buffer and per-choice limits, upstream deadlines, and client-disconnect cancellation. Tool-call-only and unsupported multimodal streams still fail closed until their semantics are specified.

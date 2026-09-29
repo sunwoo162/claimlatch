@@ -13,6 +13,7 @@ export interface OpenAIProxyOptions {
   maxBufferedResponseBytes?: number;
   maxBufferedChoices?: number;
   maxBufferedChoiceBytes?: number;
+  upstreamTimeoutMs?: number;
 }
 
 export interface OpenAIProxyServer {
@@ -67,6 +68,8 @@ const RESPONSE_HEADERS_TO_FORWARD = new Set([
   "x-request-id",
 ]);
 
+const DEFAULT_UPSTREAM_TIMEOUT_MS = 120_000;
+
 export function createOpenAIProxy(options: OpenAIProxyOptions): OpenAIProxyServer {
   const baseUrl = options.upstreamBaseUrl.replace(/\/$/, "");
   const fetchImpl = options.fetchImpl ?? fetch;
@@ -74,6 +77,7 @@ export function createOpenAIProxy(options: OpenAIProxyOptions): OpenAIProxyServe
   const maxBufferedResponseBytes = clampInteger(options.maxBufferedResponseBytes ?? 10_000_000, 1_024, 50_000_000);
   const maxBufferedChoices = clampInteger(options.maxBufferedChoices ?? 16, 1, 128);
   const maxBufferedChoiceBytes = clampInteger(options.maxBufferedChoiceBytes ?? 2_000_000, 1_024, 10_000_000);
+  const upstreamTimeoutMs = normalizeTimeout(options.upstreamTimeoutMs ?? DEFAULT_UPSTREAM_TIMEOUT_MS);
 
   const server = createServer(async (request, response) => {
     try {
@@ -87,6 +91,7 @@ export function createOpenAIProxy(options: OpenAIProxyOptions): OpenAIProxyServe
         maxBufferedResponseBytes,
         maxBufferedChoices,
         maxBufferedChoiceBytes,
+        upstreamTimeoutMs,
       });
     } catch (error) {
       writeJson(response, 500, {
@@ -128,6 +133,7 @@ async function handleRequest(input: {
   maxBufferedResponseBytes: number;
   maxBufferedChoices: number;
   maxBufferedChoiceBytes: number;
+  upstreamTimeoutMs: number;
 }): Promise<void> {
   const { request, response } = input;
   const path = request.url?.split("?")[0] ?? "/";
@@ -172,14 +178,39 @@ async function handleRequest(input: {
     ? `Bearer ${input.options.upstreamApiKey}`
     : incomingAuthorization;
 
-  const upstream = await input.fetchImpl(`${input.baseUrl}/chat/completions`, {
-    method: "POST",
-    headers: upstreamRequestHeaders(request, authorization),
-    body: bodyText,
-  });
+  const upstreamAbort = createUpstreamAbortControl(request, response, input.upstreamTimeoutMs);
+  let upstream: Response;
+  try {
+    upstream = await input.fetchImpl(`${input.baseUrl}/chat/completions`, {
+      method: "POST",
+      headers: upstreamRequestHeaders(request, authorization),
+      body: bodyText,
+      signal: upstreamAbort.signal,
+    });
+  } catch (error) {
+    if (handleUpstreamAbort(upstreamAbort, response)) return;
+    upstreamAbort.cleanup();
+    throw error;
+  }
+  if (upstreamAbort.aborted()) {
+    handleUpstreamAbort(upstreamAbort, response);
+    return;
+  }
 
   if (!upstream.ok) {
-    const upstreamText = await upstream.text();
+    let upstreamText: string;
+    try {
+      upstreamText = await upstream.text();
+    } catch (error) {
+      if (handleUpstreamAbort(upstreamAbort, response)) return;
+      upstreamAbort.cleanup();
+      throw error;
+    }
+    if (upstreamAbort.aborted()) {
+      handleUpstreamAbort(upstreamAbort, response);
+      return;
+    }
+    upstreamAbort.cleanup();
     response.statusCode = upstream.status;
     const copiedContentType = copyResponseHeaders(upstream, response);
     if (!copiedContentType) response.setHeader("content-type", "application/json; charset=utf-8");
@@ -192,8 +223,14 @@ async function handleRequest(input: {
     let answers: string[] | null;
     try {
       streamText = await readBufferedResponse(upstream, input.maxBufferedResponseBytes);
+      if (upstreamAbort.aborted()) {
+        handleUpstreamAbort(upstreamAbort, response);
+        return;
+      }
       answers = streamingAssistantTexts(streamText, input.maxBufferedChoices, input.maxBufferedChoiceBytes);
-    } catch {
+    } catch (error) {
+      if (handleUpstreamAbort(upstreamAbort, response)) return;
+      upstreamAbort.cleanup();
       writeJson(response, 502, {
         error: {
           type: "claimlatch_upstream_error",
@@ -203,6 +240,7 @@ async function handleRequest(input: {
       });
       return;
     }
+    upstreamAbort.cleanup();
 
     if (!answers) {
       writeJson(response, 502, {
@@ -243,7 +281,19 @@ async function handleRequest(input: {
     return;
   }
 
-  const upstreamText = await upstream.text();
+  let upstreamText: string;
+  try {
+    upstreamText = await upstream.text();
+  } catch (error) {
+    if (handleUpstreamAbort(upstreamAbort, response)) return;
+    upstreamAbort.cleanup();
+    throw error;
+  }
+  if (upstreamAbort.aborted()) {
+    handleUpstreamAbort(upstreamAbort, response);
+    return;
+  }
+  upstreamAbort.cleanup();
 
   let payload: ChatCompletionResponse;
   try {
@@ -545,4 +595,83 @@ function headerValue(value: string | string[] | undefined): string | undefined {
 
 function clampInteger(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, Math.floor(value)));
+}
+
+function normalizeTimeout(value: number): number {
+  if (!Number.isFinite(value) || value < 0) {
+    throw new Error("upstreamTimeoutMs must be a finite non-negative number.");
+  }
+  return Math.floor(value);
+}
+
+function createUpstreamAbortControl(
+  request: IncomingMessage,
+  response: ServerResponse,
+  timeoutMs: number,
+): {
+  signal: AbortSignal;
+  aborted(): boolean;
+  timedOut(): boolean;
+  clientDisconnected(): boolean;
+  cleanup(): void;
+} {
+  const controller = new AbortController();
+  let timedOut = false;
+  let clientDisconnected = false;
+  let finished = false;
+
+  const abortForClientDisconnect = (): void => {
+    if (finished || response.writableEnded) return;
+    clientDisconnected = true;
+    controller.abort(new DOMException("The client disconnected.", "AbortError"));
+  };
+  const abortForRequestDisconnect = (): void => {
+    if (finished) return;
+    clientDisconnected = true;
+    controller.abort(new DOMException("The client disconnected.", "AbortError"));
+  };
+  const timeout = timeoutMs > 0
+    ? setTimeout(() => {
+      if (finished) return;
+      timedOut = true;
+      controller.abort(new DOMException("The upstream request timed out.", "TimeoutError"));
+    }, timeoutMs)
+    : undefined;
+
+  response.on("close", abortForClientDisconnect);
+  request.on("aborted", abortForRequestDisconnect);
+
+  return {
+    signal: controller.signal,
+    aborted: () => timedOut || clientDisconnected,
+    timedOut: () => timedOut,
+    clientDisconnected: () => clientDisconnected,
+    cleanup() {
+      if (finished) return;
+      finished = true;
+      if (timeout !== undefined) clearTimeout(timeout);
+      response.removeListener("close", abortForClientDisconnect);
+      request.removeListener("aborted", abortForRequestDisconnect);
+    },
+  };
+}
+
+function handleUpstreamAbort(
+  control: ReturnType<typeof createUpstreamAbortControl>,
+  response: ServerResponse,
+): boolean {
+  const timedOut = control.timedOut();
+  const clientDisconnected = control.clientDisconnected();
+  control.cleanup();
+  if (clientDisconnected) return true;
+  if (!timedOut) return false;
+
+  writeJson(response, 504, {
+    error: {
+      type: "claimlatch_upstream_error",
+      code: "claimlatch_upstream_timeout",
+      message: "The upstream provider did not complete within the configured timeout.",
+    },
+  });
+  return true;
 }

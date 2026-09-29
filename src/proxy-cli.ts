@@ -15,6 +15,7 @@ async function main(): Promise<void> {
 
   const llmApiKey = process.env.CLAIMLATCH_LLM_API_KEY ?? process.env.OPENAI_API_KEY;
   const llmBaseUrl = process.env.CLAIMLATCH_LLM_BASE_URL;
+  const upstreamTimeoutMs = process.env.CLAIMLATCH_PROXY_UPSTREAM_TIMEOUT_MS;
   const gate = createDefaultClaimLatch({
     llmModel,
     tavilyApiKey,
@@ -32,6 +33,9 @@ async function main(): Promise<void> {
       requireRetrievedDocumentForDecisiveClaims:
         process.env.CLAIMLATCH_REQUIRE_DOCUMENT_PROVENANCE === "1",
     },
+    ...(upstreamTimeoutMs !== undefined && upstreamTimeoutMs !== ""
+      ? { upstreamTimeoutMs: parseTimeout(upstreamTimeoutMs) }
+      : {}),
   });
 
   await proxy.listen(port, host);
@@ -42,6 +46,14 @@ function parsePort(value: string): number {
   const parsed = Number(value);
   if (!Number.isInteger(parsed) || parsed < 1 || parsed > 65_535) {
     throw new Error("CLAIMLATCH_PROXY_PORT must be an integer between 1 and 65535.");
+  }
+  return parsed;
+}
+
+function parseTimeout(value: string): number {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    throw new Error("CLAIMLATCH_PROXY_UPSTREAM_TIMEOUT_MS must be a finite non-negative number.");
   }
   return parsed;
 }
