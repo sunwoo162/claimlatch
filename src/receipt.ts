@@ -4,6 +4,7 @@ import { join } from "node:path";
 import type {
   SignedVerificationReceipt,
   VerificationReceiptPayload,
+  VerificationCounts,
   VerificationReport,
 } from "./types.js";
 
@@ -160,9 +161,7 @@ export function verifySignedVerificationReceipt(
   options: ReceiptVerificationOptions = {},
 ): boolean {
   try {
-    if (receipt.version !== 1 || receipt.algorithm !== "Ed25519") {
-      return false;
-    }
+    if (!isSignedVerificationReceipt(receipt)) return false;
 
     const publicKeyPem = options.publicKeyPem
       ?? (options.keyResolver ? options.keyResolver(receipt.payload.keyId) : receipt.payload.publicKeyPem);
@@ -193,6 +192,28 @@ function isSignedVerificationReceipt(value: unknown): value is SignedVerificatio
     && !!payload
     && typeof payload === "object"
     && typeof (payload as { publicKeyPem?: unknown }).publicKeyPem === "string"
-    && !!(payload as { report?: unknown }).report
-    && typeof (payload as { report?: unknown }).report === "object";
+    && isVerificationReport((payload as { report?: unknown }).report);
+}
+
+function isVerificationReport(value: unknown): value is VerificationReport {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const report = value as Partial<VerificationReport>;
+  return typeof report.passed === "boolean"
+    && isCoverage(report.coverage)
+    && isVerificationCounts(report.counts)
+    && Array.isArray(report.claims)
+    && Array.isArray(report.violations)
+    && typeof report.generatedAt === "string"
+    && report.generatedAt.length > 0;
+}
+
+function isCoverage(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 1;
+}
+
+function isVerificationCounts(value: unknown): value is VerificationCounts {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const counts = value as Partial<VerificationCounts>;
+  return [counts.total, counts.supported, counts.contradicted, counts.unsupported, counts.unverifiable]
+    .every((count) => typeof count === "number" && Number.isInteger(count) && count >= 0);
 }
