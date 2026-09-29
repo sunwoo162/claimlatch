@@ -16,4 +16,13 @@ or:
 claimlatch-bench --dataset benchmarks/independent.jsonl
 ```
 
+For CI integrations, select a machine-readable report format:
+
+```bash
+claimlatch-bench --dataset benchmarks/independent.jsonl --format junit > claimlatch-benchmark.xml
+claimlatch-bench --dataset benchmarks/independent.jsonl --format sarif > claimlatch-benchmark.sarif
+```
+
+`--format json` and the legacy `--json` flag emit the complete benchmark report. JUnit marks incorrect decisions as failures; SARIF reports incorrect decisions with `FALSE_PASS` or `FALSE_BLOCK` rules. No format changes the benchmark labels or invents results.
+
 This set is still not a publication-quality factuality benchmark. It exists to make regressions measurable while a larger frozen dataset with train/dev/test separation is built. Do not tune prompts against the test cases and then describe the result as independent evaluation.

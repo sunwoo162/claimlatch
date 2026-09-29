@@ -1,10 +1,13 @@
 #!/usr/bin/env node
 import { readFile } from "node:fs/promises";
 import { parseBenchmarkJsonl, runBenchmark } from "./benchmark.js";
+import { formatBenchmarkReport, resolveBenchmarkOutputFormat } from "./benchmark-formatters.js";
 import { createDefaultClaimLatch } from "./default-gate.js";
 
 async function main(): Promise<void> {
-  const datasetPath = argumentValue(process.argv.slice(2), "--dataset")
+  const argv = process.argv.slice(2);
+  const format = resolveBenchmarkOutputFormat(argv);
+  const datasetPath = argumentValue(argv, "--dataset")
     ?? new URL("../../benchmarks/independent.jsonl", import.meta.url);
   const raw = await readFile(datasetPath, "utf8");
   const cases = parseBenchmarkJsonl(raw);
@@ -24,12 +27,8 @@ async function main(): Promise<void> {
   });
 
   const report = await runBenchmark(gate, cases);
-  const json = process.argv.includes("--json");
-  if (json) {
-    process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
-  } else {
-    process.stdout.write(renderBenchmark(report));
-  }
+  const artifactUri = typeof datasetPath === "string" ? datasetPath : "benchmarks/independent.jsonl";
+  process.stdout.write(formatBenchmarkReport(report, format, { artifactUri }));
 
   process.exitCode = report.falsePasses === 0 ? 0 : 1;
 }
@@ -40,27 +39,6 @@ function argumentValue(argv: string[], name: string): string | undefined {
   const value = argv[index + 1];
   if (!value || value.startsWith("-")) throw new Error(`${name} requires a value.`);
   return value;
-}
-
-function renderBenchmark(report: Awaited<ReturnType<typeof runBenchmark>>): string {
-  const lines = [
-    "ClaimLatch benchmark",
-    "",
-    `Cases             ${report.total}`,
-    `Decision accuracy ${(report.decisionAccuracy * 100).toFixed(1)}%`,
-    `False passes      ${report.falsePasses}/${report.negativeCases} (${(report.falsePassRate * 100).toFixed(1)}%)`,
-    `False blocks      ${report.falseBlocks}/${report.positiveCases} (${(report.falseBlockRate * 100).toFixed(1)}%)`,
-    "",
-  ];
-
-  for (const item of report.cases.filter((candidate) => !candidate.correct)) {
-    lines.push(
-      `${item.falsePass ? "FALSE PASS" : "FALSE BLOCK"}  ${item.id}`,
-      `  expected=${item.expectedPassed ? "PASS" : "BLOCK"} actual=${item.actualPassed ? "PASS" : "BLOCK"}`,
-    );
-  }
-  lines.push("");
-  return lines.join("\n");
 }
 
 main().catch((error: unknown) => {
