@@ -11,6 +11,7 @@
 - Added a filesystem verification-receipt store and key-resolver support for rotation-aware verification.
 - Expanded the frozen independent benchmark to 48 balanced cases across 24 paired topics with train/dev/test splits.
 - Improved proxy compatibility by forwarding safe client metadata and preserving selected upstream request, rate-limit, and retry headers.
+- Added a runnable receipt-storage integration example with ephemeral demo keys and key-resolver verification.
 
 ## 0.3.0 - 2026-09-29
 

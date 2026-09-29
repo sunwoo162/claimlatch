@@ -34,6 +34,7 @@
     "check": "npm run build && node --test dist/tests/*.test.js",
     "demo": "npm run build && node dist/examples/offline-demo.js",
     "example:guarded": "npm run build && node dist/examples/guarded-answer.js",
+    "example:receipts": "npm run build && node dist/examples/receipt-storage.js",
     "prepublishOnly": "npm run check",
     "bench": "npm run build && node dist/src/benchmark-cli.js --dataset benchmarks/independent.jsonl"
   },

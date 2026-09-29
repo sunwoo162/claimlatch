@@ -7,6 +7,15 @@ declare const process: {
 };
 
 declare module "node:crypto" {
+  export interface KeyObject {
+    export(options: { type: "pkcs8" | "spki"; format: "pem" }): string;
+  }
+
+  export function generateKeyPairSync(type: "ed25519"): {
+    privateKey: KeyObject;
+    publicKey: KeyObject;
+  };
+
   export function sign(
     algorithm: null,
     data: Uint8Array,
