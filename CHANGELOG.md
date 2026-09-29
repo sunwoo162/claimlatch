@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.39 - 2026-09-29
+
+- Added an xAI-compatible provider profile for the proxy's OpenAI-compatible Chat Completions path.
+
 ## 0.3.38 - 2026-09-29
 
 - Expanded the frozen independent-label benchmark to 74 balanced cases across 37 paired topics while keeping the test split unchanged.
