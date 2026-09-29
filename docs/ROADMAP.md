@@ -24,7 +24,6 @@
 
 ## Next
 
-- Official-source resolvers and domain policies
 - Persistent receipt storage and key rotation guidance
 - Larger frozen benchmark with train/dev/test separation
 - Calibration experiments only after enough independent labels exist

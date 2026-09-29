@@ -7,6 +7,7 @@
 - Added CI-friendly failure details for false passes and false blocks without fabricating benchmark results.
 - Added optional provenance egress host and port allowlists with redirect revalidation.
 - Exposed outbound allowlist configuration through `createDefaultClaimLatch`.
+- Added fixed and claim-aware official-source domain policies for Tavily search with post-response filtering.
 
 ## 0.3.0 - 2026-09-29
 

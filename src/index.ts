@@ -15,6 +15,7 @@ export { DEFAULT_POLICY, calculateCoverage, evaluatePolicy, mergePolicy } from "
 export { LlmClaimExtractor, LlmClaimVerifier, OpenAICompatibleClient } from "./providers/openai-compatible.js";
 export { StaticEvidenceProvider } from "./providers/static.js";
 export { TavilyEvidenceProvider } from "./providers/tavily.js";
+export type { DomainPolicy, OfficialDomainResolver } from "./providers/tavily.js";
 export { ClaimLatchBlockedError, verifyBeforeRelease } from "./integrations.js";
 export type { VerifiedAnswer } from "./integrations.js";
 export {
