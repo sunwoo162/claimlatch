@@ -6,6 +6,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "fireworks",
   "groq",
   "mistral",
+  "nvidia",
   "openrouter",
   "perplexity",
   "sambanova",
@@ -66,6 +67,11 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
   },
   mistral: {
     upstreamBaseUrl: "https://api.mistral.ai/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  },
+  nvidia: {
+    upstreamBaseUrl: "https://integrate.api.nvidia.com/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
   },

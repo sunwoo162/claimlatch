@@ -15,6 +15,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
     "fireworks",
     "groq",
     "mistral",
+    "nvidia",
     "openrouter",
     "perplexity",
     "sambanova",
@@ -23,7 +24,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
   ]);
   assert.equal(
     formatProxyProviderProfileNames(),
-    "azure, cerebras, cohere, deepseek, fireworks, groq, mistral, openrouter, perplexity, sambanova, together, or xai",
+    "azure, cerebras, cohere, deepseek, fireworks, groq, mistral, nvidia, openrouter, perplexity, sambanova, together, or xai",
   );
 });
 
@@ -68,6 +69,14 @@ test("proxy profiles provide Groq-compatible Chat Completions defaults", () => {
 test("proxy profiles provide Mistral-compatible Chat Completions defaults", () => {
   assert.deepEqual(resolveProxyProviderProfile("mistral"), {
     upstreamBaseUrl: "https://api.mistral.ai/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  });
+});
+
+test("proxy profiles provide NVIDIA NIM-compatible Chat Completions defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("nvidia"), {
+    upstreamBaseUrl: "https://integrate.api.nvidia.com/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
   });
