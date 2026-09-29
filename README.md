@@ -155,6 +155,8 @@ The profile fails closed when either attribution value is missing or the site UR
 
 For Groq's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="groq"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.groq.com/openai/v1`, bearer authentication, and `/chat/completions`; the proxy does not enable Groq's separate Responses API route.
 
+For Hugging Face Inference Providers' OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="huggingface"` and provide a Hugging Face token as `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://router.huggingface.co/v1`, bearer authentication, and `/chat/completions`; select the routed model and provider in the request's `model` value.
+
 For Mistral's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="mistral"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.mistral.ai/v1`, bearer authentication, and `/chat/completions`.
 
 For NVIDIA NIM's hosted OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="nvidia"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://integrate.api.nvidia.com/v1`, bearer authentication, and `/chat/completions`.
