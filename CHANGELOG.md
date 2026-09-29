@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.20 - 2026-09-29
+
+- Added fixed upstream request header injection for provider tenant, version, and routing compatibility with SDK and CLI configuration.
+
 ## 0.3.19 - 2026-09-29
 
 - Expanded the frozen independent benchmark to 62 balanced cases across 31 paired topics and updated train/dev/test splits.
