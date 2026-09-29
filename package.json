@@ -10,7 +10,8 @@
   "bin": {
     "claimlatch": "dist/src/cli.js",
     "claimlatch-proxy": "dist/src/proxy-cli.js",
-    "claimlatch-bench": "dist/src/benchmark-cli.js"
+    "claimlatch-bench": "dist/src/benchmark-cli.js",
+    "claimlatch-receipt": "dist/src/receipt-cli.js"
   },
   "exports": {
     ".": {
