@@ -252,6 +252,195 @@ test("proxy verifies every buffered streaming choice", async () => {
   });
 });
 
+test("proxy releases a streaming tool call only through an explicit verifier", async () => {
+  let verifierCalled = false;
+  let verifiedChoice: unknown;
+  await withProxyOptions({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://upstream.example/v1",
+    structuredOutputVerifier: {
+      async verify({ question, choice, stream }) {
+        verifierCalled = true;
+        verifiedChoice = choice;
+        assert.equal(question, "question");
+        assert.equal(stream, true);
+        return fixtureGate().verify({ question, answer: "The tool call is verified." });
+      },
+    },
+    fetchImpl: upstreamFetchSse([
+      sseData({
+        id: "chatcmpl_stream_tool_call",
+        object: "chat.completion.chunk",
+        choices: [{
+          index: 0,
+          delta: {
+            role: "assistant",
+            tool_calls: [{
+              index: 0,
+              id: "call_1",
+              type: "function",
+              function: { name: "lookup", arguments: "" },
+            }],
+          },
+        }],
+      }),
+      sseData({
+        id: "chatcmpl_stream_tool_call",
+        object: "chat.completion.chunk",
+        choices: [{
+          index: 0,
+          delta: {
+            tool_calls: [{ index: 0, function: { arguments: '{"city":"Seoul"}' } }],
+          },
+          finish_reason: "tool_calls",
+        }],
+      }),
+      "data: [DONE]\n\n",
+    ]),
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ stream: true, messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get("x-claimlatch-result"), "pass");
+    const body = await response.text();
+    assert.match(body, /tool_calls/);
+    assert.match(body, /Seoul/);
+  });
+
+  assert.equal(verifierCalled, true);
+  const message = (verifiedChoice as { message?: { tool_calls?: Array<{ function?: { arguments?: string } }> } }).message;
+  assert.equal(message?.tool_calls?.[0]?.function?.arguments, '{"city":"Seoul"}');
+});
+
+test("proxy fails closed for a streaming structured output without a verifier", async () => {
+  await withProxyOptions({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://upstream.example/v1",
+    fetchImpl: upstreamFetchSse([
+      sseData({
+        id: "chatcmpl_stream_unverified_tool_call",
+        object: "chat.completion.chunk",
+        choices: [{
+          index: 0,
+          delta: {
+            role: "assistant",
+            tool_calls: [{ index: 0, id: "call_1", type: "function", function: { name: "lookup" } }],
+          },
+        }],
+      }),
+      sseData({
+        id: "chatcmpl_stream_unverified_tool_call",
+        object: "chat.completion.chunk",
+        choices: [{ index: 0, delta: {}, finish_reason: "tool_calls" }],
+      }),
+      "data: [DONE]\n\n",
+    ]),
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ stream: true, messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 502);
+    const body = await response.text();
+    assert.ok(!body.includes("chatcmpl_stream_unverified_tool_call"));
+    assert.match(body, /claimlatch_missing_assistant_text/);
+  });
+});
+
+test("proxy releases streaming multimodal content only through an explicit verifier", async () => {
+  let verifiedChoice: unknown;
+  await withProxyOptions({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://upstream.example/v1",
+    structuredOutputVerifier: {
+      async verify({ choice, stream }) {
+        assert.equal(stream, true);
+        verifiedChoice = choice;
+        return fixtureGate().verify({ question: "question", answer: "The multimodal output is verified." });
+      },
+    },
+    fetchImpl: upstreamFetchSse([
+      sseData({
+        id: "chatcmpl_stream_multimodal",
+        object: "chat.completion.chunk",
+        choices: [{
+          index: 0,
+          delta: {
+            role: "assistant",
+            content: [{ type: "text", text: "A chart" }],
+          },
+        }],
+      }),
+      sseData({
+        id: "chatcmpl_stream_multimodal",
+        object: "chat.completion.chunk",
+        choices: [{
+          index: 0,
+          delta: {
+            content: [{ type: "image_url", image_url: { url: "https://example.test/chart.png" } }],
+          },
+          finish_reason: "stop",
+        }],
+      }),
+      "data: [DONE]\n\n",
+    ]),
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ stream: true, messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 200);
+    assert.match(await response.text(), /image_url/);
+  });
+
+  const message = (verifiedChoice as { message?: { content?: unknown[] } }).message;
+  assert.deepEqual(message?.content, [
+    { type: "text", text: "A chart" },
+    { type: "image_url", image_url: { url: "https://example.test/chart.png" } },
+  ]);
+});
+
+test("proxy fails closed when a streaming structured verifier throws", async () => {
+  await withProxyOptions({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://upstream.example/v1",
+    structuredOutputVerifier: {
+      async verify() {
+        throw new Error("streaming structured verifier unavailable");
+      },
+    },
+    fetchImpl: upstreamFetchSse([
+      sseData({
+        id: "chatcmpl_stream_structured_error",
+        object: "chat.completion.chunk",
+        choices: [{
+          index: 0,
+          delta: {
+            role: "assistant",
+            tool_calls: [{ index: 0, id: "call_1", type: "function", function: { name: "lookup" } }],
+          },
+          finish_reason: "tool_calls",
+        }],
+      }),
+      "data: [DONE]\n\n",
+    ]),
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ stream: true, messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 502);
+    const body = await response.json() as { error?: { code?: string } };
+    assert.equal(body.error?.code, "claimlatch_structured_output_verifier_error");
+  });
+});
+
 test("proxy fails closed when a buffered stream exceeds its size limit", async () => {
   await withProxyOptions({
     gate: fixtureGate(),
