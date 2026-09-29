@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { parseProxyHeaderMap, renderProxyHelp } from "../src/proxy-cli-options.js";
+import {
+  parseProxyHeaderMap,
+  renderProxyHelp,
+  resolveProxyProviderConfiguration,
+} from "../src/proxy-cli-options.js";
 
 test("proxy CLI help documents credentials, routes, and fail-closed behavior", () => {
   const help = renderProxyHelp();
@@ -29,4 +33,25 @@ test("proxy header map parser rejects entries without a name=value separator", (
     () => parseProxyHeaderMap("x-tenant=prod,invalid-entry"),
     /name=value entries/,
   );
+});
+
+test("proxy CLI resolves provider profile defaults and explicit overrides", () => {
+  assert.deepEqual(resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "openrouter",
+    CLAIMLATCH_PROXY_OPENROUTER_SITE_URL: "https://claimlatch.example",
+    CLAIMLATCH_PROXY_OPENROUTER_APP_NAME: "ClaimLatch",
+    CLAIMLATCH_PROXY_UPSTREAM_API_KEY_HEADER: "x-api-key",
+    CLAIMLATCH_PROXY_UPSTREAM_CHAT_COMPLETIONS_PATH: "/v1/chat/completions?profile=custom",
+    CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS: "x-tenant=prod,x-signature=a=b",
+  }), {
+    upstreamBaseUrl: "https://openrouter.ai/api/v1",
+    upstreamApiKeyHeader: "x-api-key",
+    upstreamChatCompletionsPath: "/v1/chat/completions?profile=custom",
+    upstreamRequestHeaders: {
+      "HTTP-Referer": "https://claimlatch.example",
+      "X-Title": "ClaimLatch",
+      "x-tenant": "prod",
+      "x-signature": "a=b",
+    },
+  });
 });
