@@ -1,0 +1,77 @@
+declare const process: {
+  argv: string[];
+  env: Record<string, string | undefined>;
+  exitCode?: number;
+  stdout: { write(chunk: string): void };
+  stderr: { write(chunk: string): void };
+};
+
+declare module "node:fs/promises" {
+  export function readFile(path: string | URL, encoding: "utf8"): Promise<string>;
+}
+
+declare module "node:http" {
+  export interface IncomingMessage extends AsyncIterable<Uint8Array | string> {
+    method?: string;
+    url?: string;
+    headers: Record<string, string | string[] | undefined>;
+    statusCode?: number;
+    on(event: "data", listener: (chunk: Uint8Array | string) => void): this;
+    on(event: "end", listener: () => void): this;
+    on(event: "error", listener: (error: Error) => void): this;
+  }
+
+  export interface ClientRequest {
+    on(event: "error", listener: (error: Error) => void): this;
+    destroy(error?: Error): void;
+  }
+
+  export interface RequestOptions {
+    hostname: string;
+    port?: string;
+    path: string;
+    method: string;
+    headers: Record<string, string>;
+    signal?: AbortSignal;
+    servername?: string;
+    lookup?: (
+      hostname: string,
+      options: { all?: boolean; family?: number; verbatim?: boolean },
+      callback: (error: Error | null, address?: string, family?: number) => void,
+    ) => void;
+  }
+
+  export interface ServerResponse {
+    statusCode: number;
+    setHeader(name: string, value: string | number): void;
+    end(data?: string): void;
+  }
+
+  export interface Server {
+    listen(port: number, host: string, callback?: () => void): this;
+    close(callback: (error?: Error) => void): this;
+    once(event: "error", listener: (error: Error) => void): this;
+    removeListener(event: "error", listener: (error: Error) => void): this;
+    address(): { port: number; address: string; family: string } | string | null;
+  }
+
+  export function createServer(
+    listener: (request: IncomingMessage, response: ServerResponse) => void | Promise<void>,
+  ): Server;
+
+  export function request(options: RequestOptions, callback: (response: IncomingMessage) => void): ClientRequest;
+}
+
+declare module "node:https" {
+  import type { ClientRequest, IncomingMessage, RequestOptions } from "node:http";
+  export function request(options: RequestOptions, callback: (response: IncomingMessage) => void): ClientRequest;
+}
+
+declare module "node:dns/promises" {
+  export interface LookupAddress {
+    address: string;
+    family: 4 | 6;
+  }
+
+  export function lookup(hostname: string, options: { all: true; verbatim: true }): Promise<LookupAddress[]>;
+}

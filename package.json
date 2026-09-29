@@ -1,0 +1,53 @@
+{
+  "name": "claimlatch",
+  "version": "0.2.0",
+  "description": "Evidence-backed reliability gate for LLM answers.",
+  "type": "module",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "claimlatch": "dist/src/cli.js",
+    "claimlatch-proxy": "dist/src/proxy-cli.js",
+    "claimlatch-bench": "dist/src/benchmark-cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js"
+    }
+  },
+  "files": [
+    "dist/src",
+    "benchmarks/independent.jsonl",
+    "docs",
+    "README.md",
+    "SECURITY.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test dist/tests/*.test.js",
+    "check": "npm run build && node --test dist/tests/*.test.js",
+    "demo": "npm run build && node dist/examples/offline-demo.js",
+    "prepublishOnly": "npm run check",
+    "bench": "npm run build && node dist/src/benchmark-cli.js --dataset benchmarks/independent.jsonl"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  },
+  "keywords": [
+    "llm",
+    "hallucination",
+    "fact-checking",
+    "verification",
+    "ai-safety",
+    "grounding",
+    "cli",
+    "llm-evaluation",
+    "reverse-proxy",
+    "provenance"
+  ],
+  "sideEffects": false
+}
