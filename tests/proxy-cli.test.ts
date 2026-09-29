@@ -16,7 +16,7 @@ test("proxy CLI help documents credentials, routes, and fail-closed behavior", (
   assert.match(help, /POST \/v1\/chat\/completions/);
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS/);
   assert.match(help, /CLAIMLATCH_PROXY_PROVIDER_PROFILE/);
-  assert.match(help, /azure, cohere, deepseek, fireworks, groq, mistral, openrouter, or together/);
+  assert.match(help, /azure, cohere, deepseek, fireworks, groq, mistral, openrouter, together, or xai/);
   assert.match(help, /PASS.*BLOCK/s);
   assert.match(help, /credential-free/);
 });
@@ -64,6 +64,7 @@ test("proxy CLI resolves every hosted built-in profile without an explicit base 
     groq: "https://api.groq.com/openai/v1",
     mistral: "https://api.mistral.ai/v1",
     together: "https://api.together.xyz/v1",
+    xai: "https://api.x.ai/v1",
   } as const;
 
   for (const [profile, upstreamBaseUrl] of Object.entries(expected)) {

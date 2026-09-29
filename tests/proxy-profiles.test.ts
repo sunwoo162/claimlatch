@@ -16,10 +16,11 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
     "mistral",
     "openrouter",
     "together",
+    "xai",
   ]);
   assert.equal(
     formatProxyProviderProfileNames(),
-    "azure, cohere, deepseek, fireworks, groq, mistral, openrouter, or together",
+    "azure, cohere, deepseek, fireworks, groq, mistral, openrouter, together, or xai",
   );
 });
 
@@ -88,6 +89,14 @@ test("proxy profiles provide Fireworks-compatible Chat Completions defaults", ()
 test("proxy profiles provide Together-compatible Chat Completions defaults", () => {
   assert.deepEqual(resolveProxyProviderProfile("together"), {
     upstreamBaseUrl: "https://api.together.xyz/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  });
+});
+
+test("proxy profiles provide xAI-compatible Chat Completions defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("xai"), {
+    upstreamBaseUrl: "https://api.x.ai/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
   });
