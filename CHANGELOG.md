@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.23 - 2026-09-29
+
+- Added fail-closed validation for unknown `claimlatch-receipt` CLI options.
+
 ## 0.3.22 - 2026-09-29
 
 - Shared upstream request header parsing between the proxy CLI and provider-compatible proxy example with regression coverage.
