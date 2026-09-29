@@ -11,6 +11,7 @@ import {
 import {
   parseBenchmarkSplit,
   renderBenchmarkHelp,
+  renderBenchmarkValidation,
   resolveBenchmarkDatasetPath,
   resolveBenchmarkDatasetSelection,
 } from "../src/benchmark-cli-options.js";
@@ -79,6 +80,26 @@ test("benchmark CLI help documents datasets, splits, manifests, and formats", ()
   assert.match(help, /--manifest <path>/);
   assert.match(help, /--format <text\|json\|junit\|sarif>/);
   assert.match(help, /default is the 54-case independent\.jsonl aggregate/);
+});
+
+test("benchmark validation output is credential-free and deterministic", () => {
+  const text = renderBenchmarkValidation({
+    dataset: "benchmarks/test.jsonl",
+    cases: 10,
+    manifest: "benchmarks/MANIFEST.json",
+  }, "text");
+  assert.match(text, /Dataset valid/);
+  assert.match(text, /benchmarks\/test\.jsonl/);
+  assert.match(text, /Cases\s+10/);
+  assert.match(text, /Manifest verified/);
+
+  const json = JSON.parse(renderBenchmarkValidation({
+    dataset: "benchmarks/test.jsonl",
+    cases: 10,
+    manifest: "benchmarks/MANIFEST.json",
+  }, "json")) as { valid?: boolean; cases?: number };
+  assert.equal(json.valid, true);
+  assert.equal(json.cases, 10);
 });
 
 test("benchmark JSONL parser rejects duplicate IDs", () => {
