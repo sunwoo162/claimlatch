@@ -16,11 +16,17 @@ export type {
 export { formatBenchmarkReport, renderBenchmarkText, resolveBenchmarkOutputFormat } from "./benchmark-formatters.js";
 export type { BenchmarkFormatOptions, BenchmarkOutputFormat } from "./benchmark-formatters.js";
 export { createOpenAIProxy } from "./proxy.js";
+export { resolveProxyProviderProfile } from "./proxy-profiles.js";
 export type {
   OpenAIProxyOptions,
   OpenAIProxyServer,
   OpenAIProxyStructuredOutputVerifier,
 } from "./proxy.js";
+export type {
+  ProxyProviderProfile,
+  ProxyProviderProfileName,
+  ProxyProviderProfileOptions,
+} from "./proxy-profiles.js";
 export { ProvenanceEvidenceProvider, isSafePublicHttpUrl } from "./providers/provenance.js";
 export type { OutboundAllowlist } from "./providers/provenance.js";
 export { extractPdfPages } from "./providers/pdf.js";

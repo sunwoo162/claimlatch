@@ -1,11 +1,22 @@
-import { createDefaultClaimLatch, createOpenAIProxy } from "../src/index.js";
+import { createDefaultClaimLatch, createOpenAIProxy, resolveProxyProviderProfile } from "../src/index.js";
 import { parseProxyHeaderMap } from "../src/proxy-cli-options.js";
 
 async function main(): Promise<void> {
-  const upstreamBaseUrl = process.env.CLAIMLATCH_PROXY_UPSTREAM_BASE_URL;
+  const providerProfile = resolveProxyProviderProfile(
+    process.env.CLAIMLATCH_PROXY_PROVIDER_PROFILE,
+    {
+      ...(process.env.CLAIMLATCH_PROXY_OPENROUTER_SITE_URL
+        ? { siteUrl: process.env.CLAIMLATCH_PROXY_OPENROUTER_SITE_URL }
+        : {}),
+      ...(process.env.CLAIMLATCH_PROXY_OPENROUTER_APP_NAME
+        ? { appName: process.env.CLAIMLATCH_PROXY_OPENROUTER_APP_NAME }
+        : {}),
+    },
+  );
+  const upstreamBaseUrl = process.env.CLAIMLATCH_PROXY_UPSTREAM_BASE_URL ?? providerProfile.upstreamBaseUrl;
   const upstreamApiKey = process.env.CLAIMLATCH_PROXY_UPSTREAM_API_KEY;
   const upstreamChatCompletionsPath = process.env.CLAIMLATCH_PROXY_UPSTREAM_CHAT_COMPLETIONS_PATH
-    ?? "/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-10-21";
+    ?? providerProfile.upstreamChatCompletionsPath;
   const upstreamRequestHeaders = process.env.CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS;
   const upstreamResponseHeaderNames = process.env.CLAIMLATCH_PROXY_UPSTREAM_RESPONSE_HEADER_NAMES;
   const upstreamResponseHeaderPrefixes = process.env.CLAIMLATCH_PROXY_UPSTREAM_RESPONSE_HEADER_PREFIXES;
@@ -35,13 +46,18 @@ async function main(): Promise<void> {
     gate,
     upstreamBaseUrl,
     upstreamChatCompletionsPath,
-    upstreamApiKeyHeader: process.env.CLAIMLATCH_PROXY_UPSTREAM_API_KEY_HEADER ?? "api-key",
+    upstreamApiKeyHeader: process.env.CLAIMLATCH_PROXY_UPSTREAM_API_KEY_HEADER ?? providerProfile.upstreamApiKeyHeader,
     ...(upstreamApiKey ? { upstreamApiKey } : {}),
     ...(process.env.CLAIMLATCH_PROXY_UPSTREAM_TIMEOUT_MS
       ? { upstreamTimeoutMs: parseTimeout(process.env.CLAIMLATCH_PROXY_UPSTREAM_TIMEOUT_MS) }
       : {}),
-    ...(upstreamRequestHeaders !== undefined
-      ? { upstreamRequestHeaders: parseProxyHeaderMap(upstreamRequestHeaders) }
+    ...((providerProfile.upstreamRequestHeaders || upstreamRequestHeaders !== undefined)
+      ? {
+        upstreamRequestHeaders: {
+          ...providerProfile.upstreamRequestHeaders,
+          ...(upstreamRequestHeaders !== undefined ? parseProxyHeaderMap(upstreamRequestHeaders) : {}),
+        },
+      }
       : {}),
     ...(upstreamResponseHeaderNames !== undefined
       ? { upstreamResponseHeaderNames: parseHeaderList(upstreamResponseHeaderNames) }

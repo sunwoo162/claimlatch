@@ -136,6 +136,21 @@ npm run example:provider-proxy
 
 The example defaults to `api-key` and `/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-10-21`; override `CLAIMLATCH_PROXY_UPSTREAM_API_KEY_HEADER` or `CLAIMLATCH_PROXY_UPSTREAM_CHAT_COMPLETIONS_PATH` for another provider.
 
+The same example includes an OpenRouter profile. Set the required attribution metadata; the profile supplies the OpenRouter base URL, bearer authentication, and attribution headers:
+
+```bash
+export CLAIMLATCH_PROXY_PROVIDER_PROFILE="openrouter"
+export CLAIMLATCH_PROXY_OPENROUTER_SITE_URL="https://your-app.example"
+export CLAIMLATCH_PROXY_OPENROUTER_APP_NAME="Your App"
+export CLAIMLATCH_PROXY_UPSTREAM_API_KEY="..."
+export CLAIMLATCH_LLM_API_KEY="..."
+export CLAIMLATCH_LLM_MODEL="your-verifier-model"
+export TAVILY_API_KEY="..."
+npm run example:provider-proxy
+```
+
+The profile fails closed when either attribution value is missing or the site URL is not HTTP(S). Explicit `CLAIMLATCH_PROXY_UPSTREAM_*` values override profile defaults.
+
 For a custom provider profile, the same example can use a different credential header and relative completion path while retaining the proxy's restricted header policy:
 
 ```bash
