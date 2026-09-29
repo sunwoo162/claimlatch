@@ -8,6 +8,11 @@ import {
   runBenchmark,
   verifyBenchmarkManifestEntry,
 } from "../src/benchmark.js";
+import {
+  parseBenchmarkSplit,
+  resolveBenchmarkDatasetPath,
+  resolveBenchmarkDatasetSelection,
+} from "../src/benchmark-cli-options.js";
 import { ClaimLatch } from "../src/gate.js";
 import type { ClaimExtractor, ClaimVerifier, EvidenceProvider } from "../src/types.js";
 
@@ -49,6 +54,19 @@ test("benchmark reports false-pass and false-block rates against independent lab
   assert.equal(report.decisionAccuracy, 1);
   assert.equal(report.falsePassRate, 0);
   assert.equal(report.falseBlockRate, 0);
+});
+
+test("benchmark split options resolve frozen datasets and reject unknown values", () => {
+  assert.equal(parseBenchmarkSplit("train"), "train");
+  assert.equal(parseBenchmarkSplit("dev"), "dev");
+  assert.equal(parseBenchmarkSplit("test"), "test");
+  assert.equal(resolveBenchmarkDatasetPath("dev").pathname.endsWith("/benchmarks/dev.jsonl"), true);
+  const selectedSplit = resolveBenchmarkDatasetSelection(undefined, "test");
+  if (!(selectedSplit instanceof URL)) throw new Error("expected frozen split URL");
+  assert.equal(selectedSplit.pathname.endsWith("/benchmarks/test.jsonl"), true);
+  assert.equal(resolveBenchmarkDatasetSelection("custom.jsonl", undefined), "custom.jsonl");
+  assert.throws(() => resolveBenchmarkDatasetSelection("custom.jsonl", "train"), /cannot be combined/);
+  assert.throws(() => parseBenchmarkSplit("independent"), /Unsupported benchmark split/);
 });
 
 test("benchmark JSONL parser rejects duplicate IDs", () => {

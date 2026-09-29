@@ -367,6 +367,16 @@ claimlatch-bench --dataset benchmarks/independent.jsonl
 npm run bench
 ```
 
+Run one frozen split with the same manifest verification:
+
+```bash
+claimlatch-bench --split train
+claimlatch-bench --split dev
+claimlatch-bench --split test
+```
+
+`--split` accepts `train`, `dev`, or `test` and cannot be combined with `--dataset`. The default remains the 54-case `independent.jsonl` aggregate.
+
 For an explicit integrity check, pass the manifest alongside the dataset:
 
 ```bash
