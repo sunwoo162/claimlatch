@@ -60,7 +60,7 @@ export function renderProxyHelp(): string {
     "  claimlatch-proxy",
     "",
     "Required environment variables:",
-    "  CLAIMLATCH_PROXY_UPSTREAM_BASE_URL  Generation provider base URL",
+    "  CLAIMLATCH_PROXY_UPSTREAM_BASE_URL  Generation provider base URL (required unless profile supplies one)",
     "  CLAIMLATCH_LLM_MODEL                 Verification model",
     "  TAVILY_API_KEY                       Evidence search credential",
     "",

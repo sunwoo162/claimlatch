@@ -10,7 +10,7 @@ test("proxy CLI help documents credentials, routes, and fail-closed behavior", (
   const help = renderProxyHelp();
 
   assert.match(help, /Usage:\s+claimlatch-proxy/);
-  assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_BASE_URL/);
+  assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_BASE_URL.*required unless profile supplies one/);
   assert.match(help, /CLAIMLATCH_LLM_MODEL/);
   assert.match(help, /TAVILY_API_KEY/);
   assert.match(help, /POST \/v1\/chat\/completions/);
@@ -54,4 +54,25 @@ test("proxy CLI resolves provider profile defaults and explicit overrides", () =
       "x-signature": "a=b",
     },
   });
+});
+
+test("proxy CLI resolves every hosted built-in profile without an explicit base URL", () => {
+  const expected = {
+    cohere: "https://api.cohere.ai/compatibility/v1",
+    deepseek: "https://api.deepseek.com",
+    fireworks: "https://api.fireworks.ai/inference/v1",
+    groq: "https://api.groq.com/openai/v1",
+    mistral: "https://api.mistral.ai/v1",
+    together: "https://api.together.xyz/v1",
+  } as const;
+
+  for (const [profile, upstreamBaseUrl] of Object.entries(expected)) {
+    assert.deepEqual(resolveProxyProviderConfiguration({
+      CLAIMLATCH_PROXY_PROVIDER_PROFILE: profile,
+    }), {
+      upstreamBaseUrl,
+      upstreamApiKeyHeader: "authorization",
+      upstreamChatCompletionsPath: "/chat/completions",
+    });
+  }
 });
