@@ -1,23 +1,28 @@
-import { createDefaultClaimLatch, createOpenAIProxy, resolveProxyProviderProfile } from "../src/index.js";
-import { parseProxyHeaderMap } from "../src/proxy-cli-options.js";
+import { createDefaultClaimLatch, createOpenAIProxy } from "../src/index.js";
+import { resolveProxyProviderConfiguration } from "../src/proxy-cli-options.js";
+
+export function resolveProviderCompatibleProxyConfiguration(
+  env: Readonly<Record<string, string | undefined>> = process.env,
+) {
+  const configuration = resolveProxyProviderConfiguration(env);
+  return {
+    ...configuration,
+    ...(env.CLAIMLATCH_PROXY_UPSTREAM_API_KEY
+      ? { upstreamApiKey: env.CLAIMLATCH_PROXY_UPSTREAM_API_KEY }
+      : {}),
+  };
+}
 
 async function main(): Promise<void> {
-  const providerProfile = resolveProxyProviderProfile(
-    process.env.CLAIMLATCH_PROXY_PROVIDER_PROFILE,
-    {
-      ...(process.env.CLAIMLATCH_PROXY_OPENROUTER_SITE_URL
-        ? { siteUrl: process.env.CLAIMLATCH_PROXY_OPENROUTER_SITE_URL }
-        : {}),
-      ...(process.env.CLAIMLATCH_PROXY_OPENROUTER_APP_NAME
-        ? { appName: process.env.CLAIMLATCH_PROXY_OPENROUTER_APP_NAME }
-        : {}),
-    },
-  );
-  const upstreamBaseUrl = process.env.CLAIMLATCH_PROXY_UPSTREAM_BASE_URL ?? providerProfile.upstreamBaseUrl;
-  const upstreamApiKey = process.env.CLAIMLATCH_PROXY_UPSTREAM_API_KEY;
-  const upstreamChatCompletionsPath = process.env.CLAIMLATCH_PROXY_UPSTREAM_CHAT_COMPLETIONS_PATH
-    ?? providerProfile.upstreamChatCompletionsPath;
-  const upstreamRequestHeaders = process.env.CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS;
+  const providerConfiguration = resolveProviderCompatibleProxyConfiguration();
+  const {
+    upstreamBaseUrl,
+    upstreamApiKey,
+    upstreamApiKeyHeader,
+    upstreamChatCompletionsPath,
+    upstreamModelsPath,
+    upstreamRequestHeaders,
+  } = providerConfiguration;
   const upstreamResponseHeaderNames = process.env.CLAIMLATCH_PROXY_UPSTREAM_RESPONSE_HEADER_NAMES;
   const upstreamResponseHeaderPrefixes = process.env.CLAIMLATCH_PROXY_UPSTREAM_RESPONSE_HEADER_PREFIXES;
   const llmModel = process.env.CLAIMLATCH_LLM_MODEL;
@@ -46,19 +51,13 @@ async function main(): Promise<void> {
     gate,
     upstreamBaseUrl,
     upstreamChatCompletionsPath,
-    upstreamApiKeyHeader: process.env.CLAIMLATCH_PROXY_UPSTREAM_API_KEY_HEADER ?? providerProfile.upstreamApiKeyHeader,
+    upstreamModelsPath,
+    upstreamApiKeyHeader,
     ...(upstreamApiKey ? { upstreamApiKey } : {}),
     ...(process.env.CLAIMLATCH_PROXY_UPSTREAM_TIMEOUT_MS
       ? { upstreamTimeoutMs: parseTimeout(process.env.CLAIMLATCH_PROXY_UPSTREAM_TIMEOUT_MS) }
       : {}),
-    ...((providerProfile.upstreamRequestHeaders || upstreamRequestHeaders !== undefined)
-      ? {
-        upstreamRequestHeaders: {
-          ...providerProfile.upstreamRequestHeaders,
-          ...(upstreamRequestHeaders !== undefined ? parseProxyHeaderMap(upstreamRequestHeaders) : {}),
-        },
-      }
-      : {}),
+    ...(upstreamRequestHeaders ? { upstreamRequestHeaders } : {}),
     ...(upstreamResponseHeaderNames !== undefined
       ? { upstreamResponseHeaderNames: parseHeaderList(upstreamResponseHeaderNames) }
       : {}),
@@ -93,7 +92,17 @@ function parseHeaderList(value: string): string[] {
   return value.split(",").map((header) => header.trim()).filter(Boolean);
 }
 
-main().catch((error: unknown) => {
-  process.stderr.write(`provider-compatible-proxy: ${error instanceof Error ? error.message : String(error)}\n`);
-  process.exitCode = 1;
-});
+if (isMainModule()) {
+  main().catch((error: unknown) => {
+    process.stderr.write(`provider-compatible-proxy: ${error instanceof Error ? error.message : String(error)}\n`);
+    process.exitCode = 1;
+  });
+}
+
+function isMainModule(): boolean {
+  if (!process.argv[1]) return false;
+  const modulePath = decodeURIComponent(import.meta.url.slice("file:///".length))
+    .replace(/^([A-Za-z]:)\//u, "$1/")
+    .replace(/\//gu, "\\");
+  return modulePath.toLowerCase() === process.argv[1].toLowerCase();
+}
