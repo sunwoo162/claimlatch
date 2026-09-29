@@ -105,6 +105,35 @@ test("file receipt store persists receipts and rejects unsafe IDs", async () => 
   }
 });
 
+test("file receipt store rejects malformed receipt key metadata", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "claimlatch-receipts-"));
+  try {
+    const store = new FileVerificationReceiptStore({ directory });
+    const receipt = createSignedVerificationReceipt(report, { privateKeyPem, publicKeyPem });
+
+    await assert.rejects(
+      store.save("empty-signature", { ...receipt, signature: "" }),
+      /Invalid signed verification receipt/,
+    );
+    await assert.rejects(
+      store.save("empty-public-key", {
+        ...receipt,
+        payload: { ...receipt.payload, publicKeyPem: "" },
+      }),
+      /Invalid signed verification receipt/,
+    );
+    await assert.rejects(
+      store.save("invalid-key-id", {
+        ...receipt,
+        payload: { ...receipt.payload, keyId: 123 as unknown as string },
+      }),
+      /Invalid signed verification receipt/,
+    );
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
 test("receipt key resolver supports rotation by key ID and fails closed for unknown keys", () => {
   const receipt = createSignedVerificationReceipt(report, { privateKeyPem, publicKeyPem, keyId: "old-key" });
 
