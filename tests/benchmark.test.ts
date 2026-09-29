@@ -118,7 +118,8 @@ test("benchmark files match the committed integrity manifest", async () => {
 
   for (const [fileName, metadata] of Object.entries(manifest.files ?? {})) {
     const raw = await readFile(new URL(`../../benchmarks/${fileName}`, import.meta.url), "utf8");
-    assert.equal(createHash("sha256").update(raw).digest("hex"), metadata.sha256);
+    const canonical = raw.replace(/\r\n?/gu, "\n");
+    assert.equal(createHash("sha256").update(canonical).digest("hex"), metadata.sha256);
     assert.equal(parseBenchmarkJsonl(raw).length, metadata.cases);
   }
 });
