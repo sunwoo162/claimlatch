@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.29 - 2026-09-29
+
+- Added a Groq-compatible provider profile for the proxy's Chat Completions path.
+
 ## 0.3.28 - 2026-09-29
 
 - Connected provider compatibility profiles to the proxy CLI with explicit override support.
