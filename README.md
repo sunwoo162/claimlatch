@@ -176,6 +176,22 @@ if (!report.passed) {
 
 모든 extraction/search/verification 구성 요소는 인터페이스로 정의되어 있습니다. 따라서 기본 adapter 대신 로컬 모델, private corpus, 공식 API, 커스텀 RAG 시스템을 연결할 수 있습니다.
 
+## 애플리케이션 통합 예제
+
+`verifyBeforeRelease`는 애플리케이션의 마지막 전달 경로에서 PASS인 초안만 반환합니다. BLOCK이면 검증 리포트를 포함한 `ClaimLatchBlockedError`를 던지므로, 오류 처리에서 초안을 사용자에게 전달하지 않도록 구성할 수 있습니다.
+
+```bash
+export CLAIMLATCH_EXAMPLE_QUESTION="What is the current release status?"
+export CLAIMLATCH_EXAMPLE_DRAFT="The current release is stable."
+export CLAIMLATCH_LLM_MODEL="your-verifier-model"
+export CLAIMLATCH_LLM_API_KEY="..."
+export TAVILY_API_KEY="..."
+
+npm run example:guarded
+```
+
+전체 예제는 [`examples/guarded-answer.ts`](examples/guarded-answer.ts)에 있습니다. 실제 애플리케이션에서는 `CLAIMLATCH_EXAMPLE_DRAFT`를 생성 모델 호출 결과로 대체하고, `verifyBeforeRelease`가 반환한 `answer`만 사용자에게 전달하세요.
+
 ## 서명된 검증 영수증
 
 검증 리포트는 Ed25519 개인키로 서명된 영수증으로 포장할 수 있습니다. 영수증 payload에는 리포트와 공개키가 함께 포함되며, payload 전체를 canonical JSON으로 직렬화한 뒤 서명합니다.

@@ -20,6 +20,7 @@
 - 32-case human-authored independent-label benchmark seed
 - False-pass / false-block metrics
 - Ed25519-signed verification receipt API
+- Runnable guarded-application integration example
 
 ## Next
 

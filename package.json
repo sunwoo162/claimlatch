@@ -20,9 +20,11 @@
   },
   "files": [
     "dist/src",
+    "dist/examples",
     "benchmarks/independent.jsonl",
     "docs",
     "README.md",
+    "examples",
     "SECURITY.md",
     "LICENSE"
   ],
@@ -31,6 +33,7 @@
     "test": "npm run build && node --test dist/tests/*.test.js",
     "check": "npm run build && node --test dist/tests/*.test.js",
     "demo": "npm run build && node dist/examples/offline-demo.js",
+    "example:guarded": "npm run build && node dist/examples/guarded-answer.js",
     "prepublishOnly": "npm run check",
     "bench": "npm run build && node dist/src/benchmark-cli.js --dataset benchmarks/independent.jsonl"
   },
