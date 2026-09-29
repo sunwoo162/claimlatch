@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.3.4 - 2026-09-29
+
 - Added fail-closed validation for configured upstream base URLs.
 
 ## 0.3.3 - 2026-09-29
