@@ -58,6 +58,7 @@ test("JUnit formatter escapes XML and records incorrect cases as failures", asyn
   assert.match(output, /<testcase name="blocked&lt;case&gt;" classname="ClaimLatch benchmark">/);
   assert.match(output, /<failure message="expected PASS, actual BLOCK">expected PASS, actual BLOCK<\/failure>/);
   assert.match(output, /<testcase name="false-pass" classname="ClaimLatch benchmark">/);
+  assert.match(output, /<properties>\n\s+<property name="labelSourceUrls" value="https:\/\/example\.test\/label"\/>\n\s+<property name="note" value="Independent label\."\/>\n\s+<\/properties>/);
   assert.match(output, /expected BLOCK, actual PASS/);
 });
 

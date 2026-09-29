@@ -69,8 +69,10 @@ function renderBenchmarkJUnit(report: BenchmarkReport): string {
     if (item.correct) return `  <testcase name="${name}" classname="ClaimLatch benchmark"/>`;
 
     const message = benchmarkMismatchMessage(item);
+    const properties = renderBenchmarkJUnitProperties(item);
     return [
       `  <testcase name="${name}" classname="ClaimLatch benchmark">`,
+      ...(properties ? [properties] : []),
       `    <failure message="${escapeXml(message)}">${escapeXml(message)}</failure>`,
       "  </testcase>",
     ].join("\n");
@@ -83,6 +85,18 @@ function renderBenchmarkJUnit(report: BenchmarkReport): string {
     "</testsuite>",
     "",
   ].join("\n");
+}
+
+function renderBenchmarkJUnitProperties(item: BenchmarkReport["cases"][number]): string {
+  const properties: string[] = [];
+  if (item.labelSourceUrls && item.labelSourceUrls.length > 0) {
+    properties.push(`      <property name="labelSourceUrls" value="${escapeXml(item.labelSourceUrls.join(" "))}"/>`);
+  }
+  if (item.note) {
+    properties.push(`      <property name="note" value="${escapeXml(item.note)}"/>`);
+  }
+  if (properties.length === 0) return "";
+  return ["    <properties>", ...properties, "    </properties>"].join("\n");
 }
 
 function renderBenchmarkSarif(report: BenchmarkReport, options: BenchmarkFormatOptions): string {
