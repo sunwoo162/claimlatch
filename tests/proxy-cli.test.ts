@@ -14,7 +14,7 @@ test("proxy CLI help documents credentials, routes, and fail-closed behavior", (
   assert.match(help, /CLAIMLATCH_LLM_MODEL/);
   assert.match(help, /TAVILY_API_KEY/);
   assert.match(help, /POST \/v1\/chat\/completions/);
-  assert.match(help, /GET  \/v1\/models, \/models/);
+  assert.match(help, /GET  \/v1\/models, \/models, \/v1\/models\/:id, \/models\/:id/);
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS/);
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_MODELS_PATH/);
   assert.match(help, /CLAIMLATCH_PROXY_PROVIDER_PROFILE/);

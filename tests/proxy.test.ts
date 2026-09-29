@@ -199,6 +199,48 @@ test("proxy applies provider-specific model path and authentication settings", a
   assert.equal(capturedHeaders?.get("authorization"), null);
 });
 
+test("proxy forwards encoded model retrieval requests through the configured model path", async () => {
+  let capturedUrl: string | undefined;
+  let capturedMethod: string | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://upstream.example",
+    upstreamModelsPath: "/v1/models?scope=active",
+    fetchImpl: (async (url, init) => {
+      capturedUrl = String(url);
+      capturedMethod = init?.method;
+      return new Response(JSON.stringify({ id: "org/model", object: "model" }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/models/org%2Fmodel?verbose=true`);
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), { id: "org/model", object: "model" });
+  });
+
+  assert.equal(capturedUrl, "https://upstream.example/v1/models/org%2Fmodel?scope=active&verbose=true");
+  assert.equal(capturedMethod, "GET");
+});
+
+test("proxy does not treat model path traversal as a model retrieval route", async () => {
+  let fetchCalls = 0;
+  await withProxyOptions({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://upstream.example/v1",
+    fetchImpl: (async () => {
+      fetchCalls += 1;
+      return new Response("unexpected", { status: 200 });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/models/%2E%2E`);
+    assert.equal(response.status, 404);
+  });
+  assert.equal(fetchCalls, 0);
+});
+
 test("proxy fails closed when the upstream model listing exceeds the response limit", async () => {
   await withProxyOptions({
     gate: fixtureGate(),

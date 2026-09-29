@@ -83,7 +83,7 @@ export function renderProxyHelp(): string {
     "",
     "Routes:",
     "  GET  /health",
-    "  GET  /v1/models, /models",
+    "  GET  /v1/models, /models, /v1/models/:id, /models/:id",
     "  POST /v1/chat/completions",
     "  POST /chat/completions",
     "",
