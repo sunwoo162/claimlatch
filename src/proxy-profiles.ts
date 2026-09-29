@@ -5,6 +5,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "deepseek",
   "fireworks",
   "groq",
+  "huggingface",
   "mistral",
   "nvidia",
   "openrouter",
@@ -62,6 +63,11 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
   },
   groq: {
     upstreamBaseUrl: "https://api.groq.com/openai/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  },
+  huggingface: {
+    upstreamBaseUrl: "https://router.huggingface.co/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
   },
