@@ -497,6 +497,8 @@ PASS is not proof of universal truth. Claim extraction, search, source selection
 
 ## Project status
 
+`0.3.35` adds a Fireworks-compatible provider profile for the proxy's Chat Completions path.
+
 `0.3.34` adds a Together AI-compatible provider profile for the proxy's Chat Completions path.
 
 `0.3.33` adds a DeepSeek-compatible provider profile for the proxy's Chat Completions path.
