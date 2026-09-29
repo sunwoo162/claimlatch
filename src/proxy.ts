@@ -38,6 +38,32 @@ interface ChatCompletionResponse {
   [key: string]: unknown;
 }
 
+const HOP_BY_HOP_HEADERS = new Set([
+  "connection",
+  "keep-alive",
+  "proxy-authenticate",
+  "proxy-authorization",
+  "te",
+  "trailer",
+  "transfer-encoding",
+  "upgrade",
+]);
+
+const REQUEST_HEADERS_TO_STRIP = new Set([
+  ...HOP_BY_HOP_HEADERS,
+  "authorization",
+  "content-length",
+  "cookie",
+  "host",
+  "proxy-authorization",
+]);
+
+const RESPONSE_HEADERS_TO_FORWARD = new Set([
+  "content-type",
+  "retry-after",
+  "x-request-id",
+]);
+
 export function createOpenAIProxy(options: OpenAIProxyOptions): OpenAIProxyServer {
   const baseUrl = options.upstreamBaseUrl.replace(/\/$/, "");
   const fetchImpl = options.fetchImpl ?? fetch;
@@ -140,17 +166,15 @@ async function handleRequest(input: {
 
   const upstream = await input.fetchImpl(`${input.baseUrl}/chat/completions`, {
     method: "POST",
-    headers: {
-      "content-type": "application/json",
-      ...(authorization ? { authorization } : {}),
-    },
+    headers: upstreamRequestHeaders(request, authorization),
     body: bodyText,
   });
 
   const upstreamText = await upstream.text();
   if (!upstream.ok) {
     response.statusCode = upstream.status;
-    response.setHeader("content-type", upstream.headers.get("content-type") ?? "application/json; charset=utf-8");
+    const copiedContentType = copyResponseHeaders(upstream, response);
+    if (!copiedContentType) response.setHeader("content-type", "application/json; charset=utf-8");
     response.end(upstreamText);
     return;
   }
@@ -203,8 +227,40 @@ async function handleRequest(input: {
   }
 
   response.statusCode = 200;
-  response.setHeader("content-type", "application/json; charset=utf-8");
+  const copiedContentType = copyResponseHeaders(upstream, response);
+  if (!copiedContentType) response.setHeader("content-type", "application/json; charset=utf-8");
   response.end(upstreamText);
+}
+
+function upstreamRequestHeaders(request: IncomingMessage, authorization: string | undefined): Record<string, string> {
+  const headers: Record<string, string> = { "content-type": "application/json" };
+
+  for (const [rawName, rawValue] of Object.entries(request.headers)) {
+    const name = rawName.toLowerCase();
+    if (REQUEST_HEADERS_TO_STRIP.has(name) || rawValue === undefined) continue;
+    headers[name] = Array.isArray(rawValue) ? rawValue.join(", ") : rawValue;
+  }
+
+  if (authorization) headers.authorization = authorization;
+  return headers;
+}
+
+function copyResponseHeaders(upstream: Response, response: ServerResponse): boolean {
+  let copiedContentType = false;
+  for (const [name, value] of upstream.headers) {
+    const normalizedName = name.toLowerCase();
+    if (HOP_BY_HOP_HEADERS.has(normalizedName)) continue;
+    if (
+      RESPONSE_HEADERS_TO_FORWARD.has(normalizedName)
+      || normalizedName.startsWith("openai-")
+      || normalizedName.startsWith("x-ratelimit-")
+      || normalizedName.startsWith("ratelimit-")
+    ) {
+      response.setHeader(name, value);
+      if (normalizedName === "content-type") copiedContentType = true;
+    }
+  }
+  return copiedContentType;
 }
 
 function lastUserMessageText(messages: unknown): string | null {

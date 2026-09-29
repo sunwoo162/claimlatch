@@ -3,6 +3,7 @@ import test from "node:test";
 import { ClaimLatch } from "../src/gate.js";
 import { createOpenAIProxy } from "../src/proxy.js";
 import type { ClaimExtractor, ClaimVerifier, EvidenceProvider } from "../src/types.js";
+import type { OpenAIProxyOptions } from "../src/proxy.js";
 
 function fixtureGate(): ClaimLatch {
   const extractor: ClaimExtractor = {
@@ -33,10 +34,10 @@ function fixtureGate(): ClaimLatch {
   return new ClaimLatch({ extractor, evidenceProvider, verifier });
 }
 
-function upstreamFetchPayload(payload: unknown): typeof fetch {
+function upstreamFetchPayload(payload: unknown, headers: HeadersInit = { "content-type": "application/json" }): typeof fetch {
   return (async () => new Response(JSON.stringify(payload), {
     status: 200,
-    headers: { "content-type": "application/json" },
+    headers,
   })) as typeof fetch;
 }
 
@@ -48,12 +49,11 @@ function upstreamFetch(answer: string): typeof fetch {
   });
 }
 
-async function withProxyPayload(payload: unknown, run: (url: string) => Promise<void>): Promise<void> {
-  const proxy = createOpenAIProxy({
-    gate: fixtureGate(),
-    upstreamBaseUrl: "https://upstream.example/v1",
-    fetchImpl: upstreamFetchPayload(payload),
-  });
+async function withProxyOptions(
+  options: OpenAIProxyOptions,
+  run: (url: string) => Promise<void>,
+): Promise<void> {
+  const proxy = createOpenAIProxy(options);
   await proxy.listen(0, "127.0.0.1");
   const address = proxy.server.address();
   if (!address || typeof address === "string") throw new Error("missing proxy address");
@@ -62,6 +62,18 @@ async function withProxyPayload(payload: unknown, run: (url: string) => Promise<
   } finally {
     await proxy.close();
   }
+}
+
+async function withProxyPayload(
+  payload: unknown,
+  run: (url: string) => Promise<void>,
+  responseHeaders?: HeadersInit,
+): Promise<void> {
+  await withProxyOptions({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://upstream.example/v1",
+    fetchImpl: upstreamFetchPayload(payload, responseHeaders),
+  }, run);
 }
 
 async function withProxy(answer: string, run: (url: string) => Promise<void>): Promise<void> {
@@ -178,5 +190,67 @@ test("proxy fails closed when an upstream choice is malformed", async () => {
     assert.equal(response.status, 502);
     const body = await response.json() as { error?: { code?: string } };
     assert.equal(body.error?.code, "claimlatch_missing_assistant_text");
+  });
+});
+
+test("proxy forwards compatible request headers and configured authentication", async () => {
+  let capturedHeaders: Headers | undefined;
+  await withProxyOptions({
+      gate: fixtureGate(),
+      upstreamBaseUrl: "https://upstream.example/v1",
+      upstreamApiKey: "server-key",
+      fetchImpl: (async (_input, init) => {
+        capturedHeaders = new Headers(init?.headers);
+        return new Response(JSON.stringify({
+          id: "chatcmpl_headers",
+          object: "chat.completion",
+          choices: [{ message: { role: "assistant", content: "Header-compatible answer." } }],
+        }), { status: 200, headers: { "content-type": "application/json" } });
+      }) as typeof fetch,
+    }, async (url) => {
+      const response = await fetch(`${url}/v1/chat/completions`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          authorization: "Bearer client-key",
+          accept: "application/json",
+          "openai-organization": "org_test",
+          "openai-project": "proj_test",
+          "x-request-id": "request_test",
+          connection: "keep-alive",
+        },
+        body: JSON.stringify({ messages: [{ role: "user", content: "question" }] }),
+      });
+      assert.equal(response.status, 200);
+  });
+
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer server-key");
+  assert.equal(capturedHeaders?.get("accept"), "application/json");
+  assert.equal(capturedHeaders?.get("openai-organization"), "org_test");
+  assert.equal(capturedHeaders?.get("openai-project"), "proj_test");
+  assert.equal(capturedHeaders?.get("x-request-id"), "request_test");
+  assert.equal(capturedHeaders?.get("connection"), null);
+});
+
+test("proxy preserves compatible upstream response headers on pass", async () => {
+  await withProxyPayload({
+    id: "chatcmpl_response_headers",
+    object: "chat.completion",
+    choices: [{ message: { role: "assistant", content: "Response-header-compatible answer." } }],
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get("x-claimlatch-result"), "pass");
+    assert.equal(response.headers.get("x-request-id"), "resp_test");
+    assert.equal(response.headers.get("x-ratelimit-limit-requests"), "10");
+  }, {
+    "content-type": "application/json",
+    "x-request-id": "resp_test",
+    "x-ratelimit-limit-requests": "10",
+    connection: "close",
   });
 });
