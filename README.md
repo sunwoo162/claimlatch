@@ -377,6 +377,8 @@ claimlatch-bench --split test
 
 `--split` accepts `train`, `dev`, or `test` and cannot be combined with `--dataset`. The default remains the 54-case `independent.jsonl` aggregate.
 
+Use `claimlatch-bench --help` for the complete option list without configuring provider credentials.
+
 For an explicit integrity check, pass the manifest alongside the dataset:
 
 ```bash

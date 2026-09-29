@@ -1,5 +1,26 @@
 export type BenchmarkSplit = "train" | "dev" | "test";
 
+export function renderBenchmarkHelp(): string {
+  return [
+    "ClaimLatch benchmark",
+    "",
+    "Usage:",
+    "  claimlatch-bench [options]",
+    "",
+    "Options:",
+    "  --dataset <path>                 Run a custom JSONL dataset",
+    "  --split <train|dev|test>          Run one frozen benchmark split",
+    "  --manifest <path>                Verify a dataset against a manifest",
+    "  --format <text|json|junit|sarif>  Select the output format",
+    "  --json                            Legacy alias for --format json",
+    "  -h, --help                       Show this help",
+    "",
+    "The default is the 54-case independent.jsonl aggregate with manifest verification.",
+    "--split cannot be combined with --dataset.",
+    "",
+  ].join("\n");
+}
+
 export function parseBenchmarkSplit(value: string): BenchmarkSplit {
   if (value === "train" || value === "dev" || value === "test") return value;
   throw new Error(`Unsupported benchmark split: ${value}. Use train, dev, or test.`);
