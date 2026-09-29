@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.54 - 2026-09-30
+
+- Added bounded OpenAI-compatible model retrieval passthrough for `/v1/models/:id` and `/models/:id`, with encoded model IDs and path-traversal protection.
+
 ## 0.3.53 - 2026-09-30
 
 - Added configurable `healthPath` and `answerPath` options to the guarded Node HTTP and Fetch integrations for framework-specific route mounting, with fail-closed path validation.
