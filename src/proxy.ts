@@ -1,6 +1,7 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import type { ClaimLatch } from "./gate.js";
-import type { GatePolicy, VerificationReport } from "./types.js";
+import { calculateCoverage } from "./policy.js";
+import type { GatePolicy, VerificationCounts, VerificationReport } from "./types.js";
 
 export interface OpenAIProxyOptions {
   gate: ClaimLatch;
@@ -168,8 +169,8 @@ async function handleRequest(input: {
     return;
   }
 
-  const answer = firstAssistantText(payload);
-  if (!answer) {
+  const answers = assistantTexts(payload);
+  if (!answers) {
     writeJson(response, 502, {
       error: {
         type: "claimlatch_upstream_error",
@@ -180,11 +181,12 @@ async function handleRequest(input: {
     return;
   }
 
-  const report = await input.options.gate.verify({
+  const reports = await Promise.all(answers.map((answer) => input.options.gate.verify({
     question,
     answer,
     ...(input.options.policy ? { policy: input.options.policy } : {}),
-  });
+  })));
+  const report = aggregateReports(reports);
 
   setGateHeaders(response, report);
   if (!report.passed) {
@@ -195,6 +197,7 @@ async function handleRequest(input: {
         message: "ClaimLatch blocked the generated answer because it did not satisfy the configured evidence policy.",
       },
       claimlatch: report,
+      claimlatchReports: reports,
     });
     return;
   }
@@ -217,9 +220,44 @@ function lastUserMessageText(messages: unknown): string | null {
   return null;
 }
 
-function firstAssistantText(payload: ChatCompletionResponse): string | null {
-  const content = payload.choices?.[0]?.message?.content;
-  return contentToText(content);
+function assistantTexts(payload: ChatCompletionResponse): string[] | null {
+  if (!Array.isArray(payload.choices) || payload.choices.length === 0) return null;
+
+  const texts = payload.choices.map((choice) => contentToText(choice.message?.content));
+  if (texts.some((text): text is null => text === null)) return null;
+  return texts as string[];
+}
+
+function aggregateReports(reports: VerificationReport[]): VerificationReport {
+  const counts: VerificationCounts = {
+    total: 0,
+    supported: 0,
+    contradicted: 0,
+    unsupported: 0,
+    unverifiable: 0,
+  };
+
+  for (const report of reports) {
+    counts.total += report.counts.total;
+    counts.supported += report.counts.supported;
+    counts.contradicted += report.counts.contradicted;
+    counts.unsupported += report.counts.unsupported;
+    counts.unverifiable += report.counts.unverifiable;
+  }
+
+  const generatedAt = reports.reduce(
+    (latest, report) => report.generatedAt > latest ? report.generatedAt : latest,
+    reports[0]?.generatedAt ?? new Date().toISOString(),
+  );
+
+  return {
+    passed: reports.every((report) => report.passed),
+    coverage: calculateCoverage(counts),
+    counts,
+    claims: reports.flatMap((report) => report.claims),
+    violations: reports.flatMap((report) => report.violations),
+    generatedAt,
+  };
 }
 
 function contentToText(content: unknown): string | null {

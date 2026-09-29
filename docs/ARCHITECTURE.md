@@ -48,7 +48,7 @@ The strict `requireRetrievedDocumentForDecisiveClaims` policy requires every sel
 
 ## Reverse proxy
 
-The V0.2 proxy implements non-streaming `POST /v1/chat/completions` and `/chat/completions`.
+The V0.2 proxy implements non-streaming `POST /v1/chat/completions` and `/chat/completions`. It verifies every textual assistant choice in a multi-choice response; one blocked choice blocks the whole response.
 
 ```text
 client
@@ -61,7 +61,7 @@ full draft buffered
   ↓
 ClaimLatch gate
   ├─ PASS → original completion released
-  └─ BLOCK → HTTP 422 + verification receipt
+  └─ BLOCK → HTTP 422 + aggregate and per-choice reports
 ```
 
 Streaming is intentionally rejected because a pre-release gate cannot safely verify tokens that have already been delivered.

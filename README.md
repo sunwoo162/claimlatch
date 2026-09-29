@@ -109,7 +109,9 @@ http://127.0.0.1:4317/v1
 동작 방식:
 
 - PASS: 원래 upstream Chat Completions JSON을 `x-claimlatch-result: pass` 헤더와 함께 반환합니다.
+- `n > 1`처럼 upstream이 여러 textual choice를 반환하면 모든 choice를 검증하며, 통합 coverage와 claim 수를 응답 헤더에 반영합니다.
 - BLOCK: `error.code = "claimlatch_blocked"`와 검증 보고서를 포함한 HTTP `422`를 반환합니다.
+- 여러 choice 중 하나라도 BLOCK이면 전체 응답을 차단하고 choice별 보고서를 `claimlatchReports`로 함께 반환합니다.
 - `stream: true`: 아직 거부됩니다. 검증 전에 토큰을 내보내면 게이트를 우회하게 됩니다.
 - `/health`: 가벼운 로컬 health endpoint입니다.
 
@@ -125,7 +127,7 @@ export CLAIMLATCH_PROXY_PORT="4317"
 export CLAIMLATCH_REQUIRE_DOCUMENT_PROVENANCE="1"
 ```
 
-V0.2 proxy의 범위는 의도적으로 작습니다. Chat Completions, 텍스트 형식의 user/assistant content, non-streaming만 지원합니다.
+V0.2 proxy의 범위는 의도적으로 작습니다. Chat Completions, 텍스트 형식의 user/assistant content, 여러 textual choice, non-streaming만 지원합니다. tool-call-only 응답과 streaming은 아직 지원하지 않습니다.
 
 ## SDK
 
