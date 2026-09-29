@@ -165,6 +165,16 @@ test("proxy profiles provide SambaNova-compatible Chat Completions defaults", ()
   });
 });
 
+test("every hosted proxy profile resolves a complete HTTPS Chat Completions contract", () => {
+  for (const profile of PROXY_PROVIDER_PROFILE_NAMES) {
+    if (profile === "azure" || profile === "openrouter") continue;
+    const resolved = resolveProxyProviderProfile(profile);
+    assert.match(resolved.upstreamBaseUrl ?? "", /^https:\/\//);
+    assert.equal(resolved.upstreamApiKeyHeader, "authorization");
+    assert.equal(resolved.upstreamChatCompletionsPath, "/chat/completions");
+  }
+});
+
 test("proxy profiles fail closed for unknown names and incomplete OpenRouter metadata", () => {
   assert.throws(() => resolveProxyProviderProfile("unknown"), /Unsupported proxy provider profile/);
   assert.throws(() => resolveProxyProviderProfile("openrouter"), /siteUrl and appName/);
