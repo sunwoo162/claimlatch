@@ -111,6 +111,7 @@ test("benchmark formatter preserves text and JSON output modes", async () => {
   const json = formatBenchmarkReport(report, "json");
 
   assert.match(text, /^ClaimLatch benchmark\n/);
+  assert.match(text, /Average coverage\s+100\.0%/);
   assert.deepEqual(JSON.parse(json), report);
 });
 

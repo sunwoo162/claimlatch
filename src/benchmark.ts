@@ -29,6 +29,7 @@ export interface BenchmarkReport {
   total: number;
   correct: number;
   decisionAccuracy: number;
+  averageCoverage: number;
   negativeCases: number;
   positiveCases: number;
   falsePasses: number;
@@ -75,6 +76,7 @@ export async function runBenchmark(gate: ClaimLatch, cases: readonly BenchmarkCa
   const correct = results.filter((item) => item.correct).length;
   const falsePasses = results.filter((item) => item.falsePass).length;
   const falseBlocks = results.filter((item) => item.falseBlock).length;
+  const totalCoverage = results.reduce((sum, item) => sum + item.report.coverage, 0);
   const negativeCases = cases.filter((item) => !item.expectedPassed).length;
   const positiveCases = cases.filter((item) => item.expectedPassed).length;
 
@@ -82,6 +84,7 @@ export async function runBenchmark(gate: ClaimLatch, cases: readonly BenchmarkCa
     total: results.length,
     correct,
     decisionAccuracy: ratio(correct, results.length),
+    averageCoverage: ratio(totalCoverage, results.length),
     negativeCases,
     positiveCases,
     falsePasses,
