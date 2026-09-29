@@ -58,4 +58,5 @@ MCowBQYDK2VwAyEAMAv2OQLdt6DNpnq/zf54mdeV98ZScwOYfIDXKRLU6/0=
 
   assert.equal(verifySignedVerificationReceipt(receipt, { publicKeyPem: otherKey }), false);
   assert.equal(verifySignedVerificationReceipt({ ...receipt, signature: "invalid" }), false);
+  assert.equal(verifySignedVerificationReceipt(null as unknown as typeof receipt), false);
 });

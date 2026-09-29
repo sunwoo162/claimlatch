@@ -90,11 +90,11 @@ export function verifySignedVerificationReceipt(
   receipt: SignedVerificationReceipt,
   options: ReceiptVerificationOptions = {},
 ): boolean {
-  if (receipt.version !== 1 || receipt.algorithm !== "Ed25519") {
-    return false;
-  }
-
   try {
+    if (receipt.version !== 1 || receipt.algorithm !== "Ed25519") {
+      return false;
+    }
+
     const publicKeyPem = options.publicKeyPem ?? receipt.payload.publicKeyPem;
     const serializedPayload = serializeVerificationReceiptPayload(receipt.payload);
     return verify(
