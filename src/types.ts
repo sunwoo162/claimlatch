@@ -21,6 +21,7 @@ export interface EvidenceProvenance {
   sourceUrl: string;
   retrievedAt: string;
   quote: string;
+  page?: number;
   quoteStart?: number;
   quoteEnd?: number;
   contentSha256?: string;

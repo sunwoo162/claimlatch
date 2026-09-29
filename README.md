@@ -45,7 +45,7 @@ npm run build
 npm test
 ```
 
-Node.js 20 이상을 지원합니다. 런타임에는 npm 의존성이 없고 TypeScript는 개발 의존성으로만 사용합니다.
+Node.js 20 이상을 지원합니다. PDF 문서 추출을 위해 PDF.js 런타임 의존성을 사용하며, TypeScript는 개발 의존성으로만 사용합니다.
 
 ## CLI
 
@@ -181,12 +181,15 @@ if (!report.passed) {
 - 검증된 redirect 이후의 최종 source URL
 - verifier에 전달된 정확한 인용문
 - 정규화된 source text의 인용문 문자 offset
+- PDF인 경우 페이지 번호와 해당 페이지 기준 quote offset
 - retrieval 시각과 content type
 - 정규화된 retrieved document의 SHA-256
 
 이를 통해 판정을 감사할 수 있습니다. 다만 publisher가 올바르다는 사실이나 HTML 추출이 모든 맥락을 보존했다는 사실을 증명하지는 않습니다.
 
 기본 제공 fetcher는 흔한 localhost/private-network 대상을 차단하고, 요청 전에 DNS 주소를 확인합니다. DNS 결과에 공용 주소가 아닌 주소가 하나라도 포함되면 fail-closed하며, 선택한 공용 IP로 연결을 고정합니다. redirect도 다시 검증하고, 응답 크기와 timeout을 제한합니다. 커스텀 fetch/request transport를 제공하는 경우에는 동일한 보호를 직접 유지해야 합니다. 남아 있는 네트워크 위험은 `docs/TRUST_MODEL.md`와 `SECURITY.md`를 참고하세요.
+
+`application/pdf` 문서는 PDF.js로 페이지별 텍스트를 추출합니다. 인용문은 가장 관련성이 높은 페이지에 연결되고, 페이지 번호와 페이지 내부 offset이 provenance에 기록됩니다. PDF 파싱이나 텍스트 추출에 실패하면 문서는 결정적 근거로 사용되지 않고 search-snippet provenance로 fallback합니다.
 
 ## 기본 게이트 정책
 

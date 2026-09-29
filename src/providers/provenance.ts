@@ -2,6 +2,7 @@ import { lookup } from "node:dns/promises";
 import { request as httpRequest, type RequestOptions } from "node:http";
 import { request as httpsRequest } from "node:https";
 import type { Claim, Evidence, EvidenceProvider, EvidenceProvenance } from "../types.js";
+import { extractPdfPages, type PdfPageText, type PdfTextParser } from "./pdf.js";
 
 export type DnsLookup = (
   hostname: string,
@@ -28,6 +29,7 @@ export interface ProvenanceEvidenceProviderOptions {
   maxRedirects?: number;
   lookupImpl?: DnsLookup;
   requestImpl?: PinnedRequest;
+  pdfParser?: PdfTextParser;
 }
 
 export class ProvenanceEvidenceProvider implements EvidenceProvider {
@@ -35,6 +37,7 @@ export class ProvenanceEvidenceProvider implements EvidenceProvider {
   readonly #fetch: typeof fetch | undefined;
   readonly #lookup: DnsLookup;
   readonly #request: PinnedRequest;
+  readonly #pdfParser: PdfTextParser;
   readonly #timeoutMs: number;
   readonly #maxDocumentBytes: number;
   readonly #maxQuoteChars: number;
@@ -45,6 +48,7 @@ export class ProvenanceEvidenceProvider implements EvidenceProvider {
     this.#fetch = options.fetchImpl;
     this.#lookup = options.lookupImpl ?? lookupAllAddresses;
     this.#request = options.requestImpl ?? requestWithPinnedAddress;
+    this.#pdfParser = options.pdfParser ?? extractPdfPages;
     this.#timeoutMs = clampInteger(options.timeoutMs ?? 8_000, 250, 60_000);
     this.#maxDocumentBytes = clampInteger(options.maxDocumentBytes ?? 1_000_000, 1_024, 5_000_000);
     this.#maxQuoteChars = clampInteger(options.maxQuoteChars ?? 700, 120, 2_000);
@@ -80,10 +84,16 @@ export class ProvenanceEvidenceProvider implements EvidenceProvider {
       });
       if (!fetched) return fallback;
 
-      const text = normalizeDocumentText(fetched.body, fetched.contentType);
-      if (!text) return fallback;
+      const document = await selectDocumentQuote({
+        body: fetched.body,
+        claimText: claim.text,
+        contentType: fetched.contentType,
+        maxQuoteChars: this.#maxQuoteChars,
+        pdfParser: this.#pdfParser,
+      });
+      if (!document) return fallback;
 
-      const selected = selectQuote(text, claim.text, this.#maxQuoteChars);
+      const selected = document.selected;
       if (!selected) return fallback;
 
       const provenance: EvidenceProvenance = {
@@ -91,9 +101,10 @@ export class ProvenanceEvidenceProvider implements EvidenceProvider {
         sourceUrl: fetched.finalUrl,
         retrievedAt: fetched.retrievedAt,
         quote: selected.quote,
+        ...(selected.page !== undefined ? { page: selected.page } : {}),
         quoteStart: selected.start,
         quoteEnd: selected.end,
-        contentSha256: await sha256Hex(text),
+        contentSha256: await sha256Hex(document.normalizedText),
         contentType: fetched.contentType,
       };
 
@@ -112,7 +123,7 @@ export class ProvenanceEvidenceProvider implements EvidenceProvider {
 
 interface FetchedDocument {
   finalUrl: string;
-  body: string;
+  body: string | Uint8Array;
   contentType: string;
   retrievedAt: string;
 }
@@ -157,9 +168,11 @@ async function fetchPublicDocument(input: {
       if (!response.ok) return null;
 
       const contentType = (response.headers.get("content-type") ?? "").split(";")[0]?.trim().toLowerCase() ?? "";
-      if (!isTextualContentType(contentType)) return null;
+      if (!isTextualContentType(contentType) && contentType !== "application/pdf") return null;
 
-      const body = await readTextWithLimit(response, input.maxBytes);
+      const body = contentType === "application/pdf"
+        ? await readBytesWithLimit(response, input.maxBytes)
+        : await readTextWithLimit(response, input.maxBytes);
       return {
         finalUrl: current.toString(),
         body,
@@ -257,7 +270,8 @@ async function requestWithPinnedAddress(url: URL, options: PinnedRequestOptions)
           return value === undefined ? [] : [[name, value] as [string, string]];
         });
         settled = true;
-        resolve(new Response(new TextDecoder().decode(body), {
+        const bodyBuffer = body.buffer.slice(body.byteOffset, body.byteOffset + body.byteLength) as ArrayBuffer;
+        resolve(new Response(bodyBuffer, {
           status: response.statusCode ?? 500,
           headers,
         }));
@@ -268,7 +282,11 @@ async function requestWithPinnedAddress(url: URL, options: PinnedRequestOptions)
 }
 
 async function readTextWithLimit(response: Response, maxBytes: number): Promise<string> {
-  if (!response.body) return "";
+  return new TextDecoder().decode(await readBytesWithLimit(response, maxBytes));
+}
+
+async function readBytesWithLimit(response: Response, maxBytes: number): Promise<Uint8Array> {
+  if (!response.body) return new Uint8Array();
   const reader = response.body.getReader();
   const chunks: Uint8Array[] = [];
   let total = 0;
@@ -292,7 +310,7 @@ async function readTextWithLimit(response: Response, maxBytes: number): Promise<
     merged.set(chunk, offset);
     offset += chunk.byteLength;
   }
-  return new TextDecoder().decode(merged);
+  return merged;
 }
 
 function isTextualContentType(contentType: string): boolean {
@@ -349,7 +367,49 @@ function collapseWhitespace(value: string): string {
   return value.replace(/\s+/g, " ").trim();
 }
 
-function selectQuote(documentText: string, claimText: string, maxChars: number): { quote: string; start: number; end: number } | null {
+interface SelectedQuote {
+  quote: string;
+  start: number;
+  end: number;
+  score: number;
+  page?: number;
+}
+
+async function selectDocumentQuote(input: {
+  body: string | Uint8Array;
+  claimText: string;
+  contentType: string;
+  maxQuoteChars: number;
+  pdfParser: PdfTextParser;
+}): Promise<{ normalizedText: string; selected: SelectedQuote } | null> {
+  if (input.contentType === "application/pdf") {
+    if (!(input.body instanceof Uint8Array)) return null;
+    const pages = await input.pdfParser(input.body);
+    const selected = selectPdfQuote(pages, input.claimText, input.maxQuoteChars);
+    if (!selected) return null;
+    return {
+      normalizedText: pages.map((page) => page.text).join("\n\f\n"),
+      selected,
+    };
+  }
+
+  const text = normalizeDocumentText(input.body as string, input.contentType);
+  const selected = selectQuote(text, input.claimText, input.maxQuoteChars);
+  return text && selected ? { normalizedText: text, selected } : null;
+}
+
+function selectPdfQuote(pages: PdfPageText[], claimText: string, maxChars: number): SelectedQuote | null {
+  let best: SelectedQuote | null = null;
+  for (const page of pages) {
+    const selected = selectQuote(page.text, claimText, maxChars);
+    if (!selected) continue;
+    const candidate = { ...selected, page: page.page };
+    if (!best || candidate.score > best.score) best = candidate;
+  }
+  return best;
+}
+
+function selectQuote(documentText: string, claimText: string, maxChars: number): SelectedQuote | null {
   const claimTokens = new Set(tokenize(claimText));
   if (claimTokens.size === 0) return null;
 
@@ -378,7 +438,7 @@ function selectQuote(documentText: string, claimText: string, maxChars: number):
   const quote = documentText.slice(start, end).trim();
   if (!quote) return null;
   const actualStart = documentText.indexOf(quote, start);
-  return { quote, start: actualStart, end: actualStart + quote.length };
+  return { quote, start: actualStart, end: actualStart + quote.length, score: best.score };
 }
 
 function sentenceRanges(text: string): Array<{ start: number; end: number }> {

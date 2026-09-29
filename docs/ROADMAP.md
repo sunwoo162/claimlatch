@@ -23,7 +23,6 @@
 ## Next
 
 - Hardened egress fetcher and outbound allowlist options
-- PDF evidence extraction with page/quote provenance
 - Official-source resolvers and domain policies
 - Persistent signed verification receipts
 - SARIF/JUnit outputs for CI
