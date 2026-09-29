@@ -17,6 +17,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
     "huggingface",
     "mistral",
     "nvidia",
+    "openai",
     "openrouter",
     "perplexity",
     "sambanova",
@@ -25,7 +26,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
   ]);
   assert.equal(
     formatProxyProviderProfileNames(),
-    "azure, cerebras, cohere, deepseek, fireworks, groq, huggingface, mistral, nvidia, openrouter, perplexity, sambanova, together, or xai",
+    "azure, cerebras, cohere, deepseek, fireworks, groq, huggingface, mistral, nvidia, openai, openrouter, perplexity, sambanova, together, or xai",
   );
 });
 
@@ -78,6 +79,14 @@ test("proxy profiles provide Mistral-compatible Chat Completions defaults", () =
 test("proxy profiles provide Hugging Face Inference Providers defaults", () => {
   assert.deepEqual(resolveProxyProviderProfile("huggingface"), {
     upstreamBaseUrl: "https://router.huggingface.co/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  });
+});
+
+test("proxy profiles provide OpenAI-compatible Chat Completions defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("openai"), {
+    upstreamBaseUrl: "https://api.openai.com/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
   });

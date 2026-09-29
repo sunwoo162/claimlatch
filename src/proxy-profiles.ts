@@ -8,6 +8,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "huggingface",
   "mistral",
   "nvidia",
+  "openai",
   "openrouter",
   "perplexity",
   "sambanova",
@@ -78,6 +79,11 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
   },
   nvidia: {
     upstreamBaseUrl: "https://integrate.api.nvidia.com/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  },
+  openai: {
+    upstreamBaseUrl: "https://api.openai.com/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
   },
