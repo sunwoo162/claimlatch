@@ -223,7 +223,7 @@ function lastUserMessageText(messages: unknown): string | null {
 function assistantTexts(payload: ChatCompletionResponse): string[] | null {
   if (!Array.isArray(payload.choices) || payload.choices.length === 0) return null;
 
-  const texts = payload.choices.map((choice) => contentToText(choice.message?.content));
+  const texts = payload.choices.map((choice) => contentToText(choice?.message?.content));
   if (texts.some((text): text is null => text === null)) return null;
   return texts as string[];
 }

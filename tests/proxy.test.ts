@@ -163,3 +163,20 @@ test("proxy blocks the whole completion when any textual choice is contradicted"
     assert.equal(body.claimlatchReports?.length, 2);
   });
 });
+
+test("proxy fails closed when an upstream choice is malformed", async () => {
+  await withProxyPayload({
+    id: "chatcmpl_malformed",
+    object: "chat.completion",
+    choices: [null],
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 502);
+    const body = await response.json() as { error?: { code?: string } };
+    assert.equal(body.error?.code, "claimlatch_missing_assistant_text");
+  });
+});
