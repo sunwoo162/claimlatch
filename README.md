@@ -165,6 +165,8 @@ For Together AI's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_P
 
 For xAI's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="xai"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.x.ai/v1`, bearer authentication, and `/chat/completions`.
 
+For Perplexity's Router API, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="perplexity"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.perplexity.ai/router/v1`, bearer authentication, and `/chat/completions`.
+
 For a custom provider profile, the same example can use a different credential header and relative completion path while retaining the proxy's restricted header policy:
 
 ```bash

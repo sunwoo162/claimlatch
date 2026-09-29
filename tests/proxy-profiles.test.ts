@@ -15,12 +15,13 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
     "groq",
     "mistral",
     "openrouter",
+    "perplexity",
     "together",
     "xai",
   ]);
   assert.equal(
     formatProxyProviderProfileNames(),
-    "azure, cohere, deepseek, fireworks, groq, mistral, openrouter, together, or xai",
+    "azure, cohere, deepseek, fireworks, groq, mistral, openrouter, perplexity, together, or xai",
   );
 });
 
@@ -97,6 +98,14 @@ test("proxy profiles provide Together-compatible Chat Completions defaults", () 
 test("proxy profiles provide xAI-compatible Chat Completions defaults", () => {
   assert.deepEqual(resolveProxyProviderProfile("xai"), {
     upstreamBaseUrl: "https://api.x.ai/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  });
+});
+
+test("proxy profiles provide Perplexity Router-compatible Chat Completions defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("perplexity"), {
+    upstreamBaseUrl: "https://api.perplexity.ai/router/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
   });
