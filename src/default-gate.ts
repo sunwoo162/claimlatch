@@ -1,7 +1,7 @@
 import { ClaimLatch } from "./gate.js";
 import { LlmClaimExtractor, LlmClaimVerifier, OpenAICompatibleClient } from "./providers/openai-compatible.js";
 import { ProvenanceEvidenceProvider, type OutboundAllowlist } from "./providers/provenance.js";
-import { TavilyEvidenceProvider } from "./providers/tavily.js";
+import { TavilyEvidenceProvider, type DomainPolicy } from "./providers/tavily.js";
 
 export interface DefaultClaimLatchOptions {
   llmModel: string;
@@ -9,6 +9,7 @@ export interface DefaultClaimLatchOptions {
   llmApiKey?: string;
   llmBaseUrl?: string;
   primaryDomains?: string[];
+  domainPolicy?: DomainPolicy;
   hydrateDocuments?: boolean;
   fetchImpl?: typeof fetch;
   outboundAllowlist?: OutboundAllowlist;
@@ -26,6 +27,7 @@ export function createDefaultClaimLatch(options: DefaultClaimLatchOptions): Clai
   const search = new TavilyEvidenceProvider({
     apiKey: options.tavilyApiKey,
     ...(options.primaryDomains ? { primaryDomains: options.primaryDomains } : {}),
+    ...(options.domainPolicy ? { domainPolicy: options.domainPolicy } : {}),
     ...(options.fetchImpl ? { fetchImpl: options.fetchImpl } : {}),
   });
 

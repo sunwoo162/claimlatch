@@ -18,6 +18,7 @@ A PASS means the configured pipeline found no policy violation under the evidenc
 
 - The extractor can miss a claim entirely.
 - Search can miss the best source or rank a misleading source highly.
+- An official-source domain policy can restrict search, but domain ownership and publisher correctness still require operator judgment.
 - A retrieved document can have changed since the answer was generated.
 - HTML-to-text extraction can lose table structure, footnotes, qualifiers, or surrounding context.
 - PDF text extraction can lose layout, columns, tables, images, annotations, and reading order.
@@ -39,6 +40,8 @@ When a verifier identifies both supporting and contradicting evidence, ClaimLatc
 ## Network boundary
 
 The built-in provenance fetcher rejects non-HTTP(S) URLs, common literal localhost/private IPv4 targets, local hostnames, IPv4-mapped IPv6, and common private/link-local IPv6 ranges. Before each document request it resolves the hostname, rejects the entire result if any address is non-public, and pins the selected public address for the connection. It also validates redirects, limits response size, and applies a timeout.
+
+Tavily search can be scoped to fixed official domains or to domains returned by a claim-aware resolver. The provider sends the policy to the search API and filters returned URLs again; resolver errors and empty results fail closed without an unrestricted search.
 
 DNS failures and empty or unsafe resolution results fail closed. An optional outbound allowlist can restrict document hydration to exact hosts or their subdomains and selected ports; it is rechecked before every redirect. Custom fetch or request implementations must provide equivalent DNS pinning and transport protections. For public multi-tenant services, run document retrieval in a network sandbox or enforce an outbound allowlist/proxy.
 

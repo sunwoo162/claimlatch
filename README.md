@@ -176,6 +176,8 @@ if (!report.passed) {
 
 All extraction, search, and verification components are defined as interfaces. You can replace the default adapters with a local model, private corpus, official API, or custom RAG system.
 
+Tavily search can apply an official-source domain policy. `officialDomains` scopes every search to fixed domains; `resolveOfficialDomains` can return domains from the claim (for example, government, standards, or vendor documentation domains). Configured policy results are filtered again after the API response, and an empty or failing resolver returns no evidence instead of falling back to unrestricted search.
+
 When using `createDefaultClaimLatch`, document hydration can be restricted with an outbound allowlist. Host entries match the exact host and its subdomains; configured ports are checked against explicit URL ports or the scheme defaults (`80` for HTTP and `443` for HTTPS). The allowlist is checked again for every redirect.
 
 ```ts
