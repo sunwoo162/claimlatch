@@ -4,6 +4,10 @@
 
 - Added fail-closed benchmark manifest verification to the default benchmark CLI and SDK helpers.
 
+## 0.3.6 - 2026-09-29
+
+- Added fail-closed benchmark manifest verification to the default benchmark CLI and SDK helpers.
+
 ## 0.3.5 - 2026-09-29
 
 - Added a SHA-256 integrity manifest for the frozen benchmark files.
