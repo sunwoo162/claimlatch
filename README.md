@@ -184,6 +184,8 @@ export CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS="x-provider-tenant=prod,x-provi
 npm run example:provider-proxy
 ```
 
+See [`examples/provider-compatible-proxy.env.example`](examples/provider-compatible-proxy.env.example) for a credential-free environment variable reference covering hosted profiles, Azure-style deployments, OpenRouter attribution, and custom providers. The file is documentation only; the example does not load `.env` files automatically.
+
 Client request tracing headers such as `X-Request-Id` and provider-specific non-hop-by-hop headers are forwarded. Hop-by-hop, cookie, host, and request body framing headers remain excluded.
 
 Optional proxy settings:
