@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.42 - 2026-09-29
+
+- Added a SambaNova-compatible provider profile for the proxy's OpenAI-compatible Chat Completions path.
+
 ## 0.3.41 - 2026-09-29
 
 - Added a Cerebras-compatible provider profile for the proxy's OpenAI-compatible Chat Completions path.
