@@ -513,6 +513,8 @@ PASS is not proof of universal truth. Claim extraction, search, source selection
 
 ## Project status
 
+`0.3.46` adds a credential-free benchmark validation script and GitHub Actions workflow for frozen dataset manifest checks.
+
 `0.3.45` adds average evidence coverage to benchmark reports while keeping coverage distinct from decision accuracy and probability calibration.
 
 `0.3.44` adds a credential-free provider-compatible proxy environment variable example covering hosted, Azure-style, OpenRouter, and custom configurations.

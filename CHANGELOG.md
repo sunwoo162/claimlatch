@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.46 - 2026-09-29
+
+- Added a credential-free benchmark validation script and GitHub Actions workflow for frozen dataset manifest checks.
+
 ## 0.3.45 - 2026-09-29
 
 - Added average evidence coverage to benchmark reports while keeping coverage distinct from decision accuracy and probability calibration.
