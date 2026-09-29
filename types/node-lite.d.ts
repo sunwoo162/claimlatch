@@ -57,6 +57,8 @@ declare module "node:http" {
     on(event: "data", listener: (chunk: Uint8Array | string) => void): this;
     on(event: "end", listener: () => void): this;
     on(event: "error", listener: (error: Error) => void): this;
+    on(event: "aborted", listener: () => void): this;
+    removeListener(event: "aborted", listener: () => void): this;
   }
 
   export interface ClientRequest {
@@ -81,7 +83,10 @@ declare module "node:http" {
 
   export interface ServerResponse {
     statusCode: number;
+    writableEnded: boolean;
     setHeader(name: string, value: string | number): void;
+    on(event: "close", listener: () => void): this;
+    removeListener(event: "close", listener: () => void): this;
     end(data?: string): void;
   }
 

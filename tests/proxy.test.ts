@@ -305,6 +305,131 @@ test("proxy fails closed when a buffered stream exceeds its choice limit", async
   });
 });
 
+test("proxy aborts an upstream request that exceeds its configured timeout", async () => {
+  let upstreamSignal: AbortSignal | undefined;
+  let upstreamAbortReason: string | undefined;
+  const upstreamFetchWithTimeout = (async (_input, init) => {
+    upstreamSignal = init?.signal ?? undefined;
+    init?.signal?.addEventListener("abort", () => {
+      const reason = init?.signal?.reason as { name?: unknown } | undefined;
+      upstreamAbortReason = typeof reason?.name === "string" ? reason.name : undefined;
+    }, { once: true });
+    await new Promise<never>((_resolve, reject) => {
+      init?.signal?.addEventListener("abort", () => {
+        reject(new DOMException("The operation was aborted.", "AbortError"));
+      }, { once: true });
+    });
+    throw new Error("unreachable");
+  }) as typeof fetch;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://upstream.example/v1",
+    upstreamTimeoutMs: 20,
+    fetchImpl: upstreamFetchWithTimeout,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 504);
+    const body = await response.json() as { error?: { code?: string } };
+    assert.equal(body.error?.code, "claimlatch_upstream_timeout");
+    assert.equal(upstreamSignal?.aborted, true);
+    assert.equal(upstreamAbortReason, "TimeoutError");
+  });
+});
+
+test("proxy fails closed when an upstream transport ignores an expired signal", async () => {
+  const slowIgnoringFetch = (async () => {
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    return new Response(JSON.stringify({
+      id: "chatcmpl_late",
+      object: "chat.completion",
+      choices: [{ message: { role: "assistant", content: "This is late." } }],
+    }), {
+      status: 200,
+      headers: { "content-type": "application/json" },
+    });
+  }) as typeof fetch;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://upstream.example/v1",
+    upstreamTimeoutMs: 20,
+    fetchImpl: slowIgnoringFetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 504);
+    const body = await response.json() as { error?: { code?: string } };
+    assert.equal(body.error?.code, "claimlatch_upstream_timeout");
+  });
+});
+
+test("proxy aborts upstream buffering when the client disconnects", async () => {
+  let upstreamStarted = false;
+  let upstreamAborted = false;
+  let upstreamAbortReason: string | undefined;
+  const upstreamFetchWithHangingStream = (async (_input, init) => {
+    upstreamStarted = true;
+    const stream = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode(sseData({
+          id: "chatcmpl_disconnect",
+          object: "chat.completion.chunk",
+          choices: [{ index: 0, delta: { role: "assistant", content: "partial" } }],
+        })));
+        init?.signal?.addEventListener("abort", () => {
+          upstreamAborted = true;
+          const reason = init?.signal?.reason as { name?: unknown } | undefined;
+          upstreamAbortReason = typeof reason?.name === "string" ? reason.name : undefined;
+          controller.error(new DOMException("The operation was aborted.", "AbortError"));
+        }, { once: true });
+      },
+      pull() {},
+    });
+    return new Response(stream, {
+      status: 200,
+      headers: { "content-type": "text/event-stream" },
+    });
+  }) as typeof fetch;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://upstream.example/v1",
+    upstreamTimeoutMs: 250,
+    fetchImpl: upstreamFetchWithHangingStream,
+  }, async (url) => {
+    const clientController = new AbortController();
+    const responsePromise = fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ stream: true, messages: [{ role: "user", content: "question" }] }),
+      signal: clientController.signal,
+    });
+
+    for (let attempt = 0; attempt < 100 && !upstreamStarted; attempt += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 5));
+    }
+    assert.equal(upstreamStarted, true);
+    const clientAbortStartedAt = Date.now();
+    clientController.abort();
+    await assert.rejects(responsePromise);
+
+    for (let attempt = 0; attempt < 100 && !upstreamAborted; attempt += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 5));
+    }
+    assert.equal(upstreamAborted, true);
+    assert.equal(upstreamAbortReason, "AbortError");
+    assert.ok(Date.now() - clientAbortStartedAt < 1_000);
+  });
+});
+
 test("proxy verifies and releases every textual choice", async () => {
   await withProxyPayload({
     id: "chatcmpl_multi",
