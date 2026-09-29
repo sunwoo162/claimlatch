@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { parseBenchmarkJsonl, runBenchmark } from "../src/benchmark.js";
 import { ClaimLatch } from "../src/gate.js";
@@ -49,4 +50,16 @@ test("benchmark JSONL parser rejects duplicate IDs", () => {
     JSON.stringify({ id: "same", question: "q", answer: "a", expectedPassed: true }),
     JSON.stringify({ id: "same", question: "q2", answer: "a2", expectedPassed: false }),
   ].join("\n")), /Duplicate benchmark id/);
+});
+
+test("independent benchmark contains a balanced expanded label set", async () => {
+  const raw = await readFile(new URL("../../benchmarks/independent.jsonl", import.meta.url), "utf8");
+  const cases = parseBenchmarkJsonl(raw);
+  const sourceUrls = new Set(cases.flatMap((item) => item.labelSourceUrls ?? []));
+
+  assert.equal(cases.length, 32);
+  assert.equal(cases.filter((item) => item.expectedPassed).length, 16);
+  assert.equal(cases.filter((item) => !item.expectedPassed).length, 16);
+  assert.ok(sourceUrls.size >= 8);
+  assert.ok(cases.every((item) => (item.labelSourceUrls?.length ?? 0) > 0));
 });

@@ -7,6 +7,7 @@
 - Added a default fail-closed policy violation for unresolved disagreement between distinct sources.
 - Added PDF.js-based page-level text extraction with page-local quote offsets and safe fallback on parse failure.
 - Added deterministic Ed25519-signed verification receipts with embedded public keys and tamper detection.
+- Expanded the independent benchmark seed to 32 balanced, human-authored cases across 16 paired topics.
 
 ## 0.2.0 - 2026-09-28
 

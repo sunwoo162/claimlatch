@@ -17,7 +17,7 @@
 - Literal private-target and redirect SSRF guards
 - Core invariant enforcement for custom extractors/verifiers
 - OpenAI-compatible non-streaming Chat Completions reverse proxy
-- Human-authored independent-label benchmark seed
+- 32-case human-authored independent-label benchmark seed
 - False-pass / false-block metrics
 - Ed25519-signed verification receipt API
 

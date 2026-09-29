@@ -228,9 +228,9 @@ const isAuthentic = verifySignedVerificationReceipt(receipt);
 
 커스텀 provider가 반환한 뒤에도 핵심 불변식을 다시 검사합니다. 중복 claim ID를 거부하고, 존재하지 않는 evidence binding을 제거하며, 유효한 evidence binding이 없는 결정적 판정은 `UNVERIFIABLE`로 낮춥니다.
 
-## 독립 라벨 benchmark seed
+## 독립 라벨 benchmark
 
-`benchmarks/independent.jsonl`에는 공개 라벨 source URL과 함께 사람이 작성한 positive/negative 답변 쌍이 들어 있습니다. 라벨은 ClaimLatch 출력으로 생성되지 않습니다.
+`benchmarks/independent.jsonl`에는 16개 주제의 정답/오답 쌍을 포함한 32개 케이스가 들어 있습니다. 각 케이스에는 공개 라벨 source URL이 있고, 라벨은 ClaimLatch 출력으로 생성되지 않았습니다.
 
 설정된 live provider를 사용해 실행합니다.
 
@@ -246,7 +246,7 @@ npm run bench
 - **false-pass rate**: 잘못된 답변이 게이트를 통과한 비율
 - false-block rate: 정답으로 라벨링된 답변을 게이트가 거부한 비율
 
-포함된 seed는 의도적으로 작으며 publication-quality 평가가 아닙니다. 손으로 만든 작은 fixture가 보편적인 benchmark인 것처럼 가장하지 않고, regression을 측정하기 위한 목적입니다.
+현재 데이터셋은 회귀 측정을 위한 확장 seed이며 publication-quality 평가는 아닙니다. 더 큰 frozen dataset과 train/dev/test 분할이 준비되기 전까지는 이 결과를 보편적인 factuality benchmark로 해석하지 마세요.
 
 ## Confidence score를 사용하지 않는 이유
 
