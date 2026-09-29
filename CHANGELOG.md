@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.55 - 2026-09-30
+
+- Added signed receipt `version`, `algorithm`, and `keyId` metadata to `claimlatch-receipt verify --json` output for audit automation.
+
 ## 0.3.54 - 2026-09-30
 
 - Added bounded OpenAI-compatible model retrieval passthrough for `/v1/models/:id` and `/models/:id`, with encoded model IDs and path-traversal protection.
