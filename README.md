@@ -297,7 +297,7 @@ Core invariants are checked again after custom providers return. Duplicate claim
 
 ## Independent-label benchmark
 
-`benchmarks/independent.jsonl` contains 32 cases across 16 paired topics, with one positive and one negative answer per topic. Each case records a public label-source URL, and labels were not generated from ClaimLatch output.
+`benchmarks/independent.jsonl` contains 48 cases across 24 paired topics, with one positive and one negative answer per topic. Each case records a public label-source URL, and labels were not generated from ClaimLatch output. The same frozen aggregate is partitioned into `benchmarks/train.jsonl` (32 cases), `benchmarks/dev.jsonl` (8 cases), and `benchmarks/test.jsonl` (8 cases), with balanced positive and negative labels in every split.
 
 Run it with configured live providers:
 
@@ -305,6 +305,14 @@ Run it with configured live providers:
 claimlatch-bench --dataset benchmarks/independent.jsonl
 # or
 npm run bench
+```
+
+Run an individual frozen split when tuning or validating a configuration:
+
+```bash
+claimlatch-bench --dataset benchmarks/train.jsonl
+claimlatch-bench --dataset benchmarks/dev.jsonl
+claimlatch-bench --dataset benchmarks/test.jsonl
 ```
 
 The benchmark CLI defaults to human-readable text. Use `--format json`, `--format junit`, or `--format sarif` for CI and automation. The legacy `--json` flag remains supported.
@@ -322,7 +330,7 @@ Reported metrics:
 - **false-pass rate**: the fraction of deliberately incorrect answers that pass the gate
 - false-block rate: the fraction of correctly labeled answers that the gate rejects
 
-This is an expanded regression seed, not a publication-quality benchmark. Do not interpret it as a general factuality benchmark until a larger frozen dataset with train/dev/test separation is available.
+This is a frozen regression dataset, not a publication-quality benchmark. Do not tune prompts against the test split and then describe the result as an independent evaluation.
 
 ## Why there is no confidence score
 

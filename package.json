@@ -21,7 +21,7 @@
   "files": [
     "dist/src",
     "dist/examples",
-    "benchmarks/independent.jsonl",
+    "benchmarks",
     "docs",
     "README.md",
     "examples",
