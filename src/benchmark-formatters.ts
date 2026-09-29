@@ -48,6 +48,7 @@ export function renderBenchmarkText(report: BenchmarkReport): string {
     "",
     `Cases             ${report.total}`,
     `Decision accuracy ${(report.decisionAccuracy * 100).toFixed(1)}%`,
+    `Average coverage  ${(report.averageCoverage * 100).toFixed(1)}%`,
     `False passes      ${report.falsePasses}/${report.negativeCases} (${(report.falsePassRate * 100).toFixed(1)}%)`,
     `False blocks      ${report.falseBlocks}/${report.positiveCases} (${(report.falseBlockRate * 100).toFixed(1)}%)`,
     "",

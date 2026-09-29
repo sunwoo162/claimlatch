@@ -54,8 +54,26 @@ test("benchmark reports false-pass and false-block rates against independent lab
   ]);
 
   assert.equal(report.decisionAccuracy, 1);
+  assert.equal(report.averageCoverage, 1);
   assert.equal(report.falsePassRate, 0);
   assert.equal(report.falseBlockRate, 0);
+});
+
+test("benchmark averages per-case coverage separately from decision accuracy", async () => {
+  const coverageVerifier: ClaimVerifier = {
+    async verify({ claim, evidence }) {
+      const status = claim.text === "covered" ? "SUPPORTED" as const : "UNSUPPORTED" as const;
+      return { claim, status, reason: "fixture", evidenceIds: ["e1"], evidence };
+    },
+  };
+  const gate = new ClaimLatch({ extractor, evidenceProvider, verifier: coverageVerifier });
+  const report = await runBenchmark(gate, [
+    { id: "covered", question: "q", answer: "covered", expectedPassed: true },
+    { id: "uncovered", question: "q", answer: "uncovered", expectedPassed: false },
+  ]);
+
+  assert.equal(report.decisionAccuracy, 1);
+  assert.equal(report.averageCoverage, 0.5);
 });
 
 test("benchmark results preserve label provenance metadata", async () => {
