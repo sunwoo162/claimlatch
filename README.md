@@ -262,6 +262,14 @@ const authenticAfterRotation = verifySignedVerificationReceipt(stored!, {
 
 Do not put private keys in the receipt directory or source control. Use a secret manager/HSM, restrict receipt directory permissions, define a retention policy, and back up receipts with their public-key registry if historical verification is required.
 
+The runnable [`examples/receipt-storage.ts`](examples/receipt-storage.ts) example generates an ephemeral Ed25519 key, saves a receipt, loads it from the filesystem store, and verifies it through a key resolver:
+
+```bash
+npm run example:receipts
+```
+
+The generated key is for demonstration only. Production applications should load signing keys from a secret manager or HSM and use a durable, access-controlled receipt directory.
+
 ## Evidence provenance
 
 When document hydration succeeds, ClaimLatch stores:
