@@ -438,6 +438,8 @@ claimlatch-bench --dataset benchmarks/independent.jsonl --format sarif > claimla
 
 JUnit includes every benchmark case and marks incorrect decisions as failures. SARIF emits incorrect decisions as `FALSE_PASS` or `FALSE_BLOCK` results with deterministic benchmark-line locations. These formats serialize the observed run; they do not create or infer benchmark results.
 
+JSON benchmark reports preserve each case's optional `labelSourceUrls` and `note` metadata. SARIF includes the same provenance fields in result properties for incorrect cases, so downstream automation can retain the independent label context.
+
 Reported metrics:
 
 - decision accuracy against the dataset labels
