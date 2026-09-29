@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { readFile } from "node:fs/promises";
 import { parseReceiptCliArguments, renderReceiptHelp } from "./receipt-cli-options.js";
+import { renderReceiptVerificationJson } from "./receipt-cli-output.js";
 import { verifySignedVerificationReceipt } from "./receipt.js";
 import type { SignedVerificationReceipt } from "./types.js";
 
@@ -16,7 +17,12 @@ async function main(): Promise<void> {
   const publicKeyPem = publicKeyPath ? await readFile(publicKeyPath, "utf8") : undefined;
   const valid = verifySignedVerificationReceipt(parsed, publicKeyPem ? { publicKeyPem } : {});
   if (json) {
-    process.stdout.write(`${JSON.stringify({ valid, file: filePath, ...(publicKeyPath ? { publicKeyFile: publicKeyPath } : {}) })}\n`);
+    process.stdout.write(`${renderReceiptVerificationJson({
+      valid,
+      filePath,
+      receipt: parsed,
+      ...(publicKeyPath ? { publicKeyPath } : {}),
+    })}\n`);
   } else {
     process.stdout.write(`Receipt ${valid ? "valid" : "invalid"}: ${filePath}\n`);
   }
