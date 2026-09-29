@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+No unreleased changes.
+
+## 0.3.18 - 2026-09-29
+
 - Added an optional trusted `--public-key-file` input to `claimlatch-receipt verify` for external receipt-signing key validation.
 
 ## 0.3.17 - 2026-09-29
