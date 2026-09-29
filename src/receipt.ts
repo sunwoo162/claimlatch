@@ -189,9 +189,13 @@ function isSignedVerificationReceipt(value: unknown): value is SignedVerificatio
   return receipt.version === 1
     && receipt.algorithm === "Ed25519"
     && typeof receipt.signature === "string"
+    && receipt.signature.trim().length > 0
     && !!payload
     && typeof payload === "object"
     && typeof (payload as { publicKeyPem?: unknown }).publicKeyPem === "string"
+    && (payload as { publicKeyPem: string }).publicKeyPem.trim().length > 0
+    && ((payload as { keyId?: unknown }).keyId === undefined
+      || typeof (payload as { keyId?: unknown }).keyId === "string")
     && isVerificationReport((payload as { report?: unknown }).report);
 }
 
