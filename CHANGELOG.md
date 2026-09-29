@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.26 - 2026-09-29
+
+- Preserved benchmark label source URLs and notes in JUnit output for incorrect cases.
+
 ## 0.3.25 - 2026-09-29
 
 - Preserved benchmark label source URLs and notes in JSON and SARIF results for downstream provenance tracking.
