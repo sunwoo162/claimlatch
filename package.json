@@ -1,6 +1,6 @@
 {
   "name": "claimlatch",
-  "version": "0.3.32",
+  "version": "0.3.33",
   "description": "Evidence-backed reliability gate for LLM answers.",
   "type": "module",
   "license": "Apache-2.0",
