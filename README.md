@@ -546,6 +546,8 @@ PASS is not proof of universal truth. Claim extraction, search, source selection
 
 ## Project status
 
+`0.3.61` fixes provider-compatible proxy example entrypoint detection across POSIX and Windows paths.
+
 `0.3.60` hardens signed receipt verification to reject malformed claim verification and policy violation entries.
 
 `0.3.59` hardens signed receipt verification so cryptographically valid receipts with malformed verification report shapes fail closed.
