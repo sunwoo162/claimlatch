@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { createDefaultClaimLatch } from "./default-gate.js";
 import { createOpenAIProxy } from "./proxy.js";
-import { parseProxyHeaderMap, renderProxyHelp } from "./proxy-cli-options.js";
+import { renderProxyHelp, resolveProxyProviderConfiguration } from "./proxy-cli-options.js";
 
 async function main(): Promise<void> {
   if (process.argv.includes("--help") || process.argv.includes("-h")) {
@@ -9,22 +9,18 @@ async function main(): Promise<void> {
     return;
   }
 
-  const upstreamBaseUrl = process.env.CLAIMLATCH_PROXY_UPSTREAM_BASE_URL;
+  const providerConfiguration = resolveProxyProviderConfiguration(process.env);
   const llmModel = process.env.CLAIMLATCH_LLM_MODEL;
   const tavilyApiKey = process.env.TAVILY_API_KEY;
   const port = parsePort(process.env.CLAIMLATCH_PROXY_PORT ?? "4317");
   const host = process.env.CLAIMLATCH_PROXY_HOST ?? "127.0.0.1";
 
-  if (!upstreamBaseUrl) throw new Error("Set CLAIMLATCH_PROXY_UPSTREAM_BASE_URL to the generation provider base URL.");
   if (!llmModel) throw new Error("Set CLAIMLATCH_LLM_MODEL for the verifier model.");
   if (!tavilyApiKey) throw new Error("Set TAVILY_API_KEY for evidence retrieval.");
 
   const llmApiKey = process.env.CLAIMLATCH_LLM_API_KEY ?? process.env.OPENAI_API_KEY;
   const llmBaseUrl = process.env.CLAIMLATCH_LLM_BASE_URL;
   const upstreamTimeoutMs = process.env.CLAIMLATCH_PROXY_UPSTREAM_TIMEOUT_MS;
-  const upstreamApiKeyHeader = process.env.CLAIMLATCH_PROXY_UPSTREAM_API_KEY_HEADER;
-  const upstreamChatCompletionsPath = process.env.CLAIMLATCH_PROXY_UPSTREAM_CHAT_COMPLETIONS_PATH;
-  const upstreamRequestHeaders = process.env.CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS;
   const upstreamResponseHeaderNames = process.env.CLAIMLATCH_PROXY_UPSTREAM_RESPONSE_HEADER_NAMES;
   const upstreamResponseHeaderPrefixes = process.env.CLAIMLATCH_PROXY_UPSTREAM_RESPONSE_HEADER_PREFIXES;
   const gate = createDefaultClaimLatch({
@@ -36,14 +32,14 @@ async function main(): Promise<void> {
 
   const proxy = createOpenAIProxy({
     gate,
-    upstreamBaseUrl,
+    upstreamBaseUrl: providerConfiguration.upstreamBaseUrl,
     ...(process.env.CLAIMLATCH_PROXY_UPSTREAM_API_KEY
       ? { upstreamApiKey: process.env.CLAIMLATCH_PROXY_UPSTREAM_API_KEY }
       : {}),
-    ...(upstreamApiKeyHeader ? { upstreamApiKeyHeader } : {}),
-    ...(upstreamChatCompletionsPath ? { upstreamChatCompletionsPath } : {}),
-    ...(upstreamRequestHeaders !== undefined
-      ? { upstreamRequestHeaders: parseProxyHeaderMap(upstreamRequestHeaders) }
+    upstreamApiKeyHeader: providerConfiguration.upstreamApiKeyHeader,
+    upstreamChatCompletionsPath: providerConfiguration.upstreamChatCompletionsPath,
+    ...(providerConfiguration.upstreamRequestHeaders
+      ? { upstreamRequestHeaders: providerConfiguration.upstreamRequestHeaders }
       : {}),
     ...(upstreamResponseHeaderNames !== undefined
       ? { upstreamResponseHeaderNames: parseHeaderList(upstreamResponseHeaderNames, "CLAIMLATCH_PROXY_UPSTREAM_RESPONSE_HEADER_NAMES") }

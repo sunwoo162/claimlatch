@@ -1,3 +1,12 @@
+import { resolveProxyProviderProfile } from "./proxy-profiles.js";
+
+export interface ProxyProviderConfiguration {
+  upstreamBaseUrl: string;
+  upstreamApiKeyHeader: string;
+  upstreamChatCompletionsPath: string;
+  upstreamRequestHeaders?: Record<string, string>;
+}
+
 export function parseProxyHeaderMap(value: string, variableName = "CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS"): Record<string, string> {
   const headers: Record<string, string> = {};
   for (const entry of value.split(",").map((part) => part.trim()).filter(Boolean)) {
@@ -11,6 +20,36 @@ export function parseProxyHeaderMap(value: string, variableName = "CLAIMLATCH_PR
     headers[name] = headerValue;
   }
   return headers;
+}
+
+export function resolveProxyProviderConfiguration(
+  env: Readonly<Record<string, string | undefined>>,
+): ProxyProviderConfiguration {
+  const profile = resolveProxyProviderProfile(env.CLAIMLATCH_PROXY_PROVIDER_PROFILE, {
+    ...(env.CLAIMLATCH_PROXY_OPENROUTER_SITE_URL
+      ? { siteUrl: env.CLAIMLATCH_PROXY_OPENROUTER_SITE_URL }
+      : {}),
+    ...(env.CLAIMLATCH_PROXY_OPENROUTER_APP_NAME
+      ? { appName: env.CLAIMLATCH_PROXY_OPENROUTER_APP_NAME }
+      : {}),
+  });
+  const upstreamBaseUrl = env.CLAIMLATCH_PROXY_UPSTREAM_BASE_URL ?? profile.upstreamBaseUrl;
+  if (!upstreamBaseUrl) {
+    throw new Error("Set CLAIMLATCH_PROXY_UPSTREAM_BASE_URL to the generation provider base URL.");
+  }
+  const upstreamRequestHeaders = {
+    ...profile.upstreamRequestHeaders,
+    ...(env.CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS !== undefined
+      ? parseProxyHeaderMap(env.CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS)
+      : {}),
+  };
+  return {
+    upstreamBaseUrl,
+    upstreamApiKeyHeader: env.CLAIMLATCH_PROXY_UPSTREAM_API_KEY_HEADER ?? profile.upstreamApiKeyHeader,
+    upstreamChatCompletionsPath:
+      env.CLAIMLATCH_PROXY_UPSTREAM_CHAT_COMPLETIONS_PATH ?? profile.upstreamChatCompletionsPath,
+    ...(Object.keys(upstreamRequestHeaders).length > 0 ? { upstreamRequestHeaders } : {}),
+  };
 }
 
 export function renderProxyHelp(): string {
