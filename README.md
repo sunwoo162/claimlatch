@@ -343,7 +343,7 @@ Core invariants are checked again after custom providers return. Duplicate claim
 
 ## Independent-label benchmark
 
-`benchmarks/independent.jsonl` contains 48 cases across 24 paired topics, with one positive and one negative answer per topic. Each case records a public label-source URL, and labels were not generated from ClaimLatch output. The same frozen aggregate is partitioned into `benchmarks/train.jsonl` (32 cases), `benchmarks/dev.jsonl` (8 cases), and `benchmarks/test.jsonl` (8 cases), with balanced positive and negative labels in every split.
+`benchmarks/independent.jsonl` contains 54 cases across 27 paired topics, with one positive and one negative answer per topic. Each case records a public label-source URL, and labels were not generated from ClaimLatch output. The same frozen aggregate is partitioned into `benchmarks/train.jsonl` (34 cases), `benchmarks/dev.jsonl` (10 cases), and `benchmarks/test.jsonl` (10 cases), with balanced positive and negative labels in every split.
 
 The default `claimlatch-bench` command verifies `benchmarks/independent.jsonl` against `benchmarks/MANIFEST.json` before contacting any model or evidence provider. For a custom dataset, pass `--manifest <path>` to enable the same SHA-256 and case-count check; a mismatch fails closed before a benchmark report is produced.
 
