@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.22 - 2026-09-29
+
+- Shared upstream request header parsing between the proxy CLI and provider-compatible proxy example with regression coverage.
+
 ## 0.3.21 - 2026-09-29
 
 - Extended the provider-compatible proxy example with fixed upstream request header configuration.
