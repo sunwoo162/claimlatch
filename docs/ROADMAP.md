@@ -22,14 +22,27 @@
 - Ed25519-signed verification receipt API
 - Runnable guarded-application integration example
 
+## V0.3 — hardened delivery and operations
+
+- DNS resolution and public-IP pinning before outbound document requests
+- Cross-source contradiction detection
+- Page-level PDF provenance with page-local quote offsets
+- Signed receipt persistence, verification CLI, and key rotation support
+- Buffered multi-choice, streaming, structured-output, and multimodal proxy verification
+- Provider compatibility profiles for hosted OpenAI-compatible endpoints
+- Expanded 74-case independent benchmark with balanced train/dev/test splits
+- Credential-free benchmark manifest validation in local scripts and CI
+
 ## Next
 
-- Calibration experiments only after enough independent labels exist
-- Add more provider-specific proxy compatibility tests and examples (initial Azure-style example is available)
+- Calibration experiments only after the independent labels and confidence semantics are defined well enough to interpret them
+- Add provider-specific proxy compatibility tests and examples as upstream contracts are verified (Azure-style and hosted profiles are available)
+- Add framework-oriented integration examples while keeping the core package dependency-light
+- Expand the benchmark only with independently sourced labels, provenance, and manifest updates
 
 ## Explicitly not promised
 
 - A universal "87% trustworthy" score
 - A claim that one LLM judge solves hallucination
 - Hidden chain-of-thought based judgments
-- Universal OpenAI API compatibility in V0.2
+- Universal OpenAI API compatibility
