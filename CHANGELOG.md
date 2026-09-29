@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.38 - 2026-09-29
+
+- Expanded the frozen independent-label benchmark to 74 balanced cases across 37 paired topics while keeping the test split unchanged.
+
 ## 0.3.37 - 2026-09-29
 
 - Consolidated static proxy provider profile definitions into a single immutable map.
