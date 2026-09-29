@@ -16,7 +16,11 @@ export type {
 export { formatBenchmarkReport, renderBenchmarkText, resolveBenchmarkOutputFormat } from "./benchmark-formatters.js";
 export type { BenchmarkFormatOptions, BenchmarkOutputFormat } from "./benchmark-formatters.js";
 export { createOpenAIProxy } from "./proxy.js";
-export { resolveProxyProviderProfile } from "./proxy-profiles.js";
+export {
+  PROXY_PROVIDER_PROFILE_NAMES,
+  formatProxyProviderProfileNames,
+  resolveProxyProviderProfile,
+} from "./proxy-profiles.js";
 export type {
   OpenAIProxyOptions,
   OpenAIProxyServer,

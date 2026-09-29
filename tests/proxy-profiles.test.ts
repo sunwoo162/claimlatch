@@ -1,6 +1,15 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { resolveProxyProviderProfile } from "../src/proxy-profiles.js";
+import {
+  PROXY_PROVIDER_PROFILE_NAMES,
+  formatProxyProviderProfileNames,
+  resolveProxyProviderProfile,
+} from "../src/proxy-profiles.js";
+
+test("proxy profile names are centralized for CLI and SDK consumers", () => {
+  assert.deepEqual(PROXY_PROVIDER_PROFILE_NAMES, ["azure", "cohere", "groq", "mistral", "openrouter"]);
+  assert.equal(formatProxyProviderProfileNames(), "azure, cohere, groq, mistral, or openrouter");
+});
 
 test("proxy profiles provide Azure-compatible defaults", () => {
   assert.deepEqual(resolveProxyProviderProfile("azure"), {
