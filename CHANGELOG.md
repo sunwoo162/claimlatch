@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-No unreleased changes.
+- Added a reusable fail-closed HTTP integration with a runnable guarded-answer service example.
 
 ## 0.3.13 - 2026-09-29
 
