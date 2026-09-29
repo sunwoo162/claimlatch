@@ -109,6 +109,19 @@ test("benchmark JSONL parser rejects duplicate IDs", () => {
   ].join("\n")), /Duplicate benchmark id/);
 });
 
+test("benchmark JSONL parser rejects malformed label source URLs", () => {
+  assert.throws(
+    () => parseBenchmarkJsonl(JSON.stringify({
+      id: "malformed-source",
+      question: "q",
+      answer: "a",
+      expectedPassed: true,
+      labelSourceUrls: ["ftp://example.test/source"],
+    })),
+    /invalid labelSourceUrls/,
+  );
+});
+
 test("benchmark JSONL parser preserves source line numbers for report locations", () => {
   const cases = parseBenchmarkJsonl([
     "# benchmark fixture",

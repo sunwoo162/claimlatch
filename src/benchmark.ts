@@ -110,9 +110,17 @@ export function parseBenchmarkJsonl(input: string): BenchmarkCase[] {
     if (typeof value.answer !== "string" || !value.answer.trim()) throw new Error(`Benchmark ${value.id} is missing answer.`);
     if (typeof value.expectedPassed !== "boolean") throw new Error(`Benchmark ${value.id} is missing expectedPassed boolean.`);
 
-    const labelSourceUrls = Array.isArray(value.labelSourceUrls)
-      ? value.labelSourceUrls.filter((url): url is string => typeof url === "string" && /^https?:\/\//.test(url))
-      : undefined;
+    let labelSourceUrls: string[] | undefined;
+    if (value.labelSourceUrls !== undefined) {
+      if (
+        !Array.isArray(value.labelSourceUrls)
+        || value.labelSourceUrls.length === 0
+        || value.labelSourceUrls.some((url) => !isHttpUrl(url))
+      ) {
+        throw new Error(`Benchmark ${value.id} has invalid labelSourceUrls.`);
+      }
+      labelSourceUrls = value.labelSourceUrls as string[];
+    }
 
     cases.push({
       id: value.id,
@@ -188,4 +196,14 @@ export function verifyBenchmarkManifestEntry(
 
 function ratio(numerator: number, denominator: number): number {
   return denominator === 0 ? 0 : numerator / denominator;
+}
+
+function isHttpUrl(value: unknown): value is string {
+  if (typeof value !== "string") return false;
+  try {
+    const parsed = new URL(value);
+    return (parsed.protocol === "http:" || parsed.protocol === "https:") && parsed.hostname.length > 0;
+  } catch {
+    return false;
+  }
 }
