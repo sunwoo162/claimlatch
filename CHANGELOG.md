@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+No unreleased changes.
+
+## 0.3.13 - 2026-09-29
+
 - Added explicit provider response-header name and prefix configuration for SDK and proxy CLI compatibility, while keeping response framing and hop-by-hop headers blocked.
 
 ## 0.3.12 - 2026-09-29
