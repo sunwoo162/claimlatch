@@ -216,6 +216,22 @@ npm run example:guarded
 
 The complete example is in [`examples/guarded-answer.ts`](examples/guarded-answer.ts). In a real application, replace `CLAIMLATCH_EXAMPLE_DRAFT` with the result of the generation call and deliver only the `answer` returned by `verifyBeforeRelease`.
 
+### Structured-output proxy policy example
+
+`structuredOutputVerifier` is the application-owned safety boundary for tool calls and multimodal output. The runnable example below allows only the comma-separated tool names in `CLAIMLATCH_ALLOWED_TOOLS`; any other tool call is returned as a deterministic BLOCK report. The example uses a local policy report for structured output and the configured ClaimLatch gate for ordinary textual responses.
+
+```bash
+export CLAIMLATCH_LLM_MODEL="your-verifier-model"
+export CLAIMLATCH_LLM_API_KEY="..."
+export TAVILY_API_KEY="..."
+export CLAIMLATCH_PROXY_UPSTREAM_API_KEY="..."
+export CLAIMLATCH_ALLOWED_TOOLS="lookup,search"
+
+npm run example:structured
+```
+
+The complete example is in [`examples/structured-output-verifier.ts`](examples/structured-output-verifier.ts). It demonstrates the important boundary: ClaimLatch does not infer whether an action is safe; the application must define and verify its own allowlist before any buffered stream is released.
+
 ## Signed verification receipts
 
 A verification report can be wrapped in an Ed25519-signed receipt. The receipt includes the report and public key in its payload, then signs the complete payload using canonical JSON serialization.
@@ -369,7 +385,7 @@ PASS is not proof of universal truth. Claim extraction, search, source selection
 
 ## Project status
 
-`0.3.0` adds hardened provenance, core provider invariant enforcement, an OpenAI-compatible proxy, an independent benchmark runner, signed verification receipts, multi-choice proxy verification, and a guarded application integration helper. Before `1.0`, public APIs and provider behavior may change.
+`0.3.1` adds hardened provenance, core provider invariant enforcement, an OpenAI-compatible proxy, an independent benchmark runner, signed verification receipts, multi-choice proxy verification, structured-output verifier hooks, and guarded application integration examples. Before `1.0`, public APIs and provider behavior may change.
 
 ## License
 
