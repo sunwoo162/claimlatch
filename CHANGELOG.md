@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+No unreleased changes.
+
+## 0.3.11 - 2026-09-29
+
 - Added fail-closed `claimlatch-bench --split train|dev|test` selection for the frozen benchmark partitions.
 
 ## 0.3.10 - 2026-09-29
