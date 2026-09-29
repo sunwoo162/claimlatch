@@ -9,6 +9,7 @@ export interface OpenAIProxyOptions {
   upstreamApiKey?: string;
   upstreamApiKeyHeader?: string;
   upstreamChatCompletionsPath?: string;
+  upstreamRequestHeaders?: Record<string, string>;
   upstreamResponseHeaderNames?: string[];
   upstreamResponseHeaderPrefixes?: string[];
   policy?: Partial<GatePolicy>;
@@ -75,6 +76,11 @@ const REQUEST_HEADERS_TO_STRIP = new Set([
   "proxy-authorization",
 ]);
 
+const REQUEST_HEADERS_NEVER_CONFIGURE = new Set([
+  ...REQUEST_HEADERS_TO_STRIP,
+  "content-type",
+]);
+
 const RESPONSE_HEADERS_TO_FORWARD = new Set([
   "content-type",
   "retry-after",
@@ -102,6 +108,7 @@ export function createOpenAIProxy(options: OpenAIProxyOptions): OpenAIProxyServe
   const upstreamChatCompletionsPath = normalizeUpstreamChatCompletionsPath(
     options.upstreamChatCompletionsPath ?? "/chat/completions",
   );
+  const upstreamRequestHeaders = normalizeUpstreamRequestHeaders(options.upstreamRequestHeaders ?? {});
   const upstreamResponseHeaderNames = normalizeResponseHeaderConfiguration(
     options.upstreamResponseHeaderNames ?? [],
     "name",
@@ -126,6 +133,7 @@ export function createOpenAIProxy(options: OpenAIProxyOptions): OpenAIProxyServe
         upstreamTimeoutMs,
         upstreamApiKeyHeader,
         upstreamChatCompletionsPath,
+        upstreamRequestHeaders,
         upstreamResponseHeaderNames,
         upstreamResponseHeaderPrefixes,
       });
@@ -172,6 +180,7 @@ async function handleRequest(input: {
   upstreamTimeoutMs: number;
   upstreamApiKeyHeader: string;
   upstreamChatCompletionsPath: string;
+  upstreamRequestHeaders: ReadonlyMap<string, string>;
   upstreamResponseHeaderNames: ReadonlySet<string>;
   upstreamResponseHeaderPrefixes: ReadonlySet<string>;
 }): Promise<void> {
@@ -225,6 +234,7 @@ async function handleRequest(input: {
         incomingAuthorization,
         input.options.upstreamApiKey,
         input.upstreamApiKeyHeader,
+        input.upstreamRequestHeaders,
       ),
       body: bodyText,
       signal: upstreamAbort.signal,
@@ -446,6 +456,7 @@ function upstreamRequestHeaders(
   incomingAuthorization: string | undefined,
   upstreamApiKey: string | undefined,
   upstreamApiKeyHeader: string,
+  configuredHeaders: ReadonlyMap<string, string>,
 ): Record<string, string> {
   const headers: Record<string, string> = { "content-type": "application/json" };
 
@@ -453,6 +464,10 @@ function upstreamRequestHeaders(
     const name = rawName.toLowerCase();
     if (REQUEST_HEADERS_TO_STRIP.has(name) || rawValue === undefined) continue;
     headers[name] = Array.isArray(rawValue) ? rawValue.join(", ") : rawValue;
+  }
+
+  for (const [name, value] of configuredHeaders) {
+    headers[name] = value;
   }
 
   if (upstreamApiKey) {
@@ -463,6 +478,28 @@ function upstreamRequestHeaders(
     headers.authorization = incomingAuthorization;
   }
   return headers;
+}
+
+function normalizeUpstreamRequestHeaders(value: Record<string, string>): ReadonlyMap<string, string> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new Error("upstreamRequestHeaders must be an object.");
+  }
+
+  const normalized = new Map<string, string>();
+  for (const [rawName, rawValue] of Object.entries(value)) {
+    const name = rawName.trim().toLowerCase();
+    if (!/^[!#$%&'*+\-.^_`|~0-9a-z]+$/u.test(name)) {
+      throw new Error("upstreamRequestHeaders must contain valid HTTP header names.");
+    }
+    if (REQUEST_HEADERS_NEVER_CONFIGURE.has(name)) {
+      throw new Error("upstreamRequestHeaders cannot include a restricted proxy request header.");
+    }
+    if (typeof rawValue !== "string" || /[\r\n]/u.test(rawValue)) {
+      throw new Error("upstreamRequestHeaders must contain valid HTTP header values.");
+    }
+    normalized.set(name, rawValue);
+  }
+  return normalized;
 }
 
 function copyResponseHeaders(

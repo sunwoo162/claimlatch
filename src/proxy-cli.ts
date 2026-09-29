@@ -24,6 +24,7 @@ async function main(): Promise<void> {
   const upstreamTimeoutMs = process.env.CLAIMLATCH_PROXY_UPSTREAM_TIMEOUT_MS;
   const upstreamApiKeyHeader = process.env.CLAIMLATCH_PROXY_UPSTREAM_API_KEY_HEADER;
   const upstreamChatCompletionsPath = process.env.CLAIMLATCH_PROXY_UPSTREAM_CHAT_COMPLETIONS_PATH;
+  const upstreamRequestHeaders = process.env.CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS;
   const upstreamResponseHeaderNames = process.env.CLAIMLATCH_PROXY_UPSTREAM_RESPONSE_HEADER_NAMES;
   const upstreamResponseHeaderPrefixes = process.env.CLAIMLATCH_PROXY_UPSTREAM_RESPONSE_HEADER_PREFIXES;
   const gate = createDefaultClaimLatch({
@@ -41,6 +42,9 @@ async function main(): Promise<void> {
       : {}),
     ...(upstreamApiKeyHeader ? { upstreamApiKeyHeader } : {}),
     ...(upstreamChatCompletionsPath ? { upstreamChatCompletionsPath } : {}),
+    ...(upstreamRequestHeaders !== undefined
+      ? { upstreamRequestHeaders: parseHeaderMap(upstreamRequestHeaders, "CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS") }
+      : {}),
     ...(upstreamResponseHeaderNames !== undefined
       ? { upstreamResponseHeaderNames: parseHeaderList(upstreamResponseHeaderNames, "CLAIMLATCH_PROXY_UPSTREAM_RESPONSE_HEADER_NAMES") }
       : {}),
@@ -80,6 +84,21 @@ function parseHeaderList(value: string, variableName: string): string[] {
   const headers = value.split(",").map((header) => header.trim()).filter(Boolean);
   if (value.trim() !== "" && headers.length === 0) {
     throw new Error(`${variableName} must contain a comma-separated header list.`);
+  }
+  return headers;
+}
+
+function parseHeaderMap(value: string, variableName: string): Record<string, string> {
+  const headers: Record<string, string> = {};
+  for (const entry of value.split(",").map((part) => part.trim()).filter(Boolean)) {
+    const separator = entry.indexOf("=");
+    if (separator <= 0) {
+      throw new Error(`${variableName} must contain comma-separated name=value entries.`);
+    }
+    const name = entry.slice(0, separator).trim();
+    const headerValue = entry.slice(separator + 1).trim();
+    if (!name) throw new Error(`${variableName} must contain non-empty header names.`);
+    headers[name] = headerValue;
   }
   return headers;
 }

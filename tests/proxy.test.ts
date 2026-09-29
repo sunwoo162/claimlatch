@@ -844,6 +844,40 @@ test("proxy forwards compatible request headers and configured authentication", 
   assert.equal(capturedHeaders?.get("connection"), null);
 });
 
+test("proxy injects configured upstream request headers with server precedence", async () => {
+  let capturedHeaders: Headers | undefined;
+  await withProxyOptions({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://upstream.example/v1",
+    upstreamRequestHeaders: {
+      "x-provider-tenant": "server-tenant",
+      "x-provider-version": "2026-09",
+    },
+    fetchImpl: (async (_input, init) => {
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({
+        id: "chatcmpl_static_headers",
+        object: "chat.completion",
+        choices: [{ message: { role: "assistant", content: "Static header-compatible answer." } }],
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-provider-tenant": "client-tenant",
+        "x-provider-version": "client-version",
+      },
+      body: JSON.stringify({ messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 200);
+  });
+
+  assert.equal(capturedHeaders?.get("x-provider-tenant"), "server-tenant");
+  assert.equal(capturedHeaders?.get("x-provider-version"), "2026-09");
+});
+
 test("proxy supports provider-specific upstream API key headers", async () => {
   let capturedHeaders: Headers | undefined;
   await withProxyOptions({
@@ -1045,4 +1079,12 @@ test("proxy rejects unsafe configured response headers", () => {
     upstreamBaseUrl: "https://upstream.example/v1",
     upstreamResponseHeaderPrefixes: ["bad prefix"],
   }), /valid HTTP header prefix/);
+});
+
+test("proxy rejects restricted upstream request headers", () => {
+  assert.throws(() => createOpenAIProxy({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://upstream.example/v1",
+    upstreamRequestHeaders: { authorization: "Bearer static" },
+  }), /restricted proxy request header/);
 });
