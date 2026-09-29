@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.59 - 2026-09-30
+
+- Hardened signed receipt verification so cryptographically valid receipts with malformed verification report shapes fail closed.
+
 ## 0.3.58 - 2026-09-30
 
 - Fixed the provider-compatible proxy example so it reuses the CLI provider configuration, including custom model-list paths and provider request headers.
