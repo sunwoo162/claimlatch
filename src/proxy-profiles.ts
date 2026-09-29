@@ -2,6 +2,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "azure",
   "cerebras",
   "cohere",
+  "deepinfra",
   "deepseek",
   "fireworks",
   "groq",
@@ -49,6 +50,11 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
   },
   cohere: {
     upstreamBaseUrl: "https://api.cohere.ai/compatibility/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  },
+  deepinfra: {
+    upstreamBaseUrl: "https://api.deepinfra.com/v1/openai",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
   },
