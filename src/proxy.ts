@@ -8,6 +8,7 @@ export interface OpenAIProxyOptions {
   upstreamBaseUrl: string;
   upstreamApiKey?: string;
   upstreamApiKeyHeader?: string;
+  upstreamChatCompletionsPath?: string;
   policy?: Partial<GatePolicy>;
   structuredOutputVerifier?: OpenAIProxyStructuredOutputVerifier;
   fetchImpl?: typeof fetch;
@@ -89,6 +90,9 @@ export function createOpenAIProxy(options: OpenAIProxyOptions): OpenAIProxyServe
   const maxBufferedChoiceBytes = clampInteger(options.maxBufferedChoiceBytes ?? 2_000_000, 1_024, 10_000_000);
   const upstreamTimeoutMs = normalizeTimeout(options.upstreamTimeoutMs ?? DEFAULT_UPSTREAM_TIMEOUT_MS);
   const upstreamApiKeyHeader = normalizeUpstreamApiKeyHeader(options.upstreamApiKeyHeader ?? "authorization");
+  const upstreamChatCompletionsPath = normalizeUpstreamChatCompletionsPath(
+    options.upstreamChatCompletionsPath ?? "/chat/completions",
+  );
 
   const server = createServer(async (request, response) => {
     try {
@@ -104,6 +108,7 @@ export function createOpenAIProxy(options: OpenAIProxyOptions): OpenAIProxyServe
         maxBufferedChoiceBytes,
         upstreamTimeoutMs,
         upstreamApiKeyHeader,
+        upstreamChatCompletionsPath,
       });
     } catch (error) {
       writeJson(response, 500, {
@@ -147,6 +152,7 @@ async function handleRequest(input: {
   maxBufferedChoiceBytes: number;
   upstreamTimeoutMs: number;
   upstreamApiKeyHeader: string;
+  upstreamChatCompletionsPath: string;
 }): Promise<void> {
   const { request, response } = input;
   const path = request.url?.split("?")[0] ?? "/";
@@ -191,7 +197,7 @@ async function handleRequest(input: {
   const upstreamAbort = createUpstreamAbortControl(request, response, input.upstreamTimeoutMs);
   let upstream: Response;
   try {
-    upstream = await input.fetchImpl(`${input.baseUrl}/chat/completions`, {
+    upstream = await input.fetchImpl(`${input.baseUrl}${input.upstreamChatCompletionsPath}`, {
       method: "POST",
       headers: upstreamRequestHeaders(
         request,
@@ -855,6 +861,29 @@ function normalizeUpstreamApiKeyHeader(value: string): string {
     throw new Error("upstreamApiKeyHeader cannot target a restricted proxy header.");
   }
   return header;
+}
+
+function normalizeUpstreamChatCompletionsPath(value: string): string {
+  const path = value.trim();
+  if (
+    !path.startsWith("/") ||
+    path.startsWith("//") ||
+    path.includes("#") ||
+    /^[a-z][a-z\d+.-]*:/iu.test(path)
+  ) {
+    throw new Error("upstreamChatCompletionsPath must be a relative HTTP path with optional query.");
+  }
+
+  try {
+    const parsed = new URL(`http://claimlatch.invalid${path}`);
+    if (parsed.origin !== "http://claimlatch.invalid" || !parsed.pathname.startsWith("/")) {
+      throw new Error("invalid path");
+    }
+  } catch {
+    throw new Error("upstreamChatCompletionsPath must be a valid HTTP path.");
+  }
+
+  return path;
 }
 
 function createUpstreamAbortControl(

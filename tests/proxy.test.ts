@@ -875,6 +875,43 @@ test("proxy supports provider-specific upstream API key headers", async () => {
   assert.equal(capturedHeaders?.get("authorization"), null);
 });
 
+test("proxy supports provider-specific upstream chat completions paths and query parameters", async () => {
+  let capturedUrl: string | undefined;
+  await withProxyOptions({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://resource.example",
+    upstreamChatCompletionsPath: "/openai/deployments/gpt-4o/chat/completions?api-version=2024-10-21",
+    fetchImpl: (async (input) => {
+      capturedUrl = String(input);
+      return new Response(JSON.stringify({
+        id: "chatcmpl_provider_path",
+        object: "chat.completion",
+        choices: [{ message: { role: "assistant", content: "Path-compatible answer." } }],
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 200);
+  });
+
+  assert.equal(
+    capturedUrl,
+    "https://resource.example/openai/deployments/gpt-4o/chat/completions?api-version=2024-10-21",
+  );
+});
+
+test("proxy rejects an absolute upstream chat completions path configuration", () => {
+  assert.throws(() => createOpenAIProxy({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://upstream.example/v1",
+    upstreamChatCompletionsPath: "https://evil.example/chat/completions",
+  }), /relative HTTP path/);
+});
+
 test("proxy rejects restricted upstream API key header configuration", () => {
   assert.throws(() => createOpenAIProxy({
     gate: fixtureGate(),
