@@ -38,7 +38,14 @@ async function createReport() {
   return runBenchmark(gate, [
     { id: "passing&case", question: "q", answer: "true", expectedPassed: true },
     { id: "blocked<case>", question: "q", answer: "false", expectedPassed: true },
-    { id: "false-pass", question: "q", answer: "true", expectedPassed: false },
+    {
+      id: "false-pass",
+      question: "q",
+      answer: "true",
+      expectedPassed: false,
+      labelSourceUrls: ["https://example.test/label"],
+      note: "Independent label.",
+    },
   ]);
 }
 
@@ -67,7 +74,13 @@ test("SARIF formatter emits only incorrect benchmark cases with deterministic lo
         level: string;
         message: { text: string };
         locations: Array<{ physicalLocation: { artifactLocation: { uri: string }; region: { startLine: number } } }>;
-        properties: { benchmarkId: string; expectedPassed: boolean; actualPassed: boolean };
+        properties: {
+          benchmarkId: string;
+          expectedPassed: boolean;
+          actualPassed: boolean;
+          labelSourceUrls?: string[];
+          note?: string;
+        };
       }>;
     }>;
   };
@@ -86,6 +99,8 @@ test("SARIF formatter emits only incorrect benchmark cases with deterministic lo
     benchmarkId: "false-pass",
     expectedPassed: false,
     actualPassed: true,
+    labelSourceUrls: ["https://example.test/label"],
+    note: "Independent label.",
   });
 });
 

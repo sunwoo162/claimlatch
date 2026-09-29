@@ -58,6 +58,21 @@ test("benchmark reports false-pass and false-block rates against independent lab
   assert.equal(report.falseBlockRate, 0);
 });
 
+test("benchmark results preserve label provenance metadata", async () => {
+  const gate = new ClaimLatch({ extractor, evidenceProvider, verifier });
+  const report = await runBenchmark(gate, [{
+    id: "with-provenance",
+    question: "q",
+    answer: "true",
+    expectedPassed: true,
+    labelSourceUrls: ["https://example.test/label"],
+    note: "Human-authored label.",
+  }]);
+
+  assert.deepEqual(report.cases[0]?.labelSourceUrls, ["https://example.test/label"]);
+  assert.equal(report.cases[0]?.note, "Human-authored label.");
+});
+
 test("benchmark split options resolve frozen datasets and reject unknown values", () => {
   assert.equal(parseBenchmarkSplit("train"), "train");
   assert.equal(parseBenchmarkSplit("dev"), "dev");

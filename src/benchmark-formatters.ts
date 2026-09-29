@@ -104,6 +104,8 @@ function renderBenchmarkSarif(report: BenchmarkReport, options: BenchmarkFormatO
         benchmarkId: item.id,
         expectedPassed: item.expectedPassed,
         actualPassed: item.actualPassed,
+        ...(item.labelSourceUrls ? { labelSourceUrls: item.labelSourceUrls } : {}),
+        ...(item.note ? { note: item.note } : {}),
       },
     }];
   });
