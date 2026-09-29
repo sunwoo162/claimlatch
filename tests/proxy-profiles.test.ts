@@ -7,8 +7,19 @@ import {
 } from "../src/proxy-profiles.js";
 
 test("proxy profile names are centralized for CLI and SDK consumers", () => {
-  assert.deepEqual(PROXY_PROVIDER_PROFILE_NAMES, ["azure", "cohere", "deepseek", "groq", "mistral", "openrouter"]);
-  assert.equal(formatProxyProviderProfileNames(), "azure, cohere, deepseek, groq, mistral, or openrouter");
+  assert.deepEqual(PROXY_PROVIDER_PROFILE_NAMES, [
+    "azure",
+    "cohere",
+    "deepseek",
+    "groq",
+    "mistral",
+    "openrouter",
+    "together",
+  ]);
+  assert.equal(
+    formatProxyProviderProfileNames(),
+    "azure, cohere, deepseek, groq, mistral, openrouter, or together",
+  );
 });
 
 test("proxy profiles provide Azure-compatible defaults", () => {
@@ -60,6 +71,14 @@ test("proxy profiles provide Cohere-compatible Chat Completions defaults", () =>
 test("proxy profiles provide DeepSeek-compatible Chat Completions defaults", () => {
   assert.deepEqual(resolveProxyProviderProfile("deepseek"), {
     upstreamBaseUrl: "https://api.deepseek.com",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  });
+});
+
+test("proxy profiles provide Together-compatible Chat Completions defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("together"), {
+    upstreamBaseUrl: "https://api.together.xyz/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
   });
