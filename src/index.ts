@@ -20,11 +20,15 @@ export { ClaimLatchBlockedError, verifyBeforeRelease } from "./integrations.js";
 export type { VerifiedAnswer } from "./integrations.js";
 export {
   createSignedVerificationReceipt,
+  FileVerificationReceiptStore,
   serializeVerificationReceiptPayload,
   verifySignedVerificationReceipt,
 } from "./receipt.js";
 export type {
+  FileVerificationReceiptStoreOptions,
+  ReceiptKeyResolver,
   ReceiptVerificationOptions,
   SignedVerificationReceiptOptions,
+  VerificationReceiptStore,
 } from "./receipt.js";
 export type * from "./types.js";

@@ -24,7 +24,6 @@
 
 ## Next
 
-- Persistent receipt storage and key rotation guidance
 - Larger frozen benchmark with train/dev/test separation
 - Calibration experiments only after enough independent labels exist
 - Safe buffered/verified streaming protocol design

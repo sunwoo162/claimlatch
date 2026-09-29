@@ -8,6 +8,7 @@
 - Added optional provenance egress host and port allowlists with redirect revalidation.
 - Exposed outbound allowlist configuration through `createDefaultClaimLatch`.
 - Added fixed and claim-aware official-source domain policies for Tavily search with post-response filtering.
+- Added a filesystem verification-receipt store and key-resolver support for rotation-aware verification.
 
 ## 0.3.0 - 2026-09-29
 
