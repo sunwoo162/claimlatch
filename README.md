@@ -298,7 +298,7 @@ npm run example:guarded
 
 The complete example is in [`examples/guarded-answer.ts`](examples/guarded-answer.ts). In a real application, replace `CLAIMLATCH_EXAMPLE_DRAFT` with the result of the generation call and deliver only the `answer` returned by `verifyBeforeRelease`.
 
-For an HTTP integration, ClaimLatch also provides `createGuardedAnswerServer`. It exposes `GET /health` and `POST /answer`; a passing request returns the verified answer, a blocked request returns `422` with its report, and verification failures return `502` without releasing the draft.
+For an HTTP integration, ClaimLatch also provides `createGuardedAnswerServer`. It exposes `GET /health` and `POST /answer` by default; set `healthPath` and `answerPath` to mount the same fail-closed handler under framework-specific routes. A passing request returns the verified answer, a blocked request returns `422` with its report, and verification failures return `502` without releasing the draft.
 
 ```bash
 export CLAIMLATCH_LLM_MODEL="your-verifier-model"
@@ -322,13 +322,17 @@ const gate = createDefaultClaimLatch({
   llmModel: process.env.CLAIMLATCH_LLM_MODEL!,
   tavilyApiKey: process.env.TAVILY_API_KEY!,
 });
-const guarded = createGuardedAnswerFetchHandler({ gate });
+const guarded = createGuardedAnswerFetchHandler({
+  gate,
+  healthPath: "/api/health",
+  answerPath: "/api/answer",
+});
 
 export const GET = guarded;
 export const POST = guarded;
 ```
 
-The complete route-oriented example is in [`examples/fetch-route-handler.ts`](examples/fetch-route-handler.ts). It keeps the same `/health` and `/answer` contract as the Node HTTP integration, including 413 request-size limits, 422 blocked reports, and 502 fail-closed verification errors.
+The complete route-oriented example is in [`examples/fetch-route-handler.ts`](examples/fetch-route-handler.ts). It keeps the same fail-closed contract as the Node HTTP integration, including 413 request-size limits, 422 blocked reports, and 502 fail-closed verification errors. Custom paths must be absolute URL paths without query strings or fragments.
 
 ### Structured-output proxy policy example
 

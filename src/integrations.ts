@@ -29,13 +29,18 @@ export async function verifyBeforeRelease(
   return { answer: input.answer, report };
 }
 
-export interface GuardedAnswerServerOptions {
+interface GuardedAnswerRouteOptions {
+  healthPath?: string;
+  answerPath?: string;
+}
+
+export interface GuardedAnswerServerOptions extends GuardedAnswerRouteOptions {
   gate: ClaimLatch;
   policy?: Partial<GatePolicy>;
   maxRequestBytes?: number;
 }
 
-export interface GuardedAnswerFetchHandlerOptions {
+export interface GuardedAnswerFetchHandlerOptions extends GuardedAnswerRouteOptions {
   gate: ClaimLatch;
   policy?: Partial<GatePolicy>;
   maxRequestBytes?: number;
@@ -50,14 +55,18 @@ export interface GuardedAnswerServer {
 }
 
 const DEFAULT_GUARDED_ANSWER_MAX_REQUEST_BYTES = 1_000_000;
+const DEFAULT_HEALTH_PATH = "/health";
+const DEFAULT_ANSWER_PATH = "/answer";
 
 export function createGuardedAnswerServer(options: GuardedAnswerServerOptions): GuardedAnswerServer {
   const maxRequestBytes = normalizeMaxRequestBytes(
     options.maxRequestBytes ?? DEFAULT_GUARDED_ANSWER_MAX_REQUEST_BYTES,
   );
+  const healthPath = normalizeRoutePath(options.healthPath ?? DEFAULT_HEALTH_PATH, "healthPath");
+  const answerPath = normalizeRoutePath(options.answerPath ?? DEFAULT_ANSWER_PATH, "answerPath");
   const server = createServer(async (request, response) => {
     try {
-      await handleGuardedAnswerRequest(request, response, options, maxRequestBytes);
+      await handleGuardedAnswerRequest(request, response, options, maxRequestBytes, healthPath, answerPath);
     } catch (error) {
       if (error instanceof RequestBodyTooLargeError) {
         writeIntegrationJson(response, 413, {
@@ -104,13 +113,15 @@ export function createGuardedAnswerFetchHandler(
   const maxRequestBytes = normalizeMaxRequestBytes(
     options.maxRequestBytes ?? DEFAULT_GUARDED_ANSWER_MAX_REQUEST_BYTES,
   );
+  const healthPath = normalizeRoutePath(options.healthPath ?? DEFAULT_HEALTH_PATH, "healthPath");
+  const answerPath = normalizeRoutePath(options.answerPath ?? DEFAULT_ANSWER_PATH, "answerPath");
 
   return async (request) => {
     const path = new URL(request.url).pathname;
-    if (request.method === "GET" && path === "/health") {
+    if (request.method === "GET" && path === healthPath) {
       return createIntegrationJsonResponse(200, { ok: true, service: "claimlatch-guarded-answer" });
     }
-    if (request.method !== "POST" || path !== "/answer") {
+    if (request.method !== "POST" || path !== answerPath) {
       return createIntegrationJsonResponse(404, {
         error: { type: "not_found", code: "not_found", message: "Route not found." },
       });
@@ -179,13 +190,15 @@ async function handleGuardedAnswerRequest(
   response: ServerResponse,
   options: GuardedAnswerServerOptions,
   maxRequestBytes: number,
+  healthPath: string,
+  answerPath: string,
 ): Promise<void> {
   const path = request.url?.split("?")[0] ?? "/";
-  if (request.method === "GET" && path === "/health") {
+  if (request.method === "GET" && path === healthPath) {
     writeIntegrationJson(response, 200, { ok: true, service: "claimlatch-guarded-answer" });
     return;
   }
-  if (request.method !== "POST" || path !== "/answer") {
+  if (request.method !== "POST" || path !== answerPath) {
     writeIntegrationJson(response, 404, {
       error: { type: "not_found", code: "not_found", message: "Route not found." },
     });
@@ -320,6 +333,14 @@ function normalizeMaxRequestBytes(value: number): number {
     throw new Error("maxRequestBytes must be a finite number between 1024 and 10000000.");
   }
   return Math.floor(value);
+}
+
+function normalizeRoutePath(value: string, optionName: string): string {
+  const path = value.trim();
+  if (!path.startsWith("/") || path.startsWith("//") || path.includes("?") || path.includes("#")) {
+    throw new TypeError(`${optionName} must be an absolute path without a query or fragment.`);
+  }
+  return path;
 }
 
 class RequestBodyTooLargeError extends Error {}
