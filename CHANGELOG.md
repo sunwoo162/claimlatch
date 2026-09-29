@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.21 - 2026-09-29
+
+- Extended the provider-compatible proxy example with fixed upstream request header configuration.
+
 ## 0.3.20 - 2026-09-29
 
 - Added fixed upstream request header injection for provider tenant, version, and routing compatibility with SDK and CLI configuration.
