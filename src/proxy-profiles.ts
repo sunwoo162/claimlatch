@@ -7,6 +7,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "mistral",
   "openrouter",
   "together",
+  "xai",
 ] as const;
 
 export type ProxyProviderProfileName = (typeof PROXY_PROVIDER_PROFILE_NAMES)[number];
@@ -62,6 +63,11 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
   },
   together: {
     upstreamBaseUrl: "https://api.together.xyz/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  },
+  xai: {
+    upstreamBaseUrl: "https://api.x.ai/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
   },
