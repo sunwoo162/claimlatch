@@ -10,6 +10,9 @@ export interface OpenAIProxyOptions {
   policy?: Partial<GatePolicy>;
   fetchImpl?: typeof fetch;
   maxRequestBytes?: number;
+  maxBufferedResponseBytes?: number;
+  maxBufferedChoices?: number;
+  maxBufferedChoiceBytes?: number;
 }
 
 export interface OpenAIProxyServer {
@@ -68,10 +71,23 @@ export function createOpenAIProxy(options: OpenAIProxyOptions): OpenAIProxyServe
   const baseUrl = options.upstreamBaseUrl.replace(/\/$/, "");
   const fetchImpl = options.fetchImpl ?? fetch;
   const maxRequestBytes = clampInteger(options.maxRequestBytes ?? 2_000_000, 1_024, 10_000_000);
+  const maxBufferedResponseBytes = clampInteger(options.maxBufferedResponseBytes ?? 10_000_000, 1_024, 50_000_000);
+  const maxBufferedChoices = clampInteger(options.maxBufferedChoices ?? 16, 1, 128);
+  const maxBufferedChoiceBytes = clampInteger(options.maxBufferedChoiceBytes ?? 2_000_000, 1_024, 10_000_000);
 
   const server = createServer(async (request, response) => {
     try {
-      await handleRequest({ request, response, options, baseUrl, fetchImpl, maxRequestBytes });
+      await handleRequest({
+        request,
+        response,
+        options,
+        baseUrl,
+        fetchImpl,
+        maxRequestBytes,
+        maxBufferedResponseBytes,
+        maxBufferedChoices,
+        maxBufferedChoiceBytes,
+      });
     } catch (error) {
       writeJson(response, 500, {
         error: {
@@ -109,6 +125,9 @@ async function handleRequest(input: {
   baseUrl: string;
   fetchImpl: typeof fetch;
   maxRequestBytes: number;
+  maxBufferedResponseBytes: number;
+  maxBufferedChoices: number;
+  maxBufferedChoiceBytes: number;
 }): Promise<void> {
   const { request, response } = input;
   const path = request.url?.split("?")[0] ?? "/";
@@ -136,17 +155,6 @@ async function handleRequest(input: {
     return;
   }
 
-  if (body.stream === true) {
-    writeJson(response, 400, {
-      error: {
-        type: "invalid_request_error",
-        code: "claimlatch_streaming_unsupported",
-        message: "ClaimLatch buffers the full draft before release; streaming chat completions are not supported in proxy mode yet.",
-      },
-    });
-    return;
-  }
-
   const question = lastUserMessageText(body.messages);
   if (!question) {
     writeJson(response, 400, {
@@ -170,14 +178,72 @@ async function handleRequest(input: {
     body: bodyText,
   });
 
-  const upstreamText = await upstream.text();
   if (!upstream.ok) {
+    const upstreamText = await upstream.text();
     response.statusCode = upstream.status;
     const copiedContentType = copyResponseHeaders(upstream, response);
     if (!copiedContentType) response.setHeader("content-type", "application/json; charset=utf-8");
     response.end(upstreamText);
     return;
   }
+
+  if (body.stream === true) {
+    let streamText: string;
+    let answers: string[] | null;
+    try {
+      streamText = await readBufferedResponse(upstream, input.maxBufferedResponseBytes);
+      answers = streamingAssistantTexts(streamText, input.maxBufferedChoices, input.maxBufferedChoiceBytes);
+    } catch {
+      writeJson(response, 502, {
+        error: {
+          type: "claimlatch_upstream_error",
+          code: "claimlatch_invalid_upstream_stream",
+          message: "Upstream returned a malformed, truncated, or unsupported chat completion stream.",
+        },
+      });
+      return;
+    }
+
+    if (!answers) {
+      writeJson(response, 502, {
+        error: {
+          type: "claimlatch_upstream_error",
+          code: "claimlatch_missing_assistant_text",
+          message: "Upstream chat completion stream did not contain textual assistant output.",
+        },
+      });
+      return;
+    }
+
+    const reports = await Promise.all(answers.map((answer) => input.options.gate.verify({
+      question,
+      answer,
+      ...(input.options.policy ? { policy: input.options.policy } : {}),
+    })));
+    const report = aggregateReports(reports);
+
+    setGateHeaders(response, report);
+    if (!report.passed) {
+      writeJson(response, 422, {
+        error: {
+          type: "claimlatch_blocked",
+          code: "claimlatch_blocked",
+          message: "ClaimLatch blocked the generated answer because it did not satisfy the configured evidence policy.",
+        },
+        claimlatch: report,
+        claimlatchReports: reports,
+      });
+      return;
+    }
+
+    copyResponseHeaders(upstream, response);
+    response.statusCode = 200;
+    response.setHeader("content-type", "text/event-stream");
+    response.end(streamText);
+    return;
+  }
+
+  const upstreamText = await upstream.text();
 
   let payload: ChatCompletionResponse;
   try {
@@ -282,6 +348,117 @@ function assistantTexts(payload: ChatCompletionResponse): string[] | null {
   const texts = payload.choices.map((choice) => contentToText(choice?.message?.content));
   if (texts.some((text): text is null => text === null)) return null;
   return texts as string[];
+}
+
+function streamingAssistantTexts(streamText: string, maxChoices: number, maxChoiceBytes: number): string[] | null {
+  const normalized = streamText.replace(/\r\n/gu, "\n").replace(/\r/gu, "\n");
+  if (!normalized.endsWith("\n\n")) throw new Error("SSE stream did not end at a complete frame.");
+
+  const contentByIndex = new Map<number, string>();
+  const choiceIndexes = new Set<number>();
+  const blocks = normalized.split("\n\n");
+  let done = false;
+
+  for (const block of blocks.slice(0, -1)) {
+    const dataLines: string[] = [];
+    let eventType: string | undefined;
+    for (const line of block.split("\n")) {
+      if (line.startsWith(":")) continue;
+      if (line.startsWith("event:")) {
+        eventType = line.slice("event:".length).trim();
+        continue;
+      }
+      if (line.startsWith("data:")) {
+        dataLines.push(line.slice("data:".length).replace(/^ /u, ""));
+        continue;
+      }
+      if (line.trim()) throw new Error("SSE stream contained an unsupported field.");
+    }
+
+    if (dataLines.length === 0) continue;
+    if (done) throw new Error("SSE stream contained data after [DONE].");
+    const data = dataLines.join("\n");
+    if (data === "[DONE]") {
+      done = true;
+      continue;
+    }
+    if (eventType === "error") throw new Error("SSE stream contained an error event.");
+
+    const payload = JSON.parse(data) as Record<string, unknown>;
+    if (payload.error !== undefined) throw new Error("SSE stream contained an error payload.");
+    if (!Array.isArray(payload.choices)) throw new Error("SSE frame did not contain choices.");
+
+    const frameIndexes = new Set<number>();
+    for (const rawChoice of payload.choices) {
+      if (!rawChoice || typeof rawChoice !== "object") throw new Error("SSE choice is malformed.");
+      const choice = rawChoice as Record<string, unknown>;
+      if (!Number.isInteger(choice.index) || (choice.index as number) < 0) {
+        throw new Error("SSE choice index is malformed.");
+      }
+      const index = choice.index as number;
+      if (frameIndexes.has(index)) throw new Error("SSE frame contained a duplicate choice index.");
+      frameIndexes.add(index);
+      if (!choiceIndexes.has(index) && choiceIndexes.size >= maxChoices) {
+        throw new Error("SSE stream exceeded the configured choice limit.");
+      }
+      choiceIndexes.add(index);
+      if (!choice.delta || typeof choice.delta !== "object") throw new Error("SSE delta is malformed.");
+      const delta = choice.delta as Record<string, unknown>;
+      if (delta.content === undefined || delta.content === null) continue;
+      const content = streamingContentToText(delta.content);
+      const combined = `${contentByIndex.get(index) ?? ""}${content}`;
+      if (new TextEncoder().encode(combined).byteLength > maxChoiceBytes) {
+        throw new Error("SSE choice exceeded the configured text limit.");
+      }
+      contentByIndex.set(index, combined);
+    }
+  }
+
+  if (!done || choiceIndexes.size === 0) throw new Error("SSE stream did not contain a complete textual response.");
+  const answers = [...choiceIndexes].sort((left, right) => left - right).map((index) => contentByIndex.get(index));
+  if (answers.some((answer): answer is undefined => answer === undefined || answer.length === 0)) return null;
+  return answers as string[];
+}
+
+function streamingContentToText(content: unknown): string {
+  if (typeof content === "string") return content;
+  if (!Array.isArray(content)) throw new Error("SSE delta content is not textual.");
+
+  let text = "";
+  for (const part of content) {
+    if (!part || typeof part !== "object") throw new Error("SSE delta content part is malformed.");
+    const record = part as Record<string, unknown>;
+    if (record.type !== "text" || typeof record.text !== "string") {
+      throw new Error("SSE delta contains unsupported non-text content.");
+    }
+    text += record.text;
+  }
+  return text;
+}
+
+async function readBufferedResponse(response: Response, maxBytes: number): Promise<string> {
+  if (!response.body) throw new Error("Upstream response did not contain a readable body.");
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let total = 0;
+  let text = "";
+  let completed = false;
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (!value) continue;
+      total += value.byteLength;
+      if (total > maxBytes) throw new Error("Buffered upstream response exceeds the configured size limit.");
+      text += decoder.decode(value, { stream: true });
+    }
+    completed = true;
+    return text + decoder.decode();
+  } finally {
+    if (!completed) await reader.cancel().catch(() => undefined);
+    reader.releaseLock();
+  }
 }
 
 function aggregateReports(reports: VerificationReport[]): VerificationReport {

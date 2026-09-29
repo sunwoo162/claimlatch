@@ -114,7 +114,7 @@ Behavior:
 - Upstream `OpenAI-*`, `X-RateLimit-*`, `RateLimit-*`, `Retry-After`, `X-Request-Id`, and `Content-Type` response headers are preserved on released responses.
 - BLOCK: returns HTTP `422` with `error.code = "claimlatch_blocked"` and verification reports.
 - If any choice is blocked, the entire response is blocked and per-choice reports are returned as `claimlatchReports`.
-- `stream: true`: still rejected. Releasing tokens before verification would bypass the gate.
+- `stream: true`: the upstream SSE stream is buffered privately, every textual choice is verified, and the stream is replayed only after PASS. Blocked, malformed, truncated, or over-limit streams fail closed.
 - `/health`: a lightweight local health endpoint.
 
 If no upstream API key is configured, the incoming `Authorization` header is forwarded to the upstream provider. The proxy binds to `127.0.0.1` by default.
@@ -129,7 +129,9 @@ export CLAIMLATCH_PROXY_PORT="4317"
 export CLAIMLATCH_REQUIRE_DOCUMENT_PROVENANCE="1"
 ```
 
-The V0.2 proxy intentionally has a small scope: Chat Completions, text-form user/assistant content, multiple textual choices, and non-streaming requests. Tool-call-only responses and streaming are not supported yet. Hop-by-hop headers, cookies, host metadata, and request body framing headers are not forwarded to the upstream. See [the streaming design](docs/STREAMING.md) for the fail-closed protocol required before streaming support can be enabled.
+SDK callers can set `maxBufferedResponseBytes`, `maxBufferedChoices`, and `maxBufferedChoiceBytes` on `createOpenAIProxy`; they bound the private stream buffer, number of choices, and reconstructed text per choice before verification.
+
+The V0.2 proxy intentionally has a small scope: Chat Completions, text-form user/assistant content, multiple textual choices, and buffered verified streaming. Tool-call-only responses and multimodal output parts are not supported yet. Hop-by-hop headers, cookies, host metadata, and request body framing headers are not forwarded to the upstream. See [the streaming protocol](docs/STREAMING.md) for the limits and fail-closed behavior.
 
 ## SDK
 
