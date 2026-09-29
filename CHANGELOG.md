@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.57 - 2026-09-30
+
+- Added verified receipt `coverage` and claim status `counts` metadata to `claimlatch-receipt verify --json`, while omitting malformed or unverified summary fields.
+
 ## 0.3.56 - 2026-09-30
 
 - Added verified receipt `decision` (`PASS` or `BLOCK`) and `generatedAt` metadata to `claimlatch-receipt verify --json` output, while omitting decision metadata for invalid signatures.

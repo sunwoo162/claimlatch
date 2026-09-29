@@ -544,6 +544,8 @@ PASS is not proof of universal truth. Claim extraction, search, source selection
 
 ## Project status
 
+`0.3.57` adds verified receipt coverage and claim status counts to `claimlatch-receipt verify --json` while keeping malformed summaries and invalid signatures fail-closed.
+
 `0.3.56` adds verified receipt decision and generation-time metadata to `claimlatch-receipt verify --json` output while keeping invalid signatures fail-closed.
 
 `0.3.55` exposes signed receipt version, algorithm, and key ID metadata in `claimlatch-receipt verify --json` output for audit automation.
