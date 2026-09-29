@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.61 - 2026-09-30
+
+- Fixed provider-compatible proxy example entrypoint detection for POSIX and Windows paths.
+
 ## 0.3.60 - 2026-09-30
 
 - Hardened signed receipt verification to reject malformed claim verification and policy violation entries.
