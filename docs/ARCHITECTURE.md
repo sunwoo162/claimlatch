@@ -48,7 +48,7 @@ The strict `requireRetrievedDocumentForDecisiveClaims` policy requires every sel
 
 ## Reverse proxy
 
-The V0.2 proxy implements non-streaming `POST /v1/chat/completions` and `/chat/completions`. It verifies every textual assistant choice in a multi-choice response; one blocked choice blocks the whole response.
+The proxy implements `POST /v1/chat/completions` and `/chat/completions`. It verifies every assistant choice in a multi-choice response; textual choices use ClaimLatch, while structured choices require an explicit application verifier. One blocked choice blocks the whole response.
 
 ```text
 client
@@ -64,7 +64,7 @@ ClaimLatch gate
   └─ BLOCK → HTTP 422 + aggregate and per-choice reports
 ```
 
-Streaming is intentionally rejected because a pre-release gate cannot safely verify tokens that have already been delivered.
+For `stream: true`, the proxy buffers the complete upstream SSE response privately, verifies every reconstructed choice, and replays the original frames only after PASS. Structured streaming choices remain fail-closed without an explicit verifier. A configured upstream API key can target a provider-specific header such as `api-key`; otherwise the proxy uses `Authorization`.
 
 ## Benchmark
 

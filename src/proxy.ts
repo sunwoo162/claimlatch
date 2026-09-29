@@ -7,6 +7,7 @@ export interface OpenAIProxyOptions {
   gate: ClaimLatch;
   upstreamBaseUrl: string;
   upstreamApiKey?: string;
+  upstreamApiKeyHeader?: string;
   policy?: Partial<GatePolicy>;
   structuredOutputVerifier?: OpenAIProxyStructuredOutputVerifier;
   fetchImpl?: typeof fetch;
@@ -87,6 +88,7 @@ export function createOpenAIProxy(options: OpenAIProxyOptions): OpenAIProxyServe
   const maxBufferedChoices = clampInteger(options.maxBufferedChoices ?? 16, 1, 128);
   const maxBufferedChoiceBytes = clampInteger(options.maxBufferedChoiceBytes ?? 2_000_000, 1_024, 10_000_000);
   const upstreamTimeoutMs = normalizeTimeout(options.upstreamTimeoutMs ?? DEFAULT_UPSTREAM_TIMEOUT_MS);
+  const upstreamApiKeyHeader = normalizeUpstreamApiKeyHeader(options.upstreamApiKeyHeader ?? "authorization");
 
   const server = createServer(async (request, response) => {
     try {
@@ -101,6 +103,7 @@ export function createOpenAIProxy(options: OpenAIProxyOptions): OpenAIProxyServe
         maxBufferedChoices,
         maxBufferedChoiceBytes,
         upstreamTimeoutMs,
+        upstreamApiKeyHeader,
       });
     } catch (error) {
       writeJson(response, 500, {
@@ -143,6 +146,7 @@ async function handleRequest(input: {
   maxBufferedChoices: number;
   maxBufferedChoiceBytes: number;
   upstreamTimeoutMs: number;
+  upstreamApiKeyHeader: string;
 }): Promise<void> {
   const { request, response } = input;
   const path = request.url?.split("?")[0] ?? "/";
@@ -183,16 +187,18 @@ async function handleRequest(input: {
   }
 
   const incomingAuthorization = headerValue(request.headers.authorization);
-  const authorization = input.options.upstreamApiKey
-    ? `Bearer ${input.options.upstreamApiKey}`
-    : incomingAuthorization;
 
   const upstreamAbort = createUpstreamAbortControl(request, response, input.upstreamTimeoutMs);
   let upstream: Response;
   try {
     upstream = await input.fetchImpl(`${input.baseUrl}/chat/completions`, {
       method: "POST",
-      headers: upstreamRequestHeaders(request, authorization),
+      headers: upstreamRequestHeaders(
+        request,
+        incomingAuthorization,
+        input.options.upstreamApiKey,
+        input.upstreamApiKeyHeader,
+      ),
       body: bodyText,
       signal: upstreamAbort.signal,
     });
@@ -393,7 +399,12 @@ async function handleRequest(input: {
   response.end(upstreamText);
 }
 
-function upstreamRequestHeaders(request: IncomingMessage, authorization: string | undefined): Record<string, string> {
+function upstreamRequestHeaders(
+  request: IncomingMessage,
+  incomingAuthorization: string | undefined,
+  upstreamApiKey: string | undefined,
+  upstreamApiKeyHeader: string,
+): Record<string, string> {
   const headers: Record<string, string> = { "content-type": "application/json" };
 
   for (const [rawName, rawValue] of Object.entries(request.headers)) {
@@ -402,7 +413,13 @@ function upstreamRequestHeaders(request: IncomingMessage, authorization: string 
     headers[name] = Array.isArray(rawValue) ? rawValue.join(", ") : rawValue;
   }
 
-  if (authorization) headers.authorization = authorization;
+  if (upstreamApiKey) {
+    headers[upstreamApiKeyHeader] = upstreamApiKeyHeader === "authorization"
+      ? `Bearer ${upstreamApiKey}`
+      : upstreamApiKey;
+  } else if (incomingAuthorization) {
+    headers.authorization = incomingAuthorization;
+  }
   return headers;
 }
 
@@ -827,6 +844,17 @@ function normalizeTimeout(value: number): number {
     throw new Error("upstreamTimeoutMs must be a finite non-negative number.");
   }
   return Math.floor(value);
+}
+
+function normalizeUpstreamApiKeyHeader(value: string): string {
+  const header = value.trim().toLowerCase();
+  if (!/^[!#$%&'*+\-.^_`|~0-9a-z]+$/u.test(header)) {
+    throw new Error("upstreamApiKeyHeader must be a valid HTTP header name.");
+  }
+  if (header !== "authorization" && (REQUEST_HEADERS_TO_STRIP.has(header) || header === "content-type")) {
+    throw new Error("upstreamApiKeyHeader cannot target a restricted proxy header.");
+  }
+  return header;
 }
 
 function createUpstreamAbortControl(
