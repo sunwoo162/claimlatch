@@ -7,13 +7,15 @@ import {
   verifyBenchmarkManifestEntry,
 } from "./benchmark.js";
 import { formatBenchmarkReport, resolveBenchmarkOutputFormat } from "./benchmark-formatters.js";
+import { resolveBenchmarkDatasetSelection } from "./benchmark-cli-options.js";
 import { createDefaultClaimLatch } from "./default-gate.js";
 
 async function main(): Promise<void> {
   const argv = process.argv.slice(2);
   const format = resolveBenchmarkOutputFormat(argv);
   const datasetArgument = argumentValue(argv, "--dataset");
-  const datasetPath = datasetArgument ?? new URL("../../benchmarks/independent.jsonl", import.meta.url);
+  const splitArgument = argumentValue(argv, "--split");
+  const datasetPath = resolveBenchmarkDatasetSelection(datasetArgument, splitArgument);
   const manifestPath = argumentValue(argv, "--manifest")
     ?? (datasetArgument ? undefined : new URL("../../benchmarks/MANIFEST.json", import.meta.url));
   const raw = await readFile(datasetPath, "utf8");
@@ -38,7 +40,7 @@ async function main(): Promise<void> {
   });
 
   const report = await runBenchmark(gate, cases);
-  const artifactUri = typeof datasetPath === "string" ? datasetPath : "benchmarks/independent.jsonl";
+  const artifactUri = typeof datasetPath === "string" ? datasetPath : `benchmarks/${fileName(datasetPath)}`;
   process.stdout.write(formatBenchmarkReport(report, format, { artifactUri }));
 
   process.exitCode = report.falsePasses === 0 ? 0 : 1;
