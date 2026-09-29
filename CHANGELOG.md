@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.25 - 2026-09-29
+
+- Preserved benchmark label source URLs and notes in JSON and SARIF results for downstream provenance tracking.
+
 ## 0.3.24 - 2026-09-29
 
 - Added strict validation for benchmark label source URLs so malformed provenance metadata fails closed.
