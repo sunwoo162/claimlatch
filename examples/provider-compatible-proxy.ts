@@ -5,6 +5,7 @@ async function main(): Promise<void> {
   const upstreamApiKey = process.env.CLAIMLATCH_PROXY_UPSTREAM_API_KEY;
   const upstreamChatCompletionsPath = process.env.CLAIMLATCH_PROXY_UPSTREAM_CHAT_COMPLETIONS_PATH
     ?? "/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-10-21";
+  const upstreamRequestHeaders = process.env.CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS;
   const upstreamResponseHeaderNames = process.env.CLAIMLATCH_PROXY_UPSTREAM_RESPONSE_HEADER_NAMES;
   const upstreamResponseHeaderPrefixes = process.env.CLAIMLATCH_PROXY_UPSTREAM_RESPONSE_HEADER_PREFIXES;
   const llmModel = process.env.CLAIMLATCH_LLM_MODEL;
@@ -38,6 +39,9 @@ async function main(): Promise<void> {
     ...(process.env.CLAIMLATCH_PROXY_UPSTREAM_TIMEOUT_MS
       ? { upstreamTimeoutMs: parseTimeout(process.env.CLAIMLATCH_PROXY_UPSTREAM_TIMEOUT_MS) }
       : {}),
+    ...(upstreamRequestHeaders !== undefined
+      ? { upstreamRequestHeaders: parseHeaderMap(upstreamRequestHeaders) }
+      : {}),
     ...(upstreamResponseHeaderNames !== undefined
       ? { upstreamResponseHeaderNames: parseHeaderList(upstreamResponseHeaderNames) }
       : {}),
@@ -70,6 +74,18 @@ function parseTimeout(value: string): number {
 
 function parseHeaderList(value: string): string[] {
   return value.split(",").map((header) => header.trim()).filter(Boolean);
+}
+
+function parseHeaderMap(value: string): Record<string, string> {
+  const headers: Record<string, string> = {};
+  for (const entry of value.split(",").map((part) => part.trim()).filter(Boolean)) {
+    const separator = entry.indexOf("=");
+    if (separator <= 0) throw new Error("CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS must contain comma-separated name=value entries.");
+    const name = entry.slice(0, separator).trim();
+    if (!name) throw new Error("CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS must contain non-empty header names.");
+    headers[name] = entry.slice(separator + 1).trim();
+  }
+  return headers;
 }
 
 main().catch((error: unknown) => {
