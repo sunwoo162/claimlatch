@@ -53,6 +53,15 @@ test("receipt verification fails when the report is tampered with", () => {
   assert.equal(verifySignedVerificationReceipt(tampered), false);
 });
 
+test("receipt verification fails for a signed report with an invalid shape", () => {
+  const malformedReceipt = createSignedVerificationReceipt(
+    { ...report, counts: undefined } as unknown as VerificationReport,
+    { privateKeyPem, publicKeyPem },
+  );
+
+  assert.equal(verifySignedVerificationReceipt(malformedReceipt), false);
+});
+
 test("receipt verification fails for a different public key or invalid signature", () => {
   const receipt = createSignedVerificationReceipt(report, { privateKeyPem, publicKeyPem });
   const otherKey = `-----BEGIN PUBLIC KEY-----
