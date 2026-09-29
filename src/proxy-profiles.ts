@@ -1,4 +1,4 @@
-export type ProxyProviderProfileName = "azure" | "groq" | "openrouter";
+export type ProxyProviderProfileName = "azure" | "groq" | "mistral" | "openrouter";
 
 export interface ProxyProviderProfileOptions {
   siteUrl?: string;
@@ -44,7 +44,14 @@ export function resolveProxyProviderProfile(
       upstreamChatCompletionsPath: "/chat/completions",
     };
   }
-  throw new Error(`Unsupported proxy provider profile: ${profile}. Use azure, groq, or openrouter.`);
+  if (profile === "mistral") {
+    return {
+      upstreamBaseUrl: "https://api.mistral.ai/v1",
+      upstreamApiKeyHeader: "authorization",
+      upstreamChatCompletionsPath: "/chat/completions",
+    };
+  }
+  throw new Error(`Unsupported proxy provider profile: ${profile}. Use azure, groq, mistral, or openrouter.`);
 }
 
 function requireNonEmpty(value: string | undefined, name: string): string {

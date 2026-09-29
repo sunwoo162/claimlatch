@@ -66,7 +66,7 @@ export function renderProxyHelp(): string {
     "",
     "Optional environment variables:",
     "  CLAIMLATCH_PROXY_UPSTREAM_API_KEY   Upstream provider credential",
-    "  CLAIMLATCH_PROXY_PROVIDER_PROFILE   Example profile: azure, groq, or openrouter",
+    "  CLAIMLATCH_PROXY_PROVIDER_PROFILE   Example profile: azure, groq, mistral, or openrouter",
     "  CLAIMLATCH_PROXY_OPENROUTER_SITE_URL / _APP_NAME",
     "  CLAIMLATCH_LLM_API_KEY               Verification model credential",
     "  CLAIMLATCH_PROXY_HOST / _PORT        Bind host and port (127.0.0.1 / 4317)",

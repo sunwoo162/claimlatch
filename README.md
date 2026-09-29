@@ -153,6 +153,8 @@ The profile fails closed when either attribution value is missing or the site UR
 
 For Groq's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="groq"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.groq.com/openai/v1`, bearer authentication, and `/chat/completions`; the proxy does not enable Groq's separate Responses API route.
 
+For Mistral's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="mistral"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.mistral.ai/v1`, bearer authentication, and `/chat/completions`.
+
 For a custom provider profile, the same example can use a different credential header and relative completion path while retaining the proxy's restricted header policy:
 
 ```bash
