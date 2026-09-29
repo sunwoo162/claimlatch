@@ -64,7 +64,7 @@ ClaimLatch gate
   └─ BLOCK → HTTP 422 + aggregate and per-choice reports
 ```
 
-For `stream: true`, the proxy buffers the complete upstream SSE response privately, verifies every reconstructed choice, and replays the original frames only after PASS. Structured streaming choices remain fail-closed without an explicit verifier. A configured upstream API key can target a provider-specific header such as `api-key`; the completion endpoint can also use a provider-specific relative path and query; otherwise the proxy uses `Authorization` and `/chat/completions`.
+For `stream: true`, the proxy buffers the complete upstream SSE response privately, verifies every reconstructed choice, and replays the original frames only after PASS. Structured streaming choices remain fail-closed without an explicit verifier. The configured upstream base must be an absolute HTTP(S) URL without credentials, query, or fragment. A configured upstream API key can target a provider-specific header such as `api-key`; the completion endpoint can also use a provider-specific relative path and query; otherwise the proxy uses `Authorization` and `/chat/completions`.
 
 ## Benchmark
 

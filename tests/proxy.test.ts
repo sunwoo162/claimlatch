@@ -912,6 +912,21 @@ test("proxy rejects an absolute upstream chat completions path configuration", (
   }), /relative HTTP path/);
 });
 
+test("proxy rejects malformed upstream base URL configuration", () => {
+  assert.throws(() => createOpenAIProxy({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "upstream.example/v1",
+  }), /absolute HTTP URL/);
+  assert.throws(() => createOpenAIProxy({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://user:password@upstream.example/v1",
+  }), /credentials/);
+  assert.throws(() => createOpenAIProxy({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://upstream.example/v1?api-version=1",
+  }), /query or fragment/);
+});
+
 test("proxy rejects restricted upstream API key header configuration", () => {
   assert.throws(() => createOpenAIProxy({
     gate: fixtureGate(),

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added fail-closed validation for configured upstream base URLs.
+
 ## 0.3.3 - 2026-09-29
 
 - Added configurable provider-specific upstream Chat Completions paths and query parameters.

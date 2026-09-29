@@ -82,7 +82,7 @@ const RESPONSE_HEADERS_TO_FORWARD = new Set([
 const DEFAULT_UPSTREAM_TIMEOUT_MS = 120_000;
 
 export function createOpenAIProxy(options: OpenAIProxyOptions): OpenAIProxyServer {
-  const baseUrl = options.upstreamBaseUrl.replace(/\/$/, "");
+  const baseUrl = normalizeUpstreamBaseUrl(options.upstreamBaseUrl);
   const fetchImpl = options.fetchImpl ?? fetch;
   const maxRequestBytes = clampInteger(options.maxRequestBytes ?? 2_000_000, 1_024, 10_000_000);
   const maxBufferedResponseBytes = clampInteger(options.maxBufferedResponseBytes ?? 10_000_000, 1_024, 50_000_000);
@@ -850,6 +850,30 @@ function normalizeTimeout(value: number): number {
     throw new Error("upstreamTimeoutMs must be a finite non-negative number.");
   }
   return Math.floor(value);
+}
+
+function normalizeUpstreamBaseUrl(value: string): string {
+  const baseUrl = value.trim();
+  let parsed: URL;
+  try {
+    parsed = new URL(baseUrl);
+  } catch {
+    throw new Error("upstreamBaseUrl must be an absolute HTTP URL.");
+  }
+
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+    throw new Error("upstreamBaseUrl must be an absolute HTTP URL.");
+  }
+  if (parsed.username || parsed.password) {
+    throw new Error("upstreamBaseUrl cannot include credentials.");
+  }
+  if (parsed.search || parsed.hash) {
+    throw new Error(
+      "upstreamBaseUrl cannot include a query or fragment; put provider query parameters in upstreamChatCompletionsPath.",
+    );
+  }
+
+  return baseUrl.replace(/\/+$/, "");
 }
 
 function normalizeUpstreamApiKeyHeader(value: string): string {
