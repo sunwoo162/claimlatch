@@ -19,12 +19,13 @@
 - OpenAI-compatible non-streaming Chat Completions reverse proxy
 - Human-authored independent-label benchmark seed
 - False-pass / false-block metrics
+- Ed25519-signed verification receipt API
 
 ## Next
 
 - Hardened egress fetcher and outbound allowlist options
 - Official-source resolvers and domain policies
-- Persistent signed verification receipts
+- Persistent receipt storage and key rotation guidance
 - SARIF/JUnit outputs for CI
 - Larger frozen benchmark with train/dev/test separation
 - Calibration experiments only after enough independent labels exist

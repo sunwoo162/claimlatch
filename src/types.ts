@@ -98,6 +98,19 @@ export interface VerificationReport {
   generatedAt: string;
 }
 
+export interface VerificationReceiptPayload {
+  report: VerificationReport;
+  publicKeyPem: string;
+  keyId?: string;
+}
+
+export interface SignedVerificationReceipt {
+  version: 1;
+  algorithm: "Ed25519";
+  payload: VerificationReceiptPayload;
+  signature: string;
+}
+
 export interface VerificationInput {
   question: string;
   answer: string;
