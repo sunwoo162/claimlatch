@@ -491,6 +491,8 @@ PASS is not proof of universal truth. Claim extraction, search, source selection
 
 ## Project status
 
+`0.3.31` adds a Cohere Compatibility API provider profile for the proxy's Chat Completions path.
+
 `0.3.30` adds a Mistral-compatible provider profile for the proxy's Chat Completions path.
 
 `0.3.29` adds a Groq-compatible provider profile for the proxy's Chat Completions path.
