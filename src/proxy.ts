@@ -439,6 +439,7 @@ function copyResponseHeaders(upstream: Response, response: ServerResponse): bool
       || normalizedName.startsWith("openai-")
       || normalizedName.startsWith("x-ratelimit-")
       || normalizedName.startsWith("ratelimit-")
+      || normalizedName.startsWith("x-ms-")
     ) {
       response.setHeader(name, value);
       if (normalizedName === "content-type") copiedContentType = true;
