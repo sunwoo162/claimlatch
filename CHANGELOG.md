@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+No unreleased changes.
+
+## 0.3.19 - 2026-09-29
+
 - Expanded the frozen independent benchmark to 62 balanced cases across 31 paired topics and updated train/dev/test splits.
 
 ## 0.3.18 - 2026-09-29
