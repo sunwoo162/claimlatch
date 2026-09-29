@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.47 - 2026-09-29
+
+- Added a Fetch-standard guarded answer integration and a route-oriented framework example with fail-closed request handling.
+
 ## 0.3.46 - 2026-09-29
 
 - Added a credential-free benchmark validation script and GitHub Actions workflow for frozen dataset manifest checks.

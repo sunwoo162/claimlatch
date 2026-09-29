@@ -530,6 +530,8 @@ PASS is not proof of universal truth. Claim extraction, search, source selection
 
 ## Project status
 
+`0.3.47` adds a Fetch-standard guarded answer integration and a route-oriented framework example with fail-closed request handling.
+
 `0.3.46` adds a credential-free benchmark validation script and GitHub Actions workflow for frozen dataset manifest checks.
 
 `0.3.45` adds average evidence coverage to benchmark reports while keeping coverage distinct from decision accuracy and probability calibration.
