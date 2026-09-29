@@ -1,3 +1,18 @@
+export function parseProxyHeaderMap(value: string, variableName = "CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS"): Record<string, string> {
+  const headers: Record<string, string> = {};
+  for (const entry of value.split(",").map((part) => part.trim()).filter(Boolean)) {
+    const separator = entry.indexOf("=");
+    if (separator <= 0) {
+      throw new Error(`${variableName} must contain comma-separated name=value entries.`);
+    }
+    const name = entry.slice(0, separator).trim();
+    const headerValue = entry.slice(separator + 1).trim();
+    if (!name) throw new Error(`${variableName} must contain non-empty header names.`);
+    headers[name] = headerValue;
+  }
+  return headers;
+}
+
 export function renderProxyHelp(): string {
   return [
     "ClaimLatch OpenAI-compatible verification proxy",

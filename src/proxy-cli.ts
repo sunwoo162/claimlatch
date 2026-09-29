@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { createDefaultClaimLatch } from "./default-gate.js";
 import { createOpenAIProxy } from "./proxy.js";
-import { renderProxyHelp } from "./proxy-cli-options.js";
+import { parseProxyHeaderMap, renderProxyHelp } from "./proxy-cli-options.js";
 
 async function main(): Promise<void> {
   if (process.argv.includes("--help") || process.argv.includes("-h")) {
@@ -43,7 +43,7 @@ async function main(): Promise<void> {
     ...(upstreamApiKeyHeader ? { upstreamApiKeyHeader } : {}),
     ...(upstreamChatCompletionsPath ? { upstreamChatCompletionsPath } : {}),
     ...(upstreamRequestHeaders !== undefined
-      ? { upstreamRequestHeaders: parseHeaderMap(upstreamRequestHeaders, "CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS") }
+      ? { upstreamRequestHeaders: parseProxyHeaderMap(upstreamRequestHeaders) }
       : {}),
     ...(upstreamResponseHeaderNames !== undefined
       ? { upstreamResponseHeaderNames: parseHeaderList(upstreamResponseHeaderNames, "CLAIMLATCH_PROXY_UPSTREAM_RESPONSE_HEADER_NAMES") }
@@ -84,21 +84,6 @@ function parseHeaderList(value: string, variableName: string): string[] {
   const headers = value.split(",").map((header) => header.trim()).filter(Boolean);
   if (value.trim() !== "" && headers.length === 0) {
     throw new Error(`${variableName} must contain a comma-separated header list.`);
-  }
-  return headers;
-}
-
-function parseHeaderMap(value: string, variableName: string): Record<string, string> {
-  const headers: Record<string, string> = {};
-  for (const entry of value.split(",").map((part) => part.trim()).filter(Boolean)) {
-    const separator = entry.indexOf("=");
-    if (separator <= 0) {
-      throw new Error(`${variableName} must contain comma-separated name=value entries.`);
-    }
-    const name = entry.slice(0, separator).trim();
-    const headerValue = entry.slice(separator + 1).trim();
-    if (!name) throw new Error(`${variableName} must contain non-empty header names.`);
-    headers[name] = headerValue;
   }
   return headers;
 }
