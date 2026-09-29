@@ -121,6 +121,19 @@ If no upstream API key is configured, the incoming `Authorization` header is for
 
 Do not set the ClaimLatch proxy itself as `CLAIMLATCH_LLM_BASE_URL`. The verifier must use an endpoint that does not recursively pass through the gate.
 
+For an SDK configuration example using an Azure-style API key header and deployment-specific completion path, run:
+
+```bash
+export CLAIMLATCH_PROXY_UPSTREAM_BASE_URL="https://your-resource.openai.azure.com"
+export CLAIMLATCH_PROXY_UPSTREAM_API_KEY="..."
+export CLAIMLATCH_LLM_API_KEY="..."
+export CLAIMLATCH_LLM_MODEL="your-verifier-model"
+export TAVILY_API_KEY="..."
+npm run example:provider-proxy
+```
+
+The example defaults to `api-key` and `/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-10-21`; override `CLAIMLATCH_PROXY_UPSTREAM_API_KEY_HEADER` or `CLAIMLATCH_PROXY_UPSTREAM_CHAT_COMPLETIONS_PATH` for another provider.
+
 Optional proxy settings:
 
 ```bash
