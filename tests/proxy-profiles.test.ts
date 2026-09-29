@@ -17,12 +17,13 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
     "mistral",
     "openrouter",
     "perplexity",
+    "sambanova",
     "together",
     "xai",
   ]);
   assert.equal(
     formatProxyProviderProfileNames(),
-    "azure, cerebras, cohere, deepseek, fireworks, groq, mistral, openrouter, perplexity, together, or xai",
+    "azure, cerebras, cohere, deepseek, fireworks, groq, mistral, openrouter, perplexity, sambanova, together, or xai",
   );
 });
 
@@ -115,6 +116,14 @@ test("proxy profiles provide xAI-compatible Chat Completions defaults", () => {
 test("proxy profiles provide Perplexity Router-compatible Chat Completions defaults", () => {
   assert.deepEqual(resolveProxyProviderProfile("perplexity"), {
     upstreamBaseUrl: "https://api.perplexity.ai/router/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  });
+});
+
+test("proxy profiles provide SambaNova-compatible Chat Completions defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("sambanova"), {
+    upstreamBaseUrl: "https://api.sambanova.ai/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
   });

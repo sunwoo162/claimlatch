@@ -8,6 +8,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "mistral",
   "openrouter",
   "perplexity",
+  "sambanova",
   "together",
   "xai",
 ] as const;
@@ -70,6 +71,11 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
   },
   perplexity: {
     upstreamBaseUrl: "https://api.perplexity.ai/router/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  },
+  sambanova: {
+    upstreamBaseUrl: "https://api.sambanova.ai/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
   },
