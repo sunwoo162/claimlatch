@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.49 - 2026-09-29
+
+- Added a direct OpenAI API-compatible proxy profile while preserving the existing Azure-style default.
+
 ## 0.3.48 - 2026-09-29
 
 - Added a Hugging Face Inference Providers-compatible proxy profile for OpenAI-compatible Chat Completions.
