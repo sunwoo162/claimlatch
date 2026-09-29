@@ -8,6 +8,7 @@
 - Added PDF.js-based page-level text extraction with page-local quote offsets and safe fallback on parse failure.
 - Added deterministic Ed25519-signed verification receipts with embedded public keys and tamper detection.
 - Expanded the independent benchmark seed to 32 balanced, human-authored cases across 16 paired topics.
+- Updated the proxy to verify every textual choice in multi-choice completions and fail closed if any choice is blocked.
 
 ## 0.2.0 - 2026-09-28
 
