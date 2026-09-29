@@ -1,4 +1,12 @@
-export const PROXY_PROVIDER_PROFILE_NAMES = ["azure", "cohere", "deepseek", "groq", "mistral", "openrouter"] as const;
+export const PROXY_PROVIDER_PROFILE_NAMES = [
+  "azure",
+  "cohere",
+  "deepseek",
+  "groq",
+  "mistral",
+  "openrouter",
+  "together",
+] as const;
 
 export type ProxyProviderProfileName = (typeof PROXY_PROVIDER_PROFILE_NAMES)[number];
 
@@ -68,6 +76,13 @@ export function resolveProxyProviderProfile(
   if (profile === "deepseek") {
     return {
       upstreamBaseUrl: "https://api.deepseek.com",
+      upstreamApiKeyHeader: "authorization",
+      upstreamChatCompletionsPath: "/chat/completions",
+    };
+  }
+  if (profile === "together") {
+    return {
+      upstreamBaseUrl: "https://api.together.xyz/v1",
       upstreamApiKeyHeader: "authorization",
       upstreamChatCompletionsPath: "/chat/completions",
     };
