@@ -49,7 +49,7 @@ export function renderReceiptHelp(): string {
     "Options:",
     "  --file <path>                     Signed receipt JSON file",
     "  --public-key-file <path>          Trusted public key PEM file (optional)",
-    "  --json                            Print machine-readable receipt and decision metadata",
+    "  --json                            Print machine-readable receipt, decision, and summary metadata",
     "  -h, --help                        Show this help",
     "",
     "Exit codes:",

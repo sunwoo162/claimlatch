@@ -98,3 +98,70 @@ test("receipt CLI JSON output includes the signed decision only after verificati
     algorithm: "Ed25519",
   });
 });
+
+test("receipt CLI JSON output includes the verified report summary only for valid receipts", () => {
+  const validOutput = renderReceiptVerificationJson({
+    valid: true,
+    filePath: "receipts/summary.json",
+    receipt: {
+      version: 1,
+      algorithm: "Ed25519",
+      payload: {
+        report: {
+          coverage: 0.75,
+          counts: { total: 4, supported: 3, contradicted: 1, unsupported: 0, unverifiable: 0 },
+        },
+      },
+    },
+  });
+  assert.deepEqual(JSON.parse(validOutput), {
+    valid: true,
+    file: "receipts/summary.json",
+    version: 1,
+    algorithm: "Ed25519",
+    coverage: 0.75,
+    counts: { total: 4, supported: 3, contradicted: 1, unsupported: 0, unverifiable: 0 },
+  });
+
+  const invalidOutput = renderReceiptVerificationJson({
+    valid: false,
+    filePath: "receipts/tampered-summary.json",
+    receipt: {
+      version: 1,
+      algorithm: "Ed25519",
+      payload: {
+        report: {
+          coverage: 1,
+          counts: { total: 1, supported: 1, contradicted: 0, unsupported: 0, unverifiable: 0 },
+        },
+      },
+    },
+  });
+  assert.deepEqual(JSON.parse(invalidOutput), {
+    valid: false,
+    file: "receipts/tampered-summary.json",
+    version: 1,
+    algorithm: "Ed25519",
+  });
+
+  const malformedSummaryOutput = renderReceiptVerificationJson({
+    valid: true,
+    filePath: "receipts/malformed-summary.json",
+    receipt: {
+      version: 1,
+      algorithm: "Ed25519",
+      payload: {
+        report: {
+          coverage: 2,
+          counts: { total: "4", supported: 3, contradicted: 1, unsupported: 0, unverifiable: 0 },
+        },
+      },
+    },
+  });
+  assert.deepEqual(JSON.parse(malformedSummaryOutput), {
+    valid: true,
+    file: "receipts/malformed-summary.json",
+    version: 1,
+    algorithm: "Ed25519",
+  });
+});
