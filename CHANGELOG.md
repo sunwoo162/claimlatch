@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.3.5 - 2026-09-29
+
 - Added a SHA-256 integrity manifest for the frozen benchmark files.
 - Made benchmark manifest verification line-ending independent across Windows and Linux.
 
