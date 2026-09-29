@@ -489,6 +489,8 @@ PASS is not proof of universal truth. Claim extraction, search, source selection
 
 ## Project status
 
+`0.3.30` adds a Mistral-compatible provider profile for the proxy's Chat Completions path.
+
 `0.3.29` adds a Groq-compatible provider profile for the proxy's Chat Completions path.
 
 `0.3.28` connects provider compatibility profiles to the proxy CLI with explicit override support.

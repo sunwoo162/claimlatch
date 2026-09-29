@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.30 - 2026-09-29
+
+- Added a Mistral-compatible provider profile for the proxy's Chat Completions path.
+
 ## 0.3.29 - 2026-09-29
 
 - Added a Groq-compatible provider profile for the proxy's Chat Completions path.
