@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.32 - 2026-09-29
+
+- Centralized supported proxy provider profile names for consistent CLI and SDK behavior.
+
 ## 0.3.31 - 2026-09-29
 
 - Added a Cohere Compatibility API provider profile for the proxy's Chat Completions path.
