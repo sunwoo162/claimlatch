@@ -7,6 +7,11 @@ declare const process: {
 };
 
 declare module "node:crypto" {
+  export interface Hash {
+    update(data: string): Hash;
+    digest(encoding: "hex"): string;
+  }
+
   export interface KeyObject {
     export(options: { type: "pkcs8" | "spki"; format: "pem" }): string;
   }
@@ -28,6 +33,8 @@ declare module "node:crypto" {
     key: string,
     signature: Uint8Array,
   ): boolean;
+
+  export function createHash(algorithm: "sha256"): Hash;
 }
 
 declare module "node:fs/promises" {
