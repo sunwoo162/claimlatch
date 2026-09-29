@@ -408,7 +408,7 @@ claimlatch-receipt verify --file ./var/claimlatch-receipts/answer-2026-09-29-001
 
 The command exits `0` for a valid signature, `1` for an invalid receipt or signature, and `2` for usage or file errors.
 
-With `--json`, the output includes `valid`, `file`, and, when the receipt has the expected signed shape, its `version`, `algorithm`, and `keyId`; `publicKeyFile` is included when an external trust anchor was supplied. When signature verification succeeds, the signed report's `decision` (`PASS` or `BLOCK`) and `generatedAt` are also included.
+With `--json`, the output includes `valid`, `file`, and, when the receipt has the expected signed shape, its `version`, `algorithm`, and `keyId`; `publicKeyFile` is included when an external trust anchor was supplied. When signature verification succeeds, the signed report's `decision` (`PASS` or `BLOCK`), `generatedAt`, `coverage`, and claim status `counts` are also included.
 
 The default mode verifies against the public key embedded in the receipt. For an external trust anchor, pass `--public-key-file <path>`; verification then fails closed if the receipt was signed by a different key.
 
