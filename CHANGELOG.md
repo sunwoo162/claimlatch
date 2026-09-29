@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.45 - 2026-09-29
+
+- Added average evidence coverage to benchmark reports while keeping coverage distinct from decision accuracy and probability calibration.
+
 ## 0.3.44 - 2026-09-29
 
 - Added a credential-free provider-compatible proxy environment variable example covering hosted, Azure-style, OpenRouter, and custom configurations.
