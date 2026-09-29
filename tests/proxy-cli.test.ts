@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { renderProxyHelp } from "../src/proxy-cli-options.js";
+import { parseProxyHeaderMap, renderProxyHelp } from "../src/proxy-cli-options.js";
 
 test("proxy CLI help documents credentials, routes, and fail-closed behavior", () => {
   const help = renderProxyHelp();
@@ -13,4 +13,18 @@ test("proxy CLI help documents credentials, routes, and fail-closed behavior", (
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS/);
   assert.match(help, /PASS.*BLOCK/s);
   assert.match(help, /credential-free/);
+});
+
+test("proxy header map parser preserves equals signs in values", () => {
+  assert.deepEqual(parseProxyHeaderMap("x-tenant=prod,x-signature=a=b=c"), {
+    "x-tenant": "prod",
+    "x-signature": "a=b=c",
+  });
+});
+
+test("proxy header map parser rejects entries without a name=value separator", () => {
+  assert.throws(
+    () => parseProxyHeaderMap("x-tenant=prod,invalid-entry"),
+    /name=value entries/,
+  );
 });

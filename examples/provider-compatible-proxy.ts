@@ -1,4 +1,5 @@
 import { createDefaultClaimLatch, createOpenAIProxy } from "../src/index.js";
+import { parseProxyHeaderMap } from "../src/proxy-cli-options.js";
 
 async function main(): Promise<void> {
   const upstreamBaseUrl = process.env.CLAIMLATCH_PROXY_UPSTREAM_BASE_URL;
@@ -40,7 +41,7 @@ async function main(): Promise<void> {
       ? { upstreamTimeoutMs: parseTimeout(process.env.CLAIMLATCH_PROXY_UPSTREAM_TIMEOUT_MS) }
       : {}),
     ...(upstreamRequestHeaders !== undefined
-      ? { upstreamRequestHeaders: parseHeaderMap(upstreamRequestHeaders) }
+      ? { upstreamRequestHeaders: parseProxyHeaderMap(upstreamRequestHeaders) }
       : {}),
     ...(upstreamResponseHeaderNames !== undefined
       ? { upstreamResponseHeaderNames: parseHeaderList(upstreamResponseHeaderNames) }
@@ -74,18 +75,6 @@ function parseTimeout(value: string): number {
 
 function parseHeaderList(value: string): string[] {
   return value.split(",").map((header) => header.trim()).filter(Boolean);
-}
-
-function parseHeaderMap(value: string): Record<string, string> {
-  const headers: Record<string, string> = {};
-  for (const entry of value.split(",").map((part) => part.trim()).filter(Boolean)) {
-    const separator = entry.indexOf("=");
-    if (separator <= 0) throw new Error("CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS must contain comma-separated name=value entries.");
-    const name = entry.slice(0, separator).trim();
-    if (!name) throw new Error("CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS must contain non-empty header names.");
-    headers[name] = entry.slice(separator + 1).trim();
-  }
-  return headers;
 }
 
 main().catch((error: unknown) => {
