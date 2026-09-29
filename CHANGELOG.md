@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.34 - 2026-09-29
+
+- Added a Together AI-compatible provider profile for the proxy's Chat Completions path.
+
 ## 0.3.33 - 2026-09-29
 
 - Added a DeepSeek-compatible provider profile for the proxy's Chat Completions path.

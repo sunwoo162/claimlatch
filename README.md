@@ -495,6 +495,8 @@ PASS is not proof of universal truth. Claim extraction, search, source selection
 
 ## Project status
 
+`0.3.34` adds a Together AI-compatible provider profile for the proxy's Chat Completions path.
+
 `0.3.33` adds a DeepSeek-compatible provider profile for the proxy's Chat Completions path.
 
 `0.3.32` centralizes supported proxy provider profile names so the CLI, SDK types, and runtime validation stay consistent.
