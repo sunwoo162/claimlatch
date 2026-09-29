@@ -1,8 +1,14 @@
 #!/usr/bin/env node
 import { createDefaultClaimLatch } from "./default-gate.js";
 import { createOpenAIProxy } from "./proxy.js";
+import { renderProxyHelp } from "./proxy-cli-options.js";
 
 async function main(): Promise<void> {
+  if (process.argv.includes("--help") || process.argv.includes("-h")) {
+    process.stdout.write(renderProxyHelp());
+    return;
+  }
+
   const upstreamBaseUrl = process.env.CLAIMLATCH_PROXY_UPSTREAM_BASE_URL;
   const llmModel = process.env.CLAIMLATCH_LLM_MODEL;
   const tavilyApiKey = process.env.TAVILY_API_KEY;

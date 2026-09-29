@@ -89,6 +89,8 @@ claimlatch -q "..." -a "..." --json
 
 `claimlatch-proxy` can sit in front of an OpenAI Chat Completions-compatible provider. It buffers the generated answer, verifies it, and releases the upstream completion only when it passes.
 
+Run `claimlatch-proxy --help` for the required credentials, supported routes, provider compatibility settings, and fail-closed behavior without configuring credentials.
+
 ```bash
 export CLAIMLATCH_PROXY_UPSTREAM_BASE_URL="https://api.openai.com/v1"
 export CLAIMLATCH_PROXY_UPSTREAM_API_KEY="..."
