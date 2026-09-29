@@ -1,4 +1,4 @@
-export type ProxyProviderProfileName = "azure" | "openrouter";
+export type ProxyProviderProfileName = "azure" | "groq" | "openrouter";
 
 export interface ProxyProviderProfileOptions {
   siteUrl?: string;
@@ -37,7 +37,14 @@ export function resolveProxyProviderProfile(
       },
     };
   }
-  throw new Error(`Unsupported proxy provider profile: ${profile}. Use azure or openrouter.`);
+  if (profile === "groq") {
+    return {
+      upstreamBaseUrl: "https://api.groq.com/openai/v1",
+      upstreamApiKeyHeader: "authorization",
+      upstreamChatCompletionsPath: "/chat/completions",
+    };
+  }
+  throw new Error(`Unsupported proxy provider profile: ${profile}. Use azure, groq, or openrouter.`);
 }
 
 function requireNonEmpty(value: string | undefined, name: string): string {

@@ -24,6 +24,14 @@ test("proxy profiles provide OpenRouter-compatible defaults and headers", () => 
   });
 });
 
+test("proxy profiles provide Groq-compatible Chat Completions defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("groq"), {
+    upstreamBaseUrl: "https://api.groq.com/openai/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  });
+});
+
 test("proxy profiles fail closed for unknown names and incomplete OpenRouter metadata", () => {
   assert.throws(() => resolveProxyProviderProfile("unknown"), /Unsupported proxy provider profile/);
   assert.throws(() => resolveProxyProviderProfile("openrouter"), /siteUrl and appName/);
