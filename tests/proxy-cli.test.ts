@@ -16,7 +16,7 @@ test("proxy CLI help documents credentials, routes, and fail-closed behavior", (
   assert.match(help, /POST \/v1\/chat\/completions/);
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS/);
   assert.match(help, /CLAIMLATCH_PROXY_PROVIDER_PROFILE/);
-  assert.match(help, /azure, cohere, deepseek, fireworks, groq, mistral, openrouter, perplexity, together, or xai/);
+  assert.match(help, /azure, cerebras, cohere, deepseek, fireworks, groq, mistral, openrouter, perplexity, together, or xai/);
   assert.match(help, /PASS.*BLOCK/s);
   assert.match(help, /credential-free/);
 });
@@ -58,6 +58,7 @@ test("proxy CLI resolves provider profile defaults and explicit overrides", () =
 
 test("proxy CLI resolves every hosted built-in profile without an explicit base URL", () => {
   const expected = {
+    cerebras: "https://api.cerebras.ai/v1",
     cohere: "https://api.cohere.ai/compatibility/v1",
     deepseek: "https://api.deepseek.com",
     fireworks: "https://api.fireworks.ai/inference/v1",

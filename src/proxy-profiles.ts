@@ -1,5 +1,6 @@
 export const PROXY_PROVIDER_PROFILE_NAMES = [
   "azure",
+  "cerebras",
   "cohere",
   "deepseek",
   "fireworks",
@@ -36,6 +37,11 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
   azure: {
     upstreamApiKeyHeader: "api-key",
     upstreamChatCompletionsPath: "/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-10-21",
+  },
+  cerebras: {
+    upstreamBaseUrl: "https://api.cerebras.ai/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
   },
   cohere: {
     upstreamBaseUrl: "https://api.cohere.ai/compatibility/v1",

@@ -9,6 +9,7 @@ import {
 test("proxy profile names are centralized for CLI and SDK consumers", () => {
   assert.deepEqual(PROXY_PROVIDER_PROFILE_NAMES, [
     "azure",
+  "cerebras",
     "cohere",
     "deepseek",
     "fireworks",
@@ -21,7 +22,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
   ]);
   assert.equal(
     formatProxyProviderProfileNames(),
-    "azure, cohere, deepseek, fireworks, groq, mistral, openrouter, perplexity, together, or xai",
+    "azure, cerebras, cohere, deepseek, fireworks, groq, mistral, openrouter, perplexity, together, or xai",
   );
 });
 
@@ -29,6 +30,14 @@ test("proxy profiles provide Azure-compatible defaults", () => {
   assert.deepEqual(resolveProxyProviderProfile("azure"), {
     upstreamApiKeyHeader: "api-key",
     upstreamChatCompletionsPath: "/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-10-21",
+  });
+});
+
+test("proxy profiles provide Cerebras-compatible Chat Completions defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("cerebras"), {
+    upstreamBaseUrl: "https://api.cerebras.ai/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
   });
 });
 
