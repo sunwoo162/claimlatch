@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.48 - 2026-09-29
+
+- Added a Hugging Face Inference Providers-compatible proxy profile for OpenAI-compatible Chat Completions.
+
 ## 0.3.47 - 2026-09-29
 
 - Added a Fetch-standard guarded answer integration and a route-oriented framework example with fail-closed request handling.
