@@ -18,6 +18,8 @@ async function main(): Promise<void> {
   const upstreamTimeoutMs = process.env.CLAIMLATCH_PROXY_UPSTREAM_TIMEOUT_MS;
   const upstreamApiKeyHeader = process.env.CLAIMLATCH_PROXY_UPSTREAM_API_KEY_HEADER;
   const upstreamChatCompletionsPath = process.env.CLAIMLATCH_PROXY_UPSTREAM_CHAT_COMPLETIONS_PATH;
+  const upstreamResponseHeaderNames = process.env.CLAIMLATCH_PROXY_UPSTREAM_RESPONSE_HEADER_NAMES;
+  const upstreamResponseHeaderPrefixes = process.env.CLAIMLATCH_PROXY_UPSTREAM_RESPONSE_HEADER_PREFIXES;
   const gate = createDefaultClaimLatch({
     llmModel,
     tavilyApiKey,
@@ -33,6 +35,12 @@ async function main(): Promise<void> {
       : {}),
     ...(upstreamApiKeyHeader ? { upstreamApiKeyHeader } : {}),
     ...(upstreamChatCompletionsPath ? { upstreamChatCompletionsPath } : {}),
+    ...(upstreamResponseHeaderNames !== undefined
+      ? { upstreamResponseHeaderNames: parseHeaderList(upstreamResponseHeaderNames, "CLAIMLATCH_PROXY_UPSTREAM_RESPONSE_HEADER_NAMES") }
+      : {}),
+    ...(upstreamResponseHeaderPrefixes !== undefined
+      ? { upstreamResponseHeaderPrefixes: parseHeaderList(upstreamResponseHeaderPrefixes, "CLAIMLATCH_PROXY_UPSTREAM_RESPONSE_HEADER_PREFIXES") }
+      : {}),
     policy: {
       requireRetrievedDocumentForDecisiveClaims:
         process.env.CLAIMLATCH_REQUIRE_DOCUMENT_PROVENANCE === "1",
@@ -60,6 +68,14 @@ function parseTimeout(value: string): number {
     throw new Error("CLAIMLATCH_PROXY_UPSTREAM_TIMEOUT_MS must be a finite non-negative number.");
   }
   return parsed;
+}
+
+function parseHeaderList(value: string, variableName: string): string[] {
+  const headers = value.split(",").map((header) => header.trim()).filter(Boolean);
+  if (value.trim() !== "" && headers.length === 0) {
+    throw new Error(`${variableName} must contain a comma-separated header list.`);
+  }
+  return headers;
 }
 
 main().catch((error: unknown) => {

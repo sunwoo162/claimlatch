@@ -9,6 +9,8 @@ export interface OpenAIProxyOptions {
   upstreamApiKey?: string;
   upstreamApiKeyHeader?: string;
   upstreamChatCompletionsPath?: string;
+  upstreamResponseHeaderNames?: string[];
+  upstreamResponseHeaderPrefixes?: string[];
   policy?: Partial<GatePolicy>;
   structuredOutputVerifier?: OpenAIProxyStructuredOutputVerifier;
   fetchImpl?: typeof fetch;
@@ -79,6 +81,13 @@ const RESPONSE_HEADERS_TO_FORWARD = new Set([
   "x-request-id",
 ]);
 
+const RESPONSE_HEADERS_NEVER_FORWARD = new Set([
+  ...HOP_BY_HOP_HEADERS,
+  "content-encoding",
+  "content-length",
+  "set-cookie",
+]);
+
 const DEFAULT_UPSTREAM_TIMEOUT_MS = 120_000;
 
 export function createOpenAIProxy(options: OpenAIProxyOptions): OpenAIProxyServer {
@@ -92,6 +101,14 @@ export function createOpenAIProxy(options: OpenAIProxyOptions): OpenAIProxyServe
   const upstreamApiKeyHeader = normalizeUpstreamApiKeyHeader(options.upstreamApiKeyHeader ?? "authorization");
   const upstreamChatCompletionsPath = normalizeUpstreamChatCompletionsPath(
     options.upstreamChatCompletionsPath ?? "/chat/completions",
+  );
+  const upstreamResponseHeaderNames = normalizeResponseHeaderConfiguration(
+    options.upstreamResponseHeaderNames ?? [],
+    "name",
+  );
+  const upstreamResponseHeaderPrefixes = normalizeResponseHeaderConfiguration(
+    options.upstreamResponseHeaderPrefixes ?? [],
+    "prefix",
   );
 
   const server = createServer(async (request, response) => {
@@ -109,6 +126,8 @@ export function createOpenAIProxy(options: OpenAIProxyOptions): OpenAIProxyServe
         upstreamTimeoutMs,
         upstreamApiKeyHeader,
         upstreamChatCompletionsPath,
+        upstreamResponseHeaderNames,
+        upstreamResponseHeaderPrefixes,
       });
     } catch (error) {
       writeJson(response, 500, {
@@ -153,6 +172,8 @@ async function handleRequest(input: {
   upstreamTimeoutMs: number;
   upstreamApiKeyHeader: string;
   upstreamChatCompletionsPath: string;
+  upstreamResponseHeaderNames: ReadonlySet<string>;
+  upstreamResponseHeaderPrefixes: ReadonlySet<string>;
 }): Promise<void> {
   const { request, response } = input;
   const path = request.url?.split("?")[0] ?? "/";
@@ -233,7 +254,12 @@ async function handleRequest(input: {
     }
     upstreamAbort.cleanup();
     response.statusCode = upstream.status;
-    const copiedContentType = copyResponseHeaders(upstream, response);
+    const copiedContentType = copyResponseHeaders(
+      upstream,
+      response,
+      input.upstreamResponseHeaderNames,
+      input.upstreamResponseHeaderPrefixes,
+    );
     if (!copiedContentType) response.setHeader("content-type", "application/json; charset=utf-8");
     response.end(upstreamText);
     return;
@@ -319,7 +345,12 @@ async function handleRequest(input: {
       return;
     }
 
-    copyResponseHeaders(upstream, response);
+    copyResponseHeaders(
+      upstream,
+      response,
+      input.upstreamResponseHeaderNames,
+      input.upstreamResponseHeaderPrefixes,
+    );
     response.statusCode = 200;
     response.setHeader("content-type", "text/event-stream");
     response.end(streamText);
@@ -400,7 +431,12 @@ async function handleRequest(input: {
   }
 
   response.statusCode = 200;
-  const copiedContentType = copyResponseHeaders(upstream, response);
+  const copiedContentType = copyResponseHeaders(
+    upstream,
+    response,
+    input.upstreamResponseHeaderNames,
+    input.upstreamResponseHeaderPrefixes,
+  );
   if (!copiedContentType) response.setHeader("content-type", "application/json; charset=utf-8");
   response.end(upstreamText);
 }
@@ -429,11 +465,16 @@ function upstreamRequestHeaders(
   return headers;
 }
 
-function copyResponseHeaders(upstream: Response, response: ServerResponse): boolean {
+function copyResponseHeaders(
+  upstream: Response,
+  response: ServerResponse,
+  responseHeaderNames: ReadonlySet<string>,
+  responseHeaderPrefixes: ReadonlySet<string>,
+): boolean {
   let copiedContentType = false;
   for (const [name, value] of upstream.headers) {
     const normalizedName = name.toLowerCase();
-    if (HOP_BY_HOP_HEADERS.has(normalizedName)) continue;
+    if (RESPONSE_HEADERS_NEVER_FORWARD.has(normalizedName)) continue;
     if (
       RESPONSE_HEADERS_TO_FORWARD.has(normalizedName)
       || normalizedName.startsWith("openai-")
@@ -443,12 +484,33 @@ function copyResponseHeaders(upstream: Response, response: ServerResponse): bool
       || normalizedName.startsWith("x-goog-")
       || normalizedName.startsWith("x-amzn-")
       || normalizedName.startsWith("anthropic-")
+      || responseHeaderNames.has(normalizedName)
+      || [...responseHeaderPrefixes].some((prefix) => normalizedName.startsWith(prefix))
     ) {
       response.setHeader(name, value);
       if (normalizedName === "content-type") copiedContentType = true;
     }
   }
   return copiedContentType;
+}
+
+function normalizeResponseHeaderConfiguration(values: string[], kind: "name" | "prefix"): Set<string> {
+  if (!Array.isArray(values)) throw new Error(`upstreamResponseHeader${kind === "name" ? "Names" : "Prefixes"} must be an array.`);
+  const normalizedValues = new Set<string>();
+  for (const value of values) {
+    if (typeof value !== "string") {
+      throw new Error(`upstreamResponseHeader${kind === "name" ? "Names" : "Prefixes"} must contain strings.`);
+    }
+    const normalized = value.trim().toLowerCase();
+    if (!normalized || !/^[!#$%&'*+\-.^_`|~0-9a-z]+$/u.test(normalized)) {
+      throw new Error(`upstreamResponseHeader${kind === "name" ? "Names" : "Prefixes"} must contain valid HTTP header ${kind}s.`);
+    }
+    if (RESPONSE_HEADERS_NEVER_FORWARD.has(normalized)) {
+      throw new Error(`upstreamResponseHeader${kind === "name" ? "Names" : "Prefixes"} cannot include a restricted proxy response header.`);
+    }
+    normalizedValues.add(normalized);
+  }
+  return normalizedValues;
 }
 
 function lastUserMessageText(messages: unknown): string | null {

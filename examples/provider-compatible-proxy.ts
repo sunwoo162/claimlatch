@@ -5,6 +5,8 @@ async function main(): Promise<void> {
   const upstreamApiKey = process.env.CLAIMLATCH_PROXY_UPSTREAM_API_KEY;
   const upstreamChatCompletionsPath = process.env.CLAIMLATCH_PROXY_UPSTREAM_CHAT_COMPLETIONS_PATH
     ?? "/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-10-21";
+  const upstreamResponseHeaderNames = process.env.CLAIMLATCH_PROXY_UPSTREAM_RESPONSE_HEADER_NAMES;
+  const upstreamResponseHeaderPrefixes = process.env.CLAIMLATCH_PROXY_UPSTREAM_RESPONSE_HEADER_PREFIXES;
   const llmModel = process.env.CLAIMLATCH_LLM_MODEL;
   const tavilyApiKey = process.env.TAVILY_API_KEY;
   const host = process.env.CLAIMLATCH_PROXY_HOST ?? "127.0.0.1";
@@ -36,6 +38,12 @@ async function main(): Promise<void> {
     ...(process.env.CLAIMLATCH_PROXY_UPSTREAM_TIMEOUT_MS
       ? { upstreamTimeoutMs: parseTimeout(process.env.CLAIMLATCH_PROXY_UPSTREAM_TIMEOUT_MS) }
       : {}),
+    ...(upstreamResponseHeaderNames !== undefined
+      ? { upstreamResponseHeaderNames: parseHeaderList(upstreamResponseHeaderNames) }
+      : {}),
+    ...(upstreamResponseHeaderPrefixes !== undefined
+      ? { upstreamResponseHeaderPrefixes: parseHeaderList(upstreamResponseHeaderPrefixes) }
+      : {}),
   });
 
   await proxy.listen(port, host);
@@ -58,6 +66,10 @@ function parseTimeout(value: string): number {
     throw new Error("CLAIMLATCH_PROXY_UPSTREAM_TIMEOUT_MS must be a finite non-negative number.");
   }
   return parsed;
+}
+
+function parseHeaderList(value: string): string[] {
+  return value.split(",").map((header) => header.trim()).filter(Boolean);
 }
 
 main().catch((error: unknown) => {
