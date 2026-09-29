@@ -395,9 +395,17 @@ function lastUserMessageText(messages: unknown): string | null {
 function assistantTexts(payload: ChatCompletionResponse): string[] | null {
   if (!Array.isArray(payload.choices) || payload.choices.length === 0) return null;
 
-  const texts = payload.choices.map((choice) => contentToText(choice?.message?.content));
+  const messages = payload.choices.map((choice) => choice?.message);
+  if (messages.some((message) => hasUnsupportedAssistantMetadata(message))) return null;
+  const texts = messages.map((message) => contentToText(message?.content));
   if (texts.some((text): text is null => text === null)) return null;
   return texts as string[];
+}
+
+function hasUnsupportedAssistantMetadata(message: unknown): boolean {
+  if (!message || typeof message !== "object") return false;
+  const record = message as Record<string, unknown>;
+  return record.tool_calls !== undefined || record.function_call !== undefined;
 }
 
 function streamingAssistantTexts(streamText: string, maxChoices: number, maxChoiceBytes: number): string[] | null {
@@ -547,13 +555,14 @@ function contentToText(content: unknown): string | null {
   if (typeof content === "string") return content.trim() || null;
   if (!Array.isArray(content)) return null;
 
-  const parts = content
-    .map((part) => {
-      if (!part || typeof part !== "object") return "";
-      const record = part as Record<string, unknown>;
-      return record.type === "text" && typeof record.text === "string" ? record.text : "";
-    })
-    .filter(Boolean);
+  const parts: string[] = [];
+  for (const part of content) {
+    if (!part || typeof part !== "object") return null;
+    const record = part as Record<string, unknown>;
+    if (record.type !== "text" || typeof record.text !== "string") return null;
+    parts.push(record.text);
+  }
+
   const joined = parts.join("\n").trim();
   return joined || null;
 }
