@@ -20,6 +20,11 @@ export interface PinnedRequestOptions {
 
 export type PinnedRequest = (url: URL, options: PinnedRequestOptions) => Promise<Response>;
 
+export interface OutboundAllowlist {
+  hosts?: readonly string[];
+  ports?: readonly number[];
+}
+
 export interface ProvenanceEvidenceProviderOptions {
   provider: EvidenceProvider;
   fetchImpl?: typeof fetch;
@@ -30,6 +35,7 @@ export interface ProvenanceEvidenceProviderOptions {
   lookupImpl?: DnsLookup;
   requestImpl?: PinnedRequest;
   pdfParser?: PdfTextParser;
+  outboundAllowlist?: OutboundAllowlist;
 }
 
 export class ProvenanceEvidenceProvider implements EvidenceProvider {
@@ -42,6 +48,7 @@ export class ProvenanceEvidenceProvider implements EvidenceProvider {
   readonly #maxDocumentBytes: number;
   readonly #maxQuoteChars: number;
   readonly #maxRedirects: number;
+  readonly #outboundAllowlist: NormalizedOutboundAllowlist | undefined;
 
   constructor(options: ProvenanceEvidenceProviderOptions) {
     this.#provider = options.provider;
@@ -53,6 +60,7 @@ export class ProvenanceEvidenceProvider implements EvidenceProvider {
     this.#maxDocumentBytes = clampInteger(options.maxDocumentBytes ?? 1_000_000, 1_024, 5_000_000);
     this.#maxQuoteChars = clampInteger(options.maxQuoteChars ?? 700, 120, 2_000);
     this.#maxRedirects = clampInteger(options.maxRedirects ?? 3, 0, 10);
+    this.#outboundAllowlist = normalizeOutboundAllowlist(options.outboundAllowlist);
   }
 
   async search(claim: Claim): Promise<Evidence[]> {
@@ -70,7 +78,7 @@ export class ProvenanceEvidenceProvider implements EvidenceProvider {
       return fallback;
     }
 
-    if (!isSafePublicHttpUrl(url)) return fallback;
+    if (!isSafePublicHttpUrl(url) || !isAllowedOutboundUrl(url, this.#outboundAllowlist)) return fallback;
 
     try {
       const fetched = await fetchPublicDocument({
@@ -81,6 +89,7 @@ export class ProvenanceEvidenceProvider implements EvidenceProvider {
         timeoutMs: this.#timeoutMs,
         maxBytes: this.#maxDocumentBytes,
         maxRedirects: this.#maxRedirects,
+        ...(this.#outboundAllowlist ? { outboundAllowlist: this.#outboundAllowlist } : {}),
       });
       if (!fetched) return fallback;
 
@@ -136,11 +145,12 @@ async function fetchPublicDocument(input: {
   timeoutMs: number;
   maxBytes: number;
   maxRedirects: number;
+  outboundAllowlist?: NormalizedOutboundAllowlist;
 }): Promise<FetchedDocument | null> {
   let current = input.url;
 
   for (let redirect = 0; redirect <= input.maxRedirects; redirect += 1) {
-    if (!isSafePublicHttpUrl(current)) return null;
+    if (!isSafePublicHttpUrl(current) || !isAllowedOutboundUrl(current, input.outboundAllowlist)) return null;
 
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), input.timeoutMs);
@@ -521,4 +531,61 @@ async function sha256Hex(value: string): Promise<string> {
 
 function clampInteger(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, Math.floor(value)));
+}
+
+interface NormalizedOutboundAllowlist {
+  hosts?: readonly string[];
+  ports?: readonly number[];
+}
+
+function normalizeOutboundAllowlist(value: OutboundAllowlist | undefined): NormalizedOutboundAllowlist | undefined {
+  if (!value) return undefined;
+
+  const hosts = value.hosts?.map(normalizeAllowlistHost);
+  const ports = value.ports?.map((port) => {
+    if (!Number.isInteger(port) || port < 1 || port > 65_535) {
+      throw new TypeError(`Outbound allowlist port must be an integer from 1 to 65535: ${String(port)}`);
+    }
+    return port;
+  });
+
+  return {
+    ...(hosts ? { hosts: [...new Set(hosts)] } : {}),
+    ...(ports ? { ports: [...new Set(ports)] } : {}),
+  };
+}
+
+function normalizeAllowlistHost(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed || trimmed.includes("/") || trimmed.includes("?") || trimmed.includes("#") || trimmed.includes("@")) {
+    throw new TypeError(`Outbound allowlist host must be a hostname or IP address: ${value}`);
+  }
+  if (!trimmed.startsWith("[") && trimmed.includes(":")) {
+    throw new TypeError(`Outbound allowlist host must not include a port: ${value}`);
+  }
+
+  let parsed: URL;
+  try {
+    parsed = new URL(`http://${trimmed}/`);
+  } catch {
+    throw new TypeError(`Outbound allowlist host is invalid: ${value}`);
+  }
+  if (parsed.port) throw new TypeError(`Outbound allowlist host must not include a port: ${value}`);
+  return parsed.hostname.toLowerCase().replace(/^\[|\]$/g, "").replace(/\.$/, "");
+}
+
+function isAllowedOutboundUrl(url: URL, allowlist: NormalizedOutboundAllowlist | undefined): boolean {
+  if (!allowlist) return true;
+
+  const hostname = url.hostname.toLowerCase().replace(/^\[|\]$/g, "").replace(/\.$/, "");
+  if (allowlist.hosts && !allowlist.hosts.some((allowed) => hostname === allowed || hostname.endsWith(`.${allowed}`))) {
+    return false;
+  }
+
+  if (allowlist.ports) {
+    const port = url.port ? Number(url.port) : url.protocol === "https:" ? 443 : 80;
+    if (!allowlist.ports.includes(port)) return false;
+  }
+
+  return true;
 }

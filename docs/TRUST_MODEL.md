@@ -40,7 +40,7 @@ When a verifier identifies both supporting and contradicting evidence, ClaimLatc
 
 The built-in provenance fetcher rejects non-HTTP(S) URLs, common literal localhost/private IPv4 targets, local hostnames, IPv4-mapped IPv6, and common private/link-local IPv6 ranges. Before each document request it resolves the hostname, rejects the entire result if any address is non-public, and pins the selected public address for the connection. It also validates redirects, limits response size, and applies a timeout.
 
-DNS failures and empty or unsafe resolution results fail closed. Custom fetch or request implementations must provide equivalent protections. For public multi-tenant services, run document retrieval in a network sandbox or enforce an outbound allowlist/proxy.
+DNS failures and empty or unsafe resolution results fail closed. An optional outbound allowlist can restrict document hydration to exact hosts or their subdomains and selected ports; it is rechecked before every redirect. Custom fetch or request implementations must provide equivalent DNS pinning and transport protections. For public multi-tenant services, run document retrieval in a network sandbox or enforce an outbound allowlist/proxy.
 
 ## Proxy boundary
 

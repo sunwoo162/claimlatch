@@ -60,6 +60,123 @@ test("private network evidence URLs are never fetched", async () => {
   assert.equal(result[0]?.provenance?.kind, "search-snippet");
 });
 
+test("outbound host allowlist blocks a non-matching evidence URL before fetch", async () => {
+  let called = false;
+  const provider = new ProvenanceEvidenceProvider({
+    provider: new StaticEvidenceProvider(() => [{
+      id: "e1",
+      claimId: "claim_1",
+      title: "Disallowed host",
+      url: "https://other.example.test/mars",
+      snippet: "fallback",
+      sourceType: "unknown",
+      retrievedAt: "2026-09-28T00:00:00.000Z",
+      provider: "fixture",
+    }]),
+    outboundAllowlist: { hosts: ["allowed.example.test"] },
+    fetchImpl: (async () => {
+      called = true;
+      throw new Error("must not be called");
+    }) as typeof fetch,
+  });
+
+  const result = await provider.search(claim);
+  assert.equal(called, false);
+  assert.equal(result[0]?.provenance?.kind, "search-snippet");
+});
+
+test("outbound host allowlist permits the configured domain and its subdomains", async () => {
+  let requestedUrl: string | undefined;
+  const provider = new ProvenanceEvidenceProvider({
+    provider: new StaticEvidenceProvider(() => [{
+      id: "e1",
+      claimId: "claim_1",
+      title: "Allowed host",
+      url: "https://docs.allowed.example.test/mars",
+      snippet: "fallback",
+      sourceType: "primary",
+      retrievedAt: "2026-09-28T00:00:00.000Z",
+      provider: "fixture",
+    }]),
+    outboundAllowlist: { hosts: ["allowed.example.test"], ports: [443] },
+    fetchImpl: (async (url) => {
+      requestedUrl = String(url);
+      return new Response("Mars is known as the Red Planet.", {
+        status: 200,
+        headers: { "content-type": "text/plain" },
+      });
+    }) as typeof fetch,
+  });
+
+  const result = await provider.search(claim);
+  assert.equal(requestedUrl, "https://docs.allowed.example.test/mars");
+  assert.equal(result[0]?.provenance?.kind, "retrieved-document");
+});
+
+test("outbound allowlist is rechecked before following a redirect", async () => {
+  const requestedUrls: string[] = [];
+  const provider = new ProvenanceEvidenceProvider({
+    provider: new StaticEvidenceProvider(() => [{
+      id: "e1",
+      claimId: "claim_1",
+      title: "Redirect target",
+      url: "https://allowed.example.test/start",
+      snippet: "fallback",
+      sourceType: "unknown",
+      retrievedAt: "2026-09-28T00:00:00.000Z",
+      provider: "fixture",
+    }]),
+    outboundAllowlist: { hosts: ["allowed.example.test"] },
+    fetchImpl: (async (url) => {
+      requestedUrls.push(String(url));
+      return new Response(null, {
+        status: 302,
+        headers: { location: "https://other.example.test/final" },
+      });
+    }) as typeof fetch,
+  });
+
+  const result = await provider.search(claim);
+  assert.deepEqual(requestedUrls, ["https://allowed.example.test/start"]);
+  assert.equal(result[0]?.provenance?.kind, "search-snippet");
+});
+
+test("outbound port allowlist rejects non-default ports", async () => {
+  let called = false;
+  const provider = new ProvenanceEvidenceProvider({
+    provider: new StaticEvidenceProvider(() => [{
+      id: "e1",
+      claimId: "claim_1",
+      title: "Disallowed port",
+      url: "https://allowed.example.test:8443/mars",
+      snippet: "fallback",
+      sourceType: "unknown",
+      retrievedAt: "2026-09-28T00:00:00.000Z",
+      provider: "fixture",
+    }]),
+    outboundAllowlist: { hosts: ["allowed.example.test"], ports: [443] },
+    fetchImpl: (async () => {
+      called = true;
+      throw new Error("must not be called");
+    }) as typeof fetch,
+  });
+
+  const result = await provider.search(claim);
+  assert.equal(called, false);
+  assert.equal(result[0]?.provenance?.kind, "search-snippet");
+});
+
+test("outbound allowlist rejects malformed configuration", () => {
+  assert.throws(() => new ProvenanceEvidenceProvider({
+    provider: new StaticEvidenceProvider(() => []),
+    outboundAllowlist: { ports: [0] },
+  }), /port must be an integer/);
+  assert.throws(() => new ProvenanceEvidenceProvider({
+    provider: new StaticEvidenceProvider(() => []),
+    outboundAllowlist: { hosts: ["https://example.test"] },
+  }), /host must be a hostname/);
+});
+
 test("public URL filter rejects common private and local targets", () => {
   assert.equal(isSafePublicHttpUrl(new URL("http://localhost/test")), false);
   assert.equal(isSafePublicHttpUrl(new URL("http://10.0.0.1/test")), false);

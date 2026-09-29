@@ -7,6 +7,7 @@ export type { BenchmarkFormatOptions, BenchmarkOutputFormat } from "./benchmark-
 export { createOpenAIProxy } from "./proxy.js";
 export type { OpenAIProxyOptions, OpenAIProxyServer } from "./proxy.js";
 export { ProvenanceEvidenceProvider, isSafePublicHttpUrl } from "./providers/provenance.js";
+export type { OutboundAllowlist } from "./providers/provenance.js";
 export { extractPdfPages } from "./providers/pdf.js";
 export type { PdfPageText, PdfTextParser } from "./providers/pdf.js";
 export { ClaimLatch } from "./gate.js";
