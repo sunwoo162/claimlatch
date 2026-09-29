@@ -532,6 +532,8 @@ PASS is not proof of universal truth. Claim extraction, search, source selection
 
 ## Project status
 
+`0.3.48` adds a Hugging Face Inference Providers-compatible proxy profile for OpenAI-compatible Chat Completions.
+
 `0.3.47` adds a Fetch-standard guarded answer integration and a route-oriented framework example with fail-closed request handling.
 
 `0.3.46` adds a credential-free benchmark validation script and GitHub Actions workflow for frozen dataset manifest checks.
