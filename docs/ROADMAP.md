@@ -46,6 +46,7 @@
 - SvelteKit route adapter example without a core framework dependency
 - AWS Lambda HTTP API payload v2 adapter example without an AWS SDK dependency
 - Moonshot OpenAI-compatible proxy provider profile with contract coverage
+- Koa route adapter example without a core framework dependency
 
 ## Next
 
