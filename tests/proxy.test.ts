@@ -22,6 +22,7 @@ const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "azure"
   gemini: "https://generativelanguage.googleapis.com/v1beta/openai",
   groq: "https://api.groq.com/openai/v1",
   huggingface: "https://router.huggingface.co/v1",
+  hyperbolic: "https://api.hyperbolic.xyz/v1",
   ionos: "https://openai.inference.de-txl.ionos.com/v1",
   hunyuan: "https://api.hunyuan.cloud.tencent.com/v1",
   minimax: "https://api.minimax.io/v1",
@@ -1545,6 +1546,40 @@ test("IONOS provider profile sends its model-list path and bearer header", async
 
   assert.equal(capturedUrl, "https://openai.inference.de-txl.ionos.com/v1/models");
   assert.equal(capturedHeaders?.get("authorization"), "Bearer ionos-key");
+  assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
+test("Hyperbolic provider profile sends the OpenAI-compatible bearer contract", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "hyperbolic",
+  });
+  let capturedUrl: string | undefined;
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "hyperbolic-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrl = String(input);
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({
+        id: "chatcmpl_hyperbolic_profile",
+        object: "chat.completion",
+        choices: [{ message: { role: "assistant", content: "Hyperbolic-compatible answer." } }],
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ model: "Qwen/Qwen3-235B-A22B", messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 200);
+  });
+
+  assert.equal(capturedUrl, "https://api.hyperbolic.xyz/v1/chat/completions");
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer hyperbolic-key");
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 

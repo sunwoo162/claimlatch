@@ -13,6 +13,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "gemini",
   "groq",
   "huggingface",
+  "hyperbolic",
   "ionos",
   "hunyuan",
   "minimax",
@@ -131,6 +132,11 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
   },
   huggingface: {
     upstreamBaseUrl: "https://router.huggingface.co/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  },
+  hyperbolic: {
+    upstreamBaseUrl: "https://api.hyperbolic.xyz/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
   },

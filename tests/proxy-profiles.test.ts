@@ -22,6 +22,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
     "gemini",
     "groq",
     "huggingface",
+    "hyperbolic",
     "ionos",
     "hunyuan",
     "minimax",
@@ -48,7 +49,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
   ]);
   assert.equal(
     formatProxyProviderProfileNames(),
-    "ai21, azure, cerebras, chutes, cohere, dashscope, deepinfra, deepseek, featherless, fireworks, friendli, gemini, groq, huggingface, ionos, hunyuan, minimax, mistral, moonshot, nebius, novita, nvidia, openai, openrouter, perplexity, poe, qianfan, requesty, sambanova, siliconflow, stepfun, together, tokenhub, upstage, volcengine, xai, or zai",
+    "ai21, azure, cerebras, chutes, cohere, dashscope, deepinfra, deepseek, featherless, fireworks, friendli, gemini, groq, huggingface, hyperbolic, ionos, hunyuan, minimax, mistral, moonshot, nebius, novita, nvidia, openai, openrouter, perplexity, poe, qianfan, requesty, sambanova, siliconflow, stepfun, together, tokenhub, upstage, volcengine, xai, or zai",
   );
 });
 
@@ -126,6 +127,14 @@ test("proxy profiles provide IONOS AI Model Hub-compatible Chat Completions and 
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
     upstreamModelsPath: "/models",
+  });
+});
+
+test("proxy profiles provide Hyperbolic-compatible Chat Completions defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("hyperbolic"), {
+    upstreamBaseUrl: "https://api.hyperbolic.xyz/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
   });
 });
 
