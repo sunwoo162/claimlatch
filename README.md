@@ -137,7 +137,7 @@ export TAVILY_API_KEY="..."
 npm run example:provider-proxy
 ```
 
-The example defaults to `api-key` and `/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-10-21`; override `CLAIMLATCH_PROXY_UPSTREAM_API_KEY_HEADER` or `CLAIMLATCH_PROXY_UPSTREAM_CHAT_COMPLETIONS_PATH` for another provider.
+The example defaults to `api-key`, `/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-10-21`, and `/openai/models?api-version=2024-10-21` for Azure model listing/retrieval; override `CLAIMLATCH_PROXY_UPSTREAM_API_KEY_HEADER`, `CLAIMLATCH_PROXY_UPSTREAM_CHAT_COMPLETIONS_PATH`, or `CLAIMLATCH_PROXY_UPSTREAM_MODELS_PATH` for another provider.
 
 For Cerebras' OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="cerebras"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.cerebras.ai/v1`, bearer authentication, and `/chat/completions`.
 

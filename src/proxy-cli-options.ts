@@ -74,7 +74,7 @@ export function resolveProxyProviderConfiguration(
     upstreamApiKeyHeader: env.CLAIMLATCH_PROXY_UPSTREAM_API_KEY_HEADER ?? profile.upstreamApiKeyHeader,
     upstreamChatCompletionsPath:
       env.CLAIMLATCH_PROXY_UPSTREAM_CHAT_COMPLETIONS_PATH ?? profile.upstreamChatCompletionsPath,
-    upstreamModelsPath: env.CLAIMLATCH_PROXY_UPSTREAM_MODELS_PATH ?? "/models",
+    upstreamModelsPath: env.CLAIMLATCH_PROXY_UPSTREAM_MODELS_PATH ?? profile.upstreamModelsPath ?? "/models",
     ...(Object.keys(upstreamRequestHeaders).length > 0 ? { upstreamRequestHeaders } : {}),
   };
 }

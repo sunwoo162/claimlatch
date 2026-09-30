@@ -1160,6 +1160,43 @@ test("Azure provider profile sends its deployment path and api-key header", asyn
   assert.equal(JSON.parse(capturedBody ?? "{}").model, "gpt-4o-mini");
 });
 
+test("Azure provider profile sends its model-list path and api-key header", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "azure",
+    CLAIMLATCH_PROXY_UPSTREAM_BASE_URL: "https://claimlatch-resource.openai.azure.com",
+  });
+  let capturedUrl: string | undefined;
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "azure-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrl = String(input);
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({ object: "list", data: [{ id: "gpt-4o-mini", object: "model" }] }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/models?limit=1`);
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), {
+      object: "list",
+      data: [{ id: "gpt-4o-mini", object: "model" }],
+    });
+  });
+
+  assert.equal(
+    capturedUrl,
+    "https://claimlatch-resource.openai.azure.com/openai/models?api-version=2024-10-21&limit=1",
+  );
+  assert.equal(capturedHeaders?.get("api-key"), "azure-key");
+  assert.equal(capturedHeaders?.get("authorization"), null);
+});
+
 test("hosted Gemini provider profile sends the OpenAI-compatible bearer contract", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "gemini",

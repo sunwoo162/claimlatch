@@ -34,6 +34,7 @@ export interface ProxyProviderProfile {
   upstreamBaseUrl?: string;
   upstreamApiKeyHeader: string;
   upstreamChatCompletionsPath: string;
+  upstreamModelsPath?: string;
   upstreamRequestHeaders?: Record<string, string>;
 }
 
@@ -43,6 +44,7 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
   azure: {
     upstreamApiKeyHeader: "api-key",
     upstreamChatCompletionsPath: "/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-10-21",
+    upstreamModelsPath: "/openai/models?api-version=2024-10-21",
   },
   cerebras: {
     upstreamBaseUrl: "https://api.cerebras.ai/v1",

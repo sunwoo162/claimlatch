@@ -100,7 +100,7 @@ test("proxy CLI resolves Azure deployment paths with an explicit base URL", () =
     upstreamBaseUrl: "https://claimlatch-resource.openai.azure.com",
     upstreamApiKeyHeader: "api-key",
     upstreamChatCompletionsPath: "/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-10-21",
-    upstreamModelsPath: "/models",
+    upstreamModelsPath: "/openai/models?api-version=2024-10-21",
   });
 });
 
