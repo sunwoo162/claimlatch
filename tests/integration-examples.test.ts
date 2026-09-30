@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import cloudflareWorker from "../examples/cloudflare-worker.js";
 import { GET, POST, runtime } from "../examples/next-route-handler.js";
 import { action, loader } from "../examples/remix-route-handler.js";
 import {
@@ -16,6 +17,10 @@ test("Next.js route example exports Fetch-native GET and POST handlers", () => {
 test("Remix route example exports Fetch-native loader and action handlers", () => {
   assert.equal(typeof loader, "function");
   assert.equal(typeof action, "function");
+});
+
+test("Cloudflare Worker example exports a Fetch-native worker", () => {
+  assert.equal(typeof cloudflareWorker.fetch, "function");
 });
 
 test("receipt storage example renders the canonical payload hash", () => {
