@@ -172,6 +172,8 @@ For DeepSeek's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROX
 
 For Fireworks' OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="fireworks"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.fireworks.ai/inference/v1`, bearer authentication, and `/chat/completions`.
 
+For Google's Gemini OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="gemini"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY` with a Gemini API key. The profile uses `https://generativelanguage.googleapis.com/v1beta/openai`, bearer authentication, and `/chat/completions`; select a compatible Gemini model in the request's `model` value. This profile follows Google's OpenAI compatibility endpoint, which uses `Authorization: Bearer <GEMINI_API_KEY>`.
+
 For Together AI's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="together"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.together.xyz/v1`, bearer authentication, and `/chat/completions`.
 
 For xAI's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="xai"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.x.ai/v1`, bearer authentication, and `/chat/completions`.

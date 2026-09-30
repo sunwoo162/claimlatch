@@ -14,6 +14,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
     "deepinfra",
     "deepseek",
     "fireworks",
+    "gemini",
     "groq",
     "huggingface",
     "mistral",
@@ -27,7 +28,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
   ]);
   assert.equal(
     formatProxyProviderProfileNames(),
-    "azure, cerebras, cohere, deepinfra, deepseek, fireworks, groq, huggingface, mistral, nvidia, openai, openrouter, perplexity, sambanova, together, or xai",
+    "azure, cerebras, cohere, deepinfra, deepseek, fireworks, gemini, groq, huggingface, mistral, nvidia, openai, openrouter, perplexity, sambanova, together, or xai",
   );
 });
 
@@ -64,6 +65,14 @@ test("proxy profiles provide OpenRouter-compatible defaults and headers", () => 
 test("proxy profiles provide Groq-compatible Chat Completions defaults", () => {
   assert.deepEqual(resolveProxyProviderProfile("groq"), {
     upstreamBaseUrl: "https://api.groq.com/openai/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  });
+});
+
+test("proxy profiles provide Gemini OpenAI-compatible Chat Completions defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("gemini"), {
+    upstreamBaseUrl: "https://generativelanguage.googleapis.com/v1beta/openai",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
   });
