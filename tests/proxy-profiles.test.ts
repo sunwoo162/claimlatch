@@ -19,6 +19,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
     "gemini",
     "groq",
     "huggingface",
+    "hunyuan",
     "minimax",
     "mistral",
     "moonshot",
@@ -37,7 +38,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
   ]);
   assert.equal(
     formatProxyProviderProfileNames(),
-    "azure, cerebras, cohere, dashscope, deepinfra, deepseek, fireworks, friendli, gemini, groq, huggingface, minimax, mistral, moonshot, nebius, nvidia, openai, openrouter, perplexity, qianfan, sambanova, siliconflow, together, volcengine, xai, or zai",
+    "azure, cerebras, cohere, dashscope, deepinfra, deepseek, fireworks, friendli, gemini, groq, huggingface, hunyuan, minimax, mistral, moonshot, nebius, nvidia, openai, openrouter, perplexity, qianfan, sambanova, siliconflow, together, volcengine, xai, or zai",
   );
 });
 
@@ -108,6 +109,14 @@ test("proxy profiles provide Mistral-compatible Chat Completions defaults", () =
 test("proxy profiles provide MiniMax-compatible Chat Completions defaults", () => {
   assert.deepEqual(resolveProxyProviderProfile("minimax"), {
     upstreamBaseUrl: "https://api.minimax.io/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  });
+});
+
+test("proxy profiles provide Tencent Hunyuan-compatible Chat Completions defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("hunyuan"), {
+    upstreamBaseUrl: "https://api.hunyuan.cloud.tencent.com/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
   });

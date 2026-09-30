@@ -52,6 +52,7 @@
 - Z.AI OpenAI-compatible proxy provider profile with Chat Completions contract coverage
 - Volcengine Ark OpenAI-compatible proxy provider profile with Chat Completions contract coverage
 - MiniMax OpenAI-compatible proxy provider profile with Chat Completions contract coverage
+- Tencent Hunyuan OpenAI-compatible proxy provider profile with Chat Completions contract coverage
 
 ## Next
 

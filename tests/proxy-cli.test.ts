@@ -23,7 +23,7 @@ test("proxy CLI help documents credentials, routes, and fail-closed behavior", (
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS/);
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_MODELS_PATH.*profile supplies one/);
   assert.match(help, /CLAIMLATCH_PROXY_PROVIDER_PROFILE/);
-  assert.match(help, /azure, cerebras, cohere, dashscope, deepinfra, deepseek, fireworks, friendli, gemini, groq, huggingface, minimax, mistral, moonshot, nebius, nvidia, openai, openrouter, perplexity, qianfan, sambanova, siliconflow, together, volcengine, xai, or zai/);
+  assert.match(help, /azure, cerebras, cohere, dashscope, deepinfra, deepseek, fireworks, friendli, gemini, groq, huggingface, hunyuan, minimax, mistral, moonshot, nebius, nvidia, openai, openrouter, perplexity, qianfan, sambanova, siliconflow, together, volcengine, xai, or zai/);
   assert.match(help, /PASS.*BLOCK/s);
   assert.match(help, /credential-free/);
 });
@@ -116,6 +116,7 @@ test("proxy CLI resolves every hosted built-in profile without an explicit base 
     gemini: "https://generativelanguage.googleapis.com/v1beta/openai",
     groq: "https://api.groq.com/openai/v1",
     huggingface: "https://router.huggingface.co/v1",
+    hunyuan: "https://api.hunyuan.cloud.tencent.com/v1",
     minimax: "https://api.minimax.io/v1",
     mistral: "https://api.mistral.ai/v1",
     moonshot: "https://api.moonshot.ai/v1",
