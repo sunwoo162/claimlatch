@@ -75,6 +75,7 @@
 - Configurable upstream API key authentication prefixes for non-Bearer provider contracts
 - Baseten Model APIs OpenAI-compatible proxy provider profile with Chat Completions and model-list contract coverage
 - Clarifai OpenAI-compatible proxy provider profile with Key-authenticated Chat Completions coverage and explicit fail-closed model-route handling
+- Modal Endpoints OpenAI-compatible proxy provider profile with explicit endpoint URL configuration and fail-closed model-route handling
 
 ## Next
 

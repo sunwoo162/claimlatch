@@ -26,6 +26,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "minimax",
   "mimo",
   "mistral",
+  "modal",
   "moonshot",
   "nebius",
   "novita",
@@ -219,6 +220,11 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamBaseUrl: "https://api.mistral.ai/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+  },
+  modal: {
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/v1/chat/completions",
+    upstreamModelsPath: null,
   },
   moonshot: {
     upstreamBaseUrl: "https://api.moonshot.ai/v1",
