@@ -546,7 +546,7 @@ PASS is not proof of universal truth. Claim extraction, search, source selection
 
 ## Project status
 
-The unreleased provenance hardening rejects evidence URLs containing embedded username or password credentials.
+`0.3.69` rejects evidence URLs containing embedded username or password credentials before provenance hydration.
 
 `0.3.68` exposes the canonical signed payload SHA-256 after successful receipt verification in the receipt CLI JSON output.
 
