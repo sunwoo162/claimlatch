@@ -41,6 +41,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "novita",
   "nvidia",
   "ollama",
+  "openllm",
   "openai",
   "openrouter",
   "ovhcloud",
@@ -309,6 +310,11 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamChatCompletionsPath: "/chat/completions",
   },
   ollama: {
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/v1/chat/completions",
+    upstreamModelsPath: "/v1/models",
+  },
+  openllm: {
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/v1/chat/completions",
     upstreamModelsPath: "/v1/models",
