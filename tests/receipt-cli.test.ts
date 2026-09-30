@@ -22,6 +22,26 @@ test("receipt CLI argument parser rejects unknown options", () => {
   );
 });
 
+test("receipt CLI argument parser rejects duplicate value options", () => {
+  assert.throws(
+    () => parseReceiptCliArguments([
+      "verify",
+      "--file", "first.json",
+      "--file", "second.json",
+    ]),
+    /--file may only be specified once/,
+  );
+  assert.throws(
+    () => parseReceiptCliArguments([
+      "verify",
+      "--file", "receipt.json",
+      "--public-key-file", "first.pem",
+      "--public-key-file", "second.pem",
+    ]),
+    /--public-key-file may only be specified once/,
+  );
+});
+
 test("receipt CLI JSON output exposes signed receipt metadata for audit logs", () => {
   const output = renderReceiptVerificationJson({
     valid: true,
