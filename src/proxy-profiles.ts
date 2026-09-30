@@ -10,6 +10,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "gemini",
   "groq",
   "huggingface",
+  "minimax",
   "mistral",
   "moonshot",
   "nebius",
@@ -102,6 +103,11 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
   },
   huggingface: {
     upstreamBaseUrl: "https://router.huggingface.co/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  },
+  minimax: {
+    upstreamBaseUrl: "https://api.minimax.io/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
   },

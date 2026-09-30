@@ -160,6 +160,8 @@ For Groq's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PR
 
 For Hugging Face Inference Providers' OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="huggingface"` and provide a Hugging Face token as `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://router.huggingface.co/v1`, bearer authentication, and `/chat/completions`; select the routed model and provider in the request's `model` value.
 
+For MiniMax's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="minimax"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.minimax.io/v1`, bearer authentication, and `/chat/completions`; see [MiniMax's model invocation guide](https://platform.minimax.io/docs/guides/text-generation).
+
 For Mistral's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="mistral"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.mistral.ai/v1`, bearer authentication, and `/chat/completions`.
 
 For Moonshot's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="moonshot"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.moonshot.ai/v1`, bearer authentication, and `/chat/completions`; see [Moonshot's Chat Completions documentation](https://platform.kimi.ai/docs/api/chat).
