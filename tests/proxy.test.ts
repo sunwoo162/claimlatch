@@ -16,6 +16,7 @@ const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "azure"
   dashscope: "https://dashscope.aliyuncs.com/compatible-mode/v1",
   deepinfra: "https://api.deepinfra.com/v1/openai",
   deepseek: "https://api.deepseek.com",
+  featherless: "https://api.featherless.ai/v1",
   fireworks: "https://api.fireworks.ai/inference/v1",
   friendli: "https://api.friendli.ai/serverless/v1",
   gemini: "https://generativelanguage.googleapis.com/v1beta/openai",
@@ -1477,6 +1478,39 @@ test("Requesty provider profile sends its model-list path and bearer header", as
 
   assert.equal(capturedUrl, "https://router.requesty.ai/v1/models");
   assert.equal(capturedHeaders?.get("authorization"), "Bearer requesty-key");
+  assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
+test("Featherless provider profile sends its model-list path and bearer header", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "featherless",
+  });
+  let capturedUrl: string | undefined;
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "featherless-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrl = String(input);
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({ object: "list", data: [{ id: "Qwen/Qwen2.5-7B-Instruct", object: "model" }] }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/models`);
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), {
+      object: "list",
+      data: [{ id: "Qwen/Qwen2.5-7B-Instruct", object: "model" }],
+    });
+  });
+
+  assert.equal(capturedUrl, "https://api.featherless.ai/v1/models");
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer featherless-key");
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 

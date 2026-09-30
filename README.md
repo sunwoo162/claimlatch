@@ -196,6 +196,8 @@ For DeepInfra's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PRO
 
 For DeepSeek's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="deepseek"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.deepseek.com`, bearer authentication, and `/chat/completions`.
 
+For Featherless AI's OpenAI-compatible API, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="featherless"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.featherless.ai/v1`, bearer authentication, `/chat/completions`, and `/models`; see [Featherless's API overview](https://featherless.ai/docs/api-overview-and-common-options) and [model-list reference](https://featherless.ai/docs/api-reference-models).
+
 For Fireworks' OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="fireworks"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.fireworks.ai/inference/v1`, bearer authentication, and `/chat/completions`.
 
 For FriendliAI's serverless OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="friendli"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.friendli.ai/serverless/v1`, bearer authentication, and `/chat/completions`; see [FriendliAI's OpenAI-compatible client guide](https://learn.friendli.ai/articles/4213111023-q10-1-how-do-i-connect-friendliai-with-litellm-or-other-openai-compatible-client).

@@ -16,6 +16,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
     "dashscope",
     "deepinfra",
     "deepseek",
+    "featherless",
     "fireworks",
     "friendli",
     "gemini",
@@ -46,7 +47,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
   ]);
   assert.equal(
     formatProxyProviderProfileNames(),
-    "ai21, azure, cerebras, chutes, cohere, dashscope, deepinfra, deepseek, fireworks, friendli, gemini, groq, huggingface, hunyuan, minimax, mistral, moonshot, nebius, novita, nvidia, openai, openrouter, perplexity, poe, qianfan, requesty, sambanova, siliconflow, stepfun, together, tokenhub, upstage, volcengine, xai, or zai",
+    "ai21, azure, cerebras, chutes, cohere, dashscope, deepinfra, deepseek, featherless, fireworks, friendli, gemini, groq, huggingface, hunyuan, minimax, mistral, moonshot, nebius, novita, nvidia, openai, openrouter, perplexity, poe, qianfan, requesty, sambanova, siliconflow, stepfun, together, tokenhub, upstage, volcengine, xai, or zai",
   );
 });
 
@@ -103,6 +104,15 @@ test("proxy profiles provide Upstage-compatible Chat Completions defaults", () =
 test("proxy profiles provide Requesty-compatible Chat Completions and model-list defaults", () => {
   assert.deepEqual(resolveProxyProviderProfile("requesty"), {
     upstreamBaseUrl: "https://router.requesty.ai/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
+  });
+});
+
+test("proxy profiles provide Featherless-compatible Chat Completions and model-list defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("featherless"), {
+    upstreamBaseUrl: "https://api.featherless.ai/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
     upstreamModelsPath: "/models",

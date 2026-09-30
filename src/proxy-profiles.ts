@@ -7,6 +7,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "dashscope",
   "deepinfra",
   "deepseek",
+  "featherless",
   "fireworks",
   "friendli",
   "gemini",
@@ -100,6 +101,12 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamBaseUrl: "https://api.deepseek.com",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+  },
+  featherless: {
+    upstreamBaseUrl: "https://api.featherless.ai/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
   },
   fireworks: {
     upstreamBaseUrl: "https://api.fireworks.ai/inference/v1",
