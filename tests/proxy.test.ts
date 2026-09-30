@@ -3,8 +3,28 @@ import test from "node:test";
 import { ClaimLatch } from "../src/gate.js";
 import { createOpenAIProxy } from "../src/proxy.js";
 import { resolveProxyProviderConfiguration } from "../src/proxy-cli-options.js";
+import { PROXY_PROVIDER_PROFILE_NAMES } from "../src/proxy-profiles.js";
 import type { ClaimExtractor, ClaimVerifier, EvidenceProvider } from "../src/types.js";
 import type { OpenAIProxyOptions } from "../src/proxy.js";
+import type { ProxyProviderProfileName } from "../src/proxy-profiles.js";
+
+const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "azure" | "openrouter">, string> = {
+  cerebras: "https://api.cerebras.ai/v1",
+  cohere: "https://api.cohere.ai/compatibility/v1",
+  deepinfra: "https://api.deepinfra.com/v1/openai",
+  deepseek: "https://api.deepseek.com",
+  fireworks: "https://api.fireworks.ai/inference/v1",
+  gemini: "https://generativelanguage.googleapis.com/v1beta/openai",
+  groq: "https://api.groq.com/openai/v1",
+  huggingface: "https://router.huggingface.co/v1",
+  mistral: "https://api.mistral.ai/v1",
+  nvidia: "https://integrate.api.nvidia.com/v1",
+  openai: "https://api.openai.com/v1",
+  perplexity: "https://api.perplexity.ai/router/v1",
+  sambanova: "https://api.sambanova.ai/v1",
+  together: "https://api.together.xyz/v1",
+  xai: "https://api.x.ai/v1",
+} as const;
 
 function fixtureGate(): ClaimLatch {
   const extractor: ClaimExtractor = {
@@ -1209,6 +1229,47 @@ test("OpenRouter provider profile forwards attribution headers with bearer auth"
   assert.equal(capturedHeaders?.get("authorization"), "Bearer openrouter-key");
   assert.equal(capturedHeaders?.get("http-referer"), "https://claimlatch.example");
   assert.equal(capturedHeaders?.get("x-title"), "ClaimLatch");
+});
+
+test("hosted provider profiles preserve their resolver contracts through the proxy", async () => {
+  const expectedHostedProfiles = PROXY_PROVIDER_PROFILE_NAMES.filter(
+    (profileName) => profileName !== "azure" && profileName !== "openrouter",
+  );
+  assert.deepEqual(Object.keys(HOSTED_PROFILE_BASE_URLS).sort(), [...expectedHostedProfiles].sort());
+
+  for (const [profileName, expectedBaseUrl] of Object.entries(HOSTED_PROFILE_BASE_URLS)) {
+    const profile = resolveProxyProviderConfiguration({
+      CLAIMLATCH_PROXY_PROVIDER_PROFILE: profileName,
+    });
+    let capturedUrl: string | undefined;
+    let capturedHeaders: Headers | undefined;
+
+    await withProxyOptions({
+      gate: fixtureGate(),
+      ...profile,
+      upstreamApiKey: `${profileName}-key`,
+      fetchImpl: (async (input, init) => {
+        capturedUrl = String(input);
+        capturedHeaders = new Headers(init?.headers);
+        return new Response(JSON.stringify({
+          id: `chatcmpl_${profileName}`,
+          object: "chat.completion",
+          choices: [{ message: { role: "assistant", content: "Hosted-compatible answer." } }],
+        }), { status: 200, headers: { "content-type": "application/json" } });
+      }) as typeof fetch,
+    }, async (url) => {
+      const response = await fetch(`${url}/v1/chat/completions`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ model: "fixture-model", messages: [{ role: "user", content: "question" }] }),
+      });
+      assert.equal(response.status, 200);
+    });
+
+    assert.equal(capturedUrl, `${expectedBaseUrl}/chat/completions`);
+    assert.equal(capturedHeaders?.get("authorization"), `Bearer ${profileName}-key`);
+    assert.equal(capturedHeaders?.get("api-key"), null);
+  }
 });
 
 test("proxy supports a custom provider compatibility profile", async () => {
