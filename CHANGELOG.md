@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Preserved Azure's documented `apim-request-id` response header through the compatible proxy with regression coverage.
 - Added the Azure proxy profile's documented `/openai/models?api-version=2024-10-21` model-list/retrieval route with wire-contract coverage and environment override support.
 - Added fail-closed regression coverage for calibration dataset validation, including empty datasets, malformed manifests, and overlapping source case/claim pairs.
 - Expanded the frozen independent benchmark to 90 balanced cases across 45 paired topics with an IETF RFC 9110-backed HTTP 206 Partial Content pair.

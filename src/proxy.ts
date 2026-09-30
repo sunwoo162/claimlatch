@@ -83,6 +83,7 @@ const REQUEST_HEADERS_NEVER_CONFIGURE = new Set([
 ]);
 
 const RESPONSE_HEADERS_TO_FORWARD = new Set([
+  "apim-request-id",
   "content-type",
   "retry-after",
   "x-request-id",

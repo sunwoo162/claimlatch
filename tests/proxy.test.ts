@@ -1394,6 +1394,7 @@ test("proxy preserves compatible upstream response headers on pass", async () =>
     assert.equal(response.headers.get("x-ratelimit-limit-requests"), "10");
     assert.equal(response.headers.get("x-ms-request-id"), "ms_req_test");
     assert.equal(response.headers.get("x-ms-region"), "koreacentral");
+    assert.equal(response.headers.get("apim-request-id"), "apim_req_test");
     assert.equal(response.headers.get("x-goog-request-id"), "goog_req_test");
     assert.equal(response.headers.get("x-amzn-requestid"), "amzn_req_test");
     assert.equal(response.headers.get("anthropic-ratelimit-requests-limit"), "10");
@@ -1403,6 +1404,7 @@ test("proxy preserves compatible upstream response headers on pass", async () =>
     "x-ratelimit-limit-requests": "10",
     "x-ms-request-id": "ms_req_test",
     "x-ms-region": "koreacentral",
+    "apim-request-id": "apim_req_test",
     "x-goog-request-id": "goog_req_test",
     "x-amzn-requestid": "amzn_req_test",
     "anthropic-ratelimit-requests-limit": "10",
