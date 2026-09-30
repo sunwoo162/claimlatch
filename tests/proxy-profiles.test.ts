@@ -31,6 +31,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
     "openai",
     "openrouter",
     "perplexity",
+    "poe",
     "qianfan",
     "sambanova",
     "siliconflow",
@@ -43,7 +44,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
   ]);
   assert.equal(
     formatProxyProviderProfileNames(),
-    "ai21, azure, cerebras, chutes, cohere, dashscope, deepinfra, deepseek, fireworks, friendli, gemini, groq, huggingface, hunyuan, minimax, mistral, moonshot, nebius, novita, nvidia, openai, openrouter, perplexity, qianfan, sambanova, siliconflow, stepfun, together, tokenhub, volcengine, xai, or zai",
+    "ai21, azure, cerebras, chutes, cohere, dashscope, deepinfra, deepseek, fireworks, friendli, gemini, groq, huggingface, hunyuan, minimax, mistral, moonshot, nebius, novita, nvidia, openai, openrouter, perplexity, poe, qianfan, sambanova, siliconflow, stepfun, together, tokenhub, volcengine, xai, or zai",
   );
 });
 
@@ -74,6 +75,15 @@ test("proxy profiles provide Cerebras-compatible Chat Completions defaults", () 
 test("proxy profiles provide Chutes-compatible Chat Completions and model-list defaults", () => {
   assert.deepEqual(resolveProxyProviderProfile("chutes"), {
     upstreamBaseUrl: "https://llm.chutes.ai/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
+  });
+});
+
+test("proxy profiles provide Poe-compatible Chat Completions and model-list defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("poe"), {
+    upstreamBaseUrl: "https://api.poe.com/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
     upstreamModelsPath: "/models",
