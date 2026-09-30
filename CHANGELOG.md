@@ -4,6 +4,12 @@
 
 No unreleased changes.
 
+## 0.3.85 - 2026-09-30
+
+- Added opt-in calibrated verification-status confidence with offline isotonic fitting, evaluation metrics, CLI profile generation, signed receipt coverage, and package-root exports.
+- Hardened calibration, receipt, main, and benchmark CLI parsers to reject duplicate value options fail closed.
+- Hardened proxy request and response header configuration to reject case-insensitive duplicate names and prefixes, with shared CLI/example parsing.
+
 ## 0.3.84 - 2026-09-30
 
 - Added deterministic `npm run bench:manifest` generation for frozen benchmark SHA-256 manifests and case counts.
