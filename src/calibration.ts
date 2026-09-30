@@ -291,7 +291,7 @@ function validateObservations(observations: readonly CalibrationObservation[], k
 }
 
 function validateManifestHash(value: string, kind: string): void {
-  if (!/^[a-f\d]{64}$/u.test(value)) throw new Error(`Invalid ${kind} calibration manifest SHA-256.`);
+  if (!/^[a-f\d]{64}$/u.test(value)) throw new Error(`Invalid ${kind} manifest SHA-256.`);
 }
 
 function sourcePair(observation: CalibrationObservation): string {

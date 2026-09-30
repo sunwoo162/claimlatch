@@ -139,7 +139,7 @@ test("calibration dataset validation rejects malformed or shared manifests", () 
       ...validInput,
       calibration: { ...validInput.calibration, manifestSha256: "not-a-hash" },
     }),
-    /Invalid calibration calibration manifest SHA-256/,
+    /Invalid calibration manifest SHA-256/,
   );
   assert.throws(
     () => validateCalibrationDatasets({
