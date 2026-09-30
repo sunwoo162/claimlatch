@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { GET, POST, runtime } from "../examples/next-route-handler.js";
-import { renderReceiptStorageOutput } from "../examples/receipt-storage.js";
+import {
+  isReceiptStorageMainModule,
+  renderReceiptStorageOutput,
+} from "../examples/receipt-storage.js";
 
 test("Next.js route example exports Fetch-native GET and POST handlers", () => {
   assert.equal(typeof GET, "function");
@@ -18,4 +21,28 @@ test("receipt storage example renders the canonical payload hash", () => {
   })) as { verified?: boolean; payloadSha256?: string };
   assert.equal(output.verified, true);
   assert.match(output.payloadSha256 ?? "", /^[0-9a-f]{64}$/u);
+});
+
+test("receipt storage example main guard normalizes POSIX and Windows paths", () => {
+  assert.equal(
+    isReceiptStorageMainModule(
+      "file:///home/runner/claimlatch/dist/examples/receipt-storage.js",
+      "/home/runner/claimlatch/dist/examples/receipt-storage.js",
+    ),
+    true,
+  );
+  assert.equal(
+    isReceiptStorageMainModule(
+      "file:///C:/claimlatch/dist/examples/receipt-storage.js",
+      "C:\\claimlatch\\dist\\examples\\receipt-storage.js",
+    ),
+    true,
+  );
+  assert.equal(
+    isReceiptStorageMainModule(
+      "file:///home/runner/claimlatch/dist/examples/receipt-storage.js",
+      "/home/runner/claimlatch/dist/examples/other.js",
+    ),
+    false,
+  );
 });
