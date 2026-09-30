@@ -1,12 +1,12 @@
 # Benchmarks
 
-`independent.jsonl` is a 152-case, human-authored end-to-end benchmark dataset with 76 positive and 76 negative cases across 76 paired topics. Labels are written independently of ClaimLatch output and each case records one or more public label-source URLs.
+`independent.jsonl` is a 156-case, human-authored end-to-end benchmark dataset with 78 positive and 78 negative cases across 78 paired topics. Labels are written independently of ClaimLatch output and each case records one or more public label-source URLs.
 
 `MANIFEST.json` records the SHA-256 of each file's canonical UTF-8 LF content and its case count. The test suite normalizes line endings before verifying these entries so accidental label or split edits fail CI instead of silently changing the evaluation set.
 
 The aggregate is partitioned into frozen, balanced splits:
 
-- `train.jsonl`: 116 cases across 58 paired topics
+- `train.jsonl`: 120 cases across 60 paired topics
 - `dev.jsonl`: 24 cases across twelve additional paired topics
 - `test.jsonl`: 12 cases across six additional paired topics
 
