@@ -548,7 +548,7 @@ PASS is not proof of universal truth. Claim extraction, search, source selection
 
 ## Project status
 
-The unreleased provenance hardening redacts embedded URL credentials from fallback evidence metadata.
+`0.3.73` redacts embedded URL credentials from fallback evidence metadata.
 
 `0.3.72` adds a Next.js App Router route handler example with lazy gate initialization.
 
