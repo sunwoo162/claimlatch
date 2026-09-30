@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added a SiliconFlow OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions defaults and profile coverage.
 - Preserved Azure's documented `apim-request-id` response header through the compatible proxy with regression coverage.
 - Added the Azure proxy profile's documented `/openai/models?api-version=2024-10-21` model-list/retrieval route with wire-contract coverage and environment override support.
 - Added fail-closed regression coverage for calibration dataset validation, including empty datasets, malformed manifests, and overlapping source case/claim pairs.

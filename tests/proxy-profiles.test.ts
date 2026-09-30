@@ -24,12 +24,13 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
     "openrouter",
     "perplexity",
     "sambanova",
+    "siliconflow",
     "together",
     "xai",
   ]);
   assert.equal(
     formatProxyProviderProfileNames(),
-    "azure, cerebras, cohere, deepinfra, deepseek, fireworks, gemini, groq, huggingface, mistral, moonshot, nvidia, openai, openrouter, perplexity, sambanova, together, or xai",
+    "azure, cerebras, cohere, deepinfra, deepseek, fireworks, gemini, groq, huggingface, mistral, moonshot, nvidia, openai, openrouter, perplexity, sambanova, siliconflow, together, or xai",
   );
 });
 
@@ -179,6 +180,14 @@ test("proxy profiles provide Perplexity Router-compatible Chat Completions defau
 test("proxy profiles provide SambaNova-compatible Chat Completions defaults", () => {
   assert.deepEqual(resolveProxyProviderProfile("sambanova"), {
     upstreamBaseUrl: "https://api.sambanova.ai/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  });
+});
+
+test("proxy profiles provide SiliconFlow-compatible Chat Completions defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("siliconflow"), {
+    upstreamBaseUrl: "https://api.siliconflow.cn/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
   });

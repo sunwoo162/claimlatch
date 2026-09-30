@@ -23,6 +23,7 @@ const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "azure"
   openai: "https://api.openai.com/v1",
   perplexity: "https://api.perplexity.ai/router/v1",
   sambanova: "https://api.sambanova.ai/v1",
+  siliconflow: "https://api.siliconflow.cn/v1",
   together: "https://api.together.xyz/v1",
   xai: "https://api.x.ai/v1",
 } as const;
