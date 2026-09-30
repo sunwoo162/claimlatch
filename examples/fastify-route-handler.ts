@@ -7,6 +7,7 @@ import {
 export interface FastifyRequest {
   method?: string;
   protocol?: string;
+  host?: string;
   hostname?: string;
   url?: string;
   body?: unknown;
@@ -49,10 +50,10 @@ function getHandler(): GuardedAnswerFetchHandler {
 
 export function createFastifyGuardedAnswerHandler(
   fetchHandler: GuardedAnswerFetchHandler = getHandler(),
-): (request: FastifyRequest, reply: FastifyReply) => Promise<void> {
+): (request: FastifyRequest, reply: FastifyReply) => Promise<FastifyReply> {
   return async (request, reply) => {
     const protocol = request.protocol ?? "http";
-    const host = request.hostname ?? getHeaderValue(request.headers?.host) ?? "localhost";
+    const host = request.host ?? request.hostname ?? getHeaderValue(request.headers?.host) ?? "localhost";
     const path = request.url ?? "/";
     const method = request.method ?? "GET";
     const init: RequestInit = { method };
@@ -65,7 +66,7 @@ export function createFastifyGuardedAnswerHandler(
 
     const upstreamResponse = await fetchHandler(new Request(new URL(path, `${protocol}://${host}`), init));
     upstreamResponse.headers.forEach((value, name) => reply.header(name, value));
-    reply.code(upstreamResponse.status).send(await upstreamResponse.text());
+    return reply.code(upstreamResponse.status).send(await upstreamResponse.text());
   };
 }
 

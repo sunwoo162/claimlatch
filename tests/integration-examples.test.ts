@@ -85,7 +85,7 @@ test("Fastify example adapts parsed JSON requests to the guarded Fetch handler",
   let responseBody: string | undefined;
   const handler = createFastifyGuardedAnswerHandler(async (request) => {
     assert.equal(request.method, "POST");
-    assert.equal(request.url, "http://example.test/answer?trace=1");
+    assert.equal(request.url, "http://example.test:3000/answer?trace=1");
     assert.deepEqual(await request.json(), { question: "question", draft: "draft" });
     return new Response(JSON.stringify({ answer: "verified" }), {
       status: 200,
@@ -95,7 +95,7 @@ test("Fastify example adapts parsed JSON requests to the guarded Fetch handler",
   const request: FastifyRequest = {
     method: "POST",
     protocol: "http",
-    hostname: "example.test",
+    host: "example.test:3000",
     url: "/answer?trace=1",
     body: { question: "question", draft: "draft" },
   };
@@ -114,8 +114,9 @@ test("Fastify example adapts parsed JSON requests to the guarded Fetch handler",
     },
   };
 
-  await handler(request, response);
+  const result = await handler(request, response);
 
+  assert.equal(result, response);
   assert.equal(statusCode, 200);
   assert.equal(responseHeaders.get("content-type"), "application/json");
   assert.equal(responseHeaders.get("x-claimlatch-result"), "pass");
