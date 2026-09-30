@@ -546,7 +546,7 @@ PASS is not proof of universal truth. Claim extraction, search, source selection
 
 ## Project status
 
-The unreleased provenance hardening rejects reserved, documentation, multicast, unspecified, and other non-routable IPv4/IPv6 targets before hydration or pinned DNS requests.
+`0.3.63` hardens provenance URL and DNS-result filtering to reject reserved, documentation, multicast, unspecified, and other non-routable IPv4/IPv6 targets before hydration or pinned DNS requests.
 
 `0.3.62` hardens signed receipt key metadata validation so empty signatures, empty public keys, and non-string key IDs fail closed.
 
