@@ -30,6 +30,7 @@ const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "azure"
   qianfan: "https://qianfan.baidubce.com/v2",
   sambanova: "https://api.sambanova.ai/v1",
   siliconflow: "https://api.siliconflow.cn/v1",
+  stepfun: "https://api.stepfun.ai/v1",
   together: "https://api.together.xyz/v1",
   tokenhub: "https://tokenhub.tencentmaas.com/v1",
   volcengine: "https://ark.cn-beijing.volces.com/api/v3",
@@ -1304,6 +1305,40 @@ test("TokenHub provider profile sends its model-list path and bearer header", as
 
   assert.equal(capturedUrl, "https://tokenhub.tencentmaas.com/v1/models?limit=1");
   assert.equal(capturedHeaders?.get("authorization"), "Bearer tokenhub-key");
+  assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
+test("StepFun provider profile sends the OpenAI-compatible bearer contract", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "stepfun",
+  });
+  let capturedUrl: string | undefined;
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "stepfun-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrl = String(input);
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({
+        id: "chatcmpl_stepfun_profile",
+        object: "chat.completion",
+        choices: [{ message: { role: "assistant", content: "StepFun-compatible answer." } }],
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ model: "step-3.7-flash", messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 200);
+  });
+
+  assert.equal(capturedUrl, "https://api.stepfun.ai/v1/chat/completions");
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer stepfun-key");
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 

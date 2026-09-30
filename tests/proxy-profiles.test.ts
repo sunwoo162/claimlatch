@@ -31,6 +31,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
     "qianfan",
     "sambanova",
     "siliconflow",
+    "stepfun",
     "together",
     "tokenhub",
     "volcengine",
@@ -39,7 +40,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
   ]);
   assert.equal(
     formatProxyProviderProfileNames(),
-    "azure, cerebras, cohere, dashscope, deepinfra, deepseek, fireworks, friendli, gemini, groq, huggingface, hunyuan, minimax, mistral, moonshot, nebius, nvidia, openai, openrouter, perplexity, qianfan, sambanova, siliconflow, together, tokenhub, volcengine, xai, or zai",
+    "azure, cerebras, cohere, dashscope, deepinfra, deepseek, fireworks, friendli, gemini, groq, huggingface, hunyuan, minimax, mistral, moonshot, nebius, nvidia, openai, openrouter, perplexity, qianfan, sambanova, siliconflow, stepfun, together, tokenhub, volcengine, xai, or zai",
   );
 });
 
@@ -129,6 +130,14 @@ test("proxy profiles provide Tencent TokenHub-compatible Chat Completions defaul
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
     upstreamModelsPath: "/models",
+  });
+});
+
+test("proxy profiles provide StepFun-compatible Chat Completions defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("stepfun"), {
+    upstreamBaseUrl: "https://api.stepfun.ai/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
   });
 });
 

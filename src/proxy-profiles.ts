@@ -22,6 +22,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "qianfan",
   "sambanova",
   "siliconflow",
+  "stepfun",
   "together",
   "tokenhub",
   "volcengine",
@@ -161,6 +162,11 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
   },
   siliconflow: {
     upstreamBaseUrl: "https://api.siliconflow.cn/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  },
+  stepfun: {
+    upstreamBaseUrl: "https://api.stepfun.ai/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
   },
