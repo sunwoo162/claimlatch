@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-No unreleased changes.
+- Added canonical SHA-256 payload metadata to valid `claimlatch-receipt verify --json` output.
 
 ## 0.3.67 - 2026-09-30
 

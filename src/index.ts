@@ -57,6 +57,7 @@ export type {
 export {
   createSignedVerificationReceipt,
   FileVerificationReceiptStore,
+  hashVerificationReceiptPayload,
   serializeVerificationReceiptPayload,
   verifySignedVerificationReceipt,
 } from "./receipt.js";

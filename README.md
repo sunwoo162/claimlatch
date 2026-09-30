@@ -410,7 +410,7 @@ The command exits `0` for a valid signature, `1` for an invalid receipt or signa
 
 Receipt verification also fails closed when a signed payload does not contain the required verification report shape, even if its cryptographic signature is valid.
 
-With `--json`, the output includes `valid`, `file`, and, when the receipt has the expected signed shape, its `version`, `algorithm`, and `keyId`; `publicKeyFile` is included when an external trust anchor was supplied. When signature verification succeeds, the signed report's `decision` (`PASS` or `BLOCK`), `generatedAt`, `coverage`, and claim status `counts` are also included.
+With `--json`, the output includes `valid`, `file`, and, when the receipt has the expected signed shape, its `version`, `algorithm`, and `keyId`; `publicKeyFile` is included when an external trust anchor was supplied. When signature verification succeeds, the signed report's `decision` (`PASS` or `BLOCK`), `generatedAt`, `coverage`, claim status `counts`, and `payloadSha256` (the SHA-256 hash of the canonical signed payload) are also included.
 
 The default mode verifies against the public key embedded in the receipt. For an external trust anchor, pass `--public-key-file <path>`; verification then fails closed if the receipt was signed by a different key.
 
@@ -545,6 +545,8 @@ It demonstrates plumbing, not factuality benchmark performance.
 PASS is not proof of universal truth. Claim extraction, search, source selection, document parsing, and entailment can all fail. Read [docs/TRUST_MODEL.md](docs/TRUST_MODEL.md) before using ClaimLatch in high-stakes decisions.
 
 ## Project status
+
+The unreleased receipt CLI now exposes the canonical signed payload SHA-256 after successful verification.
 
 `0.3.67` rejects empty receipt key IDs during creation as well as verification.
 

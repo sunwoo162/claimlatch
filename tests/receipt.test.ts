@@ -6,6 +6,7 @@ import { join } from "node:path";
 import {
   createSignedVerificationReceipt,
   FileVerificationReceiptStore,
+  hashVerificationReceiptPayload,
   verifySignedVerificationReceipt,
 } from "../src/receipt.js";
 import type { VerificationReport } from "../src/types.js";
@@ -38,6 +39,10 @@ test("signed verification receipts are deterministic and verifiable", () => {
   assert.equal(first.algorithm, "Ed25519");
   assert.equal(first.payload.keyId, "fixture-key");
   assert.equal(verifySignedVerificationReceipt(first), true);
+  const firstHash = hashVerificationReceiptPayload(first.payload);
+  const secondHash = hashVerificationReceiptPayload(second.payload);
+  assert.equal(firstHash, secondHash);
+  assert.match(firstHash, /^[0-9a-f]{64}$/u);
 });
 
 test("signed verification receipt creation rejects empty key IDs", () => {
