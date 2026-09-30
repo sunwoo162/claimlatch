@@ -437,7 +437,7 @@ When document hydration succeeds, ClaimLatch stores:
 
 This makes a verdict auditable. It does not prove that the publisher is correct or that HTML extraction preserved every piece of context.
 
-The built-in fetcher blocks common localhost/private-network targets and resolves DNS addresses before making a request. If any resolved address is not public, it fails closed and pins the connection to a selected public IP. Redirects are validated again, and response size and timeout are limited. If you provide a custom fetch/request transport, you must preserve the same protections yourself. See `docs/TRUST_MODEL.md` and `SECURITY.md` for remaining network risks.
+The built-in fetcher blocks localhost, private-network, reserved, documentation, multicast, unspecified, and other non-routable IPv4/IPv6 targets. It resolves DNS addresses before making a request; if any resolved address is not public, it fails closed and pins the connection to a selected public IP. Redirects are validated again, and response size and timeout are limited. If you provide a custom fetch/request transport, you must preserve the same protections yourself. See `docs/TRUST_MODEL.md` and `SECURITY.md` for remaining network risks.
 
 For deployments with a restricted egress policy, configure `outboundAllowlist` on `ProvenanceEvidenceProvider` or `createDefaultClaimLatch`. A blocked host or port never reaches the configured fetch transport and falls back to search-snippet provenance.
 
@@ -545,6 +545,8 @@ It demonstrates plumbing, not factuality benchmark performance.
 PASS is not proof of universal truth. Claim extraction, search, source selection, document parsing, and entailment can all fail. Read [docs/TRUST_MODEL.md](docs/TRUST_MODEL.md) before using ClaimLatch in high-stakes decisions.
 
 ## Project status
+
+The unreleased provenance hardening rejects reserved, documentation, multicast, unspecified, and other non-routable IPv4/IPv6 targets before hydration or pinned DNS requests.
 
 `0.3.62` hardens signed receipt key metadata validation so empty signatures, empty public keys, and non-string key IDs fail closed.
 

@@ -185,6 +185,22 @@ test("public URL filter rejects common private and local targets", () => {
   assert.equal(isSafePublicHttpUrl(new URL("https://example.com/test")), true);
 });
 
+test("public URL filter rejects reserved and non-routable IPv4 and IPv6 targets", () => {
+  for (const value of [
+    "http://192.0.0.1/test",
+    "http://198.18.0.1/test",
+    "http://198.51.100.1/test",
+    "http://203.0.113.1/test",
+    "http://224.0.0.1/test",
+    "http://[::]/test",
+    "http://[ff02::1]/test",
+    "http://[2001:db8::1]/test",
+  ]) {
+    assert.equal(isSafePublicHttpUrl(new URL(value)), false);
+  }
+  assert.equal(isSafePublicHttpUrl(new URL("https://[2001:4860:4860::8888]/test")), true);
+});
+
 test("DNS resolution rejects a public hostname that resolves to a private address", async () => {
   let lookupCalled = false;
   let requestCalled = false;

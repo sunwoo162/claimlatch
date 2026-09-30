@@ -488,11 +488,15 @@ export function isSafePublicHttpUrl(url: URL): boolean {
   if (!hostname || hostname === "localhost" || hostname.endsWith(".localhost") || hostname.endsWith(".local")) return false;
 
   if (hostname === "::1" || hostname === "0:0:0:0:0:0:0:1" || hostname.startsWith("::ffff:")) return false;
-  if (/^(fc|fd)[0-9a-f]{2}:/i.test(hostname) || /^fe[89ab][0-9a-f]:/i.test(hostname)) return false;
 
   const ipv4 = parseIpv4(hostname);
-  if (!ipv4) return true;
-  const [a, b] = ipv4;
+  if (ipv4) return isSafePublicIpv4(ipv4);
+  if (hostname.includes(":")) return isSafePublicIpv6(hostname);
+  return true;
+}
+
+function isSafePublicIpv4(ipv4: number[]): boolean {
+  const [a, b, c] = ipv4;
   if (a === undefined || b === undefined) return false;
   return !(
     a === 0 ||
@@ -501,7 +505,12 @@ export function isSafePublicHttpUrl(url: URL): boolean {
     (a === 169 && b === 254) ||
     (a === 172 && b >= 16 && b <= 31) ||
     (a === 192 && b === 168) ||
+    (a === 192 && b === 0) ||
+    (a === 192 && b === 2) ||
     (a === 100 && b >= 64 && b <= 127) ||
+    (a === 198 && b >= 18 && b <= 19) ||
+    (a === 198 && b === 51) ||
+    (a === 203 && b === 0 && c === 113) ||
     a >= 224
   );
 }
@@ -516,6 +525,70 @@ function isSafePublicIp(address: string): boolean {
     }
   }
   return isSafePublicHttpUrl(new URL(`http://${normalized}/`));
+}
+
+type Ipv6Groups = [number, number, number, number, number, number, number, number];
+
+function isSafePublicIpv6(hostname: string): boolean {
+  const groups = parseIpv6(hostname);
+  if (!groups) return false;
+
+  const [a, b, c, d, e, f] = groups;
+  const firstSixAreZero = [a, b, c, d, e, f].every((value) => value === 0);
+  const isIpv4Mapped = [a, b, c, d, e].every((value) => value === 0) && f === 0xffff;
+
+  return !(
+    firstSixAreZero ||
+    isIpv4Mapped ||
+    (a & 0xfe00) === 0xfc00 ||
+    (a & 0xffc0) === 0xfe80 ||
+    (a & 0xffc0) === 0xfec0 ||
+    (a & 0xff00) === 0xff00 ||
+    (a === 0x0100 && b === 0 && c === 0 && d === 0) ||
+    (a === 0x2001 && b === 0x0002 && c === 0) ||
+    (a === 0x2001 && (b & 0xfff0) === 0x0010) ||
+    (a === 0x2001 && b === 0x0db8)
+  );
+}
+
+function parseIpv6(value: string): Ipv6Groups | null {
+  if (!value || value.includes("%")) return null;
+
+  const separatorIndex = value.indexOf("::");
+  if (separatorIndex !== value.lastIndexOf("::")) return null;
+
+  const hasCompression = separatorIndex >= 0;
+  const headText = hasCompression ? value.slice(0, separatorIndex) : value;
+  const tailText = hasCompression ? value.slice(separatorIndex + 2) : "";
+  const head = parseIpv6Part(headText);
+  const tail = hasCompression ? parseIpv6Part(tailText) : [];
+  if (!head || !tail) return null;
+
+  const zeroCount = 8 - head.length - tail.length;
+  if ((hasCompression && zeroCount < 1) || (!hasCompression && zeroCount !== 0)) return null;
+
+  const groups = [...head, ...(hasCompression ? Array.from({ length: zeroCount }, () => 0) : []), ...tail];
+  return groups.length === 8 ? groups as Ipv6Groups : null;
+}
+
+function parseIpv6Part(value: string): number[] | null {
+  if (!value) return [];
+
+  const parts = value.split(":");
+  const groups: number[] = [];
+  for (const [index, part] of parts.entries()) {
+    if (part.includes(".")) {
+      if (index !== parts.length - 1) return null;
+      const ipv4 = parseIpv4(part);
+      if (!ipv4 || ipv4.length !== 4) return null;
+      groups.push((ipv4[0] ?? 0) * 256 + (ipv4[1] ?? 0));
+      groups.push((ipv4[2] ?? 0) * 256 + (ipv4[3] ?? 0));
+      continue;
+    }
+    if (!/^[0-9a-f]{1,4}$/iu.test(part)) return null;
+    groups.push(Number.parseInt(part, 16));
+  }
+  return groups;
 }
 
 function parseIpv4(hostname: string): number[] | null {
