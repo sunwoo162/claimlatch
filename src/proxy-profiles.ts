@@ -2,6 +2,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "ai21",
   "aimlapi",
   "azure",
+  "baichuan",
   "cerebras",
   "chutes",
   "cohere",
@@ -82,6 +83,12 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamApiKeyHeader: "api-key",
     upstreamChatCompletionsPath: "/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-10-21",
     upstreamModelsPath: "/openai/models?api-version=2024-10-21",
+  },
+  baichuan: {
+    upstreamBaseUrl: "https://api.baichuan-ai.com/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: null,
   },
   cerebras: {
     upstreamBaseUrl: "https://api.cerebras.ai/v1",

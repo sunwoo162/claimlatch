@@ -23,7 +23,7 @@ test("proxy CLI help documents credentials, routes, and fail-closed behavior", (
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS/);
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_MODELS_PATH.*profile supplies one/);
   assert.match(help, /CLAIMLATCH_PROXY_PROVIDER_PROFILE/);
-  assert.match(help, /ai21, aimlapi, azure, cerebras, chutes, cohere, dashscope, deepinfra, deepseek, featherless, fireworks, friendli, gemini, groq, huggingface, hyperbolic, inferencenet, ionos, lamini, hunyuan, minimax, mistral, moonshot, nebius, novita, nvidia, openai, openrouter, ovhcloud, perplexity, poe, qianfan, requesty, sambanova, scaleway, siliconflow, stepfun, together, tokenhub, upstage, volcengine, xai, or zai/);
+  assert.match(help, /ai21, aimlapi, azure, baichuan, cerebras, chutes, cohere, dashscope, deepinfra, deepseek, featherless, fireworks, friendli, gemini, groq, huggingface, hyperbolic, inferencenet, ionos, lamini, hunyuan, minimax, mistral, moonshot, nebius, novita, nvidia, openai, openrouter, ovhcloud, perplexity, poe, qianfan, requesty, sambanova, scaleway, siliconflow, stepfun, together, tokenhub, upstage, volcengine, xai, or zai/);
   assert.match(help, /PASS.*BLOCK/s);
   assert.match(help, /credential-free/);
 });
@@ -108,6 +108,7 @@ test("proxy CLI resolves every hosted built-in profile without an explicit base 
   const expected = {
     ai21: "https://api.ai21.com/studio/v1",
     aimlapi: "https://api.aimlapi.com",
+    baichuan: "https://api.baichuan-ai.com/v1",
     cerebras: "https://api.cerebras.ai/v1",
     chutes: "https://llm.chutes.ai/v1",
     cohere: "https://api.cohere.ai/compatibility/v1",
@@ -159,7 +160,7 @@ test("proxy CLI resolves every hosted built-in profile without an explicit base 
       upstreamBaseUrl,
       upstreamApiKeyHeader: "authorization",
       upstreamChatCompletionsPath,
-      upstreamModelsPath: profile === "ovhcloud" ? null : "/models",
+      upstreamModelsPath: profile === "baichuan" || profile === "ovhcloud" ? null : "/models",
     });
   }
 });
@@ -167,6 +168,13 @@ test("proxy CLI resolves every hosted built-in profile without an explicit base 
 test("proxy CLI allows an explicit OVHcloud model route override", () => {
   assert.equal(resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "ovhcloud",
+    CLAIMLATCH_PROXY_UPSTREAM_MODELS_PATH: "/v1/models",
+  }).upstreamModelsPath, "/v1/models");
+});
+
+test("proxy CLI allows an explicit Baichuan model route override", () => {
+  assert.equal(resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "baichuan",
     CLAIMLATCH_PROXY_UPSTREAM_MODELS_PATH: "/v1/models",
   }).upstreamModelsPath, "/v1/models");
 });

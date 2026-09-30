@@ -11,6 +11,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
     "ai21",
     "aimlapi",
     "azure",
+    "baichuan",
   "cerebras",
     "chutes",
     "cohere",
@@ -54,7 +55,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
   ]);
   assert.equal(
     formatProxyProviderProfileNames(),
-    "ai21, aimlapi, azure, cerebras, chutes, cohere, dashscope, deepinfra, deepseek, featherless, fireworks, friendli, gemini, groq, huggingface, hyperbolic, inferencenet, ionos, lamini, hunyuan, minimax, mistral, moonshot, nebius, novita, nvidia, openai, openrouter, ovhcloud, perplexity, poe, qianfan, requesty, sambanova, scaleway, siliconflow, stepfun, together, tokenhub, upstage, volcengine, xai, or zai",
+    "ai21, aimlapi, azure, baichuan, cerebras, chutes, cohere, dashscope, deepinfra, deepseek, featherless, fireworks, friendli, gemini, groq, huggingface, hyperbolic, inferencenet, ionos, lamini, hunyuan, minimax, mistral, moonshot, nebius, novita, nvidia, openai, openrouter, ovhcloud, perplexity, poe, qianfan, requesty, sambanova, scaleway, siliconflow, stepfun, together, tokenhub, upstage, volcengine, xai, or zai",
   );
 });
 
@@ -63,6 +64,15 @@ test("proxy profiles provide Azure-compatible defaults", () => {
     upstreamApiKeyHeader: "api-key",
     upstreamChatCompletionsPath: "/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-10-21",
     upstreamModelsPath: "/openai/models?api-version=2024-10-21",
+  });
+});
+
+test("proxy profiles provide Baichuan-compatible Chat Completions defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("baichuan"), {
+    upstreamBaseUrl: "https://api.baichuan-ai.com/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: null,
   });
 });
 
