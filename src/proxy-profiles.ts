@@ -160,4 +160,7 @@ function validateHttpUrl(value: string, name: string): void {
   if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
     throw new Error(`${name} must be an absolute HTTP or HTTPS URL.`);
   }
+  if (parsed.username || parsed.password) {
+    throw new Error(`${name} must be an absolute HTTP or HTTPS URL.`);
+  }
 }
