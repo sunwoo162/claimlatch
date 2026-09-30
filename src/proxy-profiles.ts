@@ -22,6 +22,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "siliconflow",
   "together",
   "xai",
+  "zai",
 ] as const;
 
 export type ProxyProviderProfileName = (typeof PROXY_PROVIDER_PROFILE_NAMES)[number];
@@ -156,6 +157,11 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
   },
   xai: {
     upstreamBaseUrl: "https://api.x.ai/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  },
+  zai: {
+    upstreamBaseUrl: "https://api.z.ai/api/paas/v4",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
   },

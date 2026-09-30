@@ -188,6 +188,8 @@ For Together AI's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_P
 
 For xAI's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="xai"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.x.ai/v1`, bearer authentication, and `/chat/completions`.
 
+For Z.AI's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="zai"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.z.ai/api/paas/v4`, bearer authentication, and `/chat/completions`; see [Z.AI's Chat Completion API reference](https://docs.z.ai/api-reference/llm/chat-completion).
+
 For Perplexity's Router API, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="perplexity"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.perplexity.ai/router/v1`, bearer authentication, and `/chat/completions`.
 
 For Baidu Qianfan's v2 OpenAI-compatible API, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="qianfan"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://qianfan.baidubce.com/v2`, bearer authentication, `/chat/completions`, and `/models`; see [Qianfan's OpenAI-compatible SDK documentation](https://cloud.baidu.com/doc/qianfan-docs/s/Fm9l6ocai) and [model-list API reference](https://cloud.baidu.com/doc/qianfan-api/s/Dmba8k71y).

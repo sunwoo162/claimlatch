@@ -30,6 +30,7 @@ const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "azure"
   siliconflow: "https://api.siliconflow.cn/v1",
   together: "https://api.together.xyz/v1",
   xai: "https://api.x.ai/v1",
+  zai: "https://api.z.ai/api/paas/v4",
 } as const;
 
 function fixtureGate(): ClaimLatch {
@@ -1300,6 +1301,40 @@ test("hosted Gemini provider profile sends the OpenAI-compatible bearer contract
 
   assert.equal(capturedUrl, "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions");
   assert.equal(capturedHeaders?.get("authorization"), "Bearer gemini-key");
+  assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
+test("Z.AI provider profile sends the OpenAI-compatible bearer contract", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "zai",
+  });
+  let capturedUrl: string | undefined;
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "zai-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrl = String(input);
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({
+        id: "chatcmpl_zai_profile",
+        object: "chat.completion",
+        choices: [{ message: { role: "assistant", content: "Z.AI-compatible answer." } }],
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ model: "glm-5.3", messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 200);
+  });
+
+  assert.equal(capturedUrl, "https://api.z.ai/api/paas/v4/chat/completions");
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer zai-key");
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
