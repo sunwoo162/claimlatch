@@ -4,6 +4,7 @@ import type {
   ClaimVerificationForConfidence,
   ConfidenceCalibrationProfile,
 } from "./types.js";
+import { isIso8601Timestamp } from "./iso8601.js";
 
 export class ConfidenceEvaluationError extends Error {
   constructor(message: string, options?: ErrorOptions) {
@@ -74,8 +75,8 @@ export function validateConfidenceCalibrationProfile(profile: ConfidenceCalibrat
   if (!isProbability(validation.brierScore) || !isProbability(validation.expectedCalibrationError)) {
     throw new TypeError("Confidence calibration validation metrics must be finite numbers in [0, 1].");
   }
-  if (!isNonEmptyString(profile.createdAt)) {
-    throw new TypeError("Confidence calibration profile createdAt is required.");
+  if (!isIso8601Timestamp(profile.createdAt)) {
+    throw new TypeError("Confidence calibration profile createdAt must be a valid ISO-8601 timestamp.");
   }
 }
 

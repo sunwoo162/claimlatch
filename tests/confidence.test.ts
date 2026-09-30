@@ -83,6 +83,16 @@ test("confidence profile rejects malformed hashes and metadata", () => {
   );
 });
 
+test("confidence profile requires an ISO-8601 createdAt timestamp", () => {
+  assert.throws(
+    () => validateConfidenceCalibrationProfile(validProfile({ createdAt: "not-a-date" })),
+    /createdAt/,
+  );
+  validateConfidenceCalibrationProfile(validProfile({
+    createdAt: "2026-09-30T09:00:00+09:00",
+  }));
+});
+
 test("confidence profile rejects unsorted or non-monotonic mappings", () => {
   assert.throws(
     () => validateConfidenceCalibrationProfile(validProfile({
