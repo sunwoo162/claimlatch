@@ -11,6 +11,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
     "azure",
   "cerebras",
     "cohere",
+    "dashscope",
     "deepinfra",
     "deepseek",
     "fireworks",
@@ -33,7 +34,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
   ]);
   assert.equal(
     formatProxyProviderProfileNames(),
-    "azure, cerebras, cohere, deepinfra, deepseek, fireworks, friendli, gemini, groq, huggingface, mistral, moonshot, nebius, nvidia, openai, openrouter, perplexity, qianfan, sambanova, siliconflow, together, or xai",
+    "azure, cerebras, cohere, dashscope, deepinfra, deepseek, fireworks, friendli, gemini, groq, huggingface, mistral, moonshot, nebius, nvidia, openai, openrouter, perplexity, qianfan, sambanova, siliconflow, together, or xai",
   );
 });
 
@@ -50,6 +51,15 @@ test("proxy profiles provide Cerebras-compatible Chat Completions defaults", () 
     upstreamBaseUrl: "https://api.cerebras.ai/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+  });
+});
+
+test("proxy profiles provide Alibaba DashScope-compatible Chat Completions defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("dashscope"), {
+    upstreamBaseUrl: "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
   });
 });
 

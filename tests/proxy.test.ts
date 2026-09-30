@@ -11,6 +11,7 @@ import type { ProxyProviderProfileName } from "../src/proxy-profiles.js";
 const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "azure" | "openrouter">, string> = {
   cerebras: "https://api.cerebras.ai/v1",
   cohere: "https://api.cohere.ai/compatibility/v1",
+  dashscope: "https://dashscope.aliyuncs.com/compatible-mode/v1",
   deepinfra: "https://api.deepinfra.com/v1/openai",
   deepseek: "https://api.deepseek.com",
   fireworks: "https://api.fireworks.ai/inference/v1",
@@ -1200,6 +1201,39 @@ test("Azure provider profile sends its model-list path and api-key header", asyn
   );
   assert.equal(capturedHeaders?.get("api-key"), "azure-key");
   assert.equal(capturedHeaders?.get("authorization"), null);
+});
+
+test("DashScope provider profile sends its model-list path and bearer header", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "dashscope",
+  });
+  let capturedUrl: string | undefined;
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "dashscope-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrl = String(input);
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({ object: "list", data: [{ id: "qwen-plus", object: "model" }] }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/models?limit=1`);
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), {
+      object: "list",
+      data: [{ id: "qwen-plus", object: "model" }],
+    });
+  });
+
+  assert.equal(capturedUrl, "https://dashscope.aliyuncs.com/compatible-mode/v1/models?limit=1");
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer dashscope-key");
+  assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
 test("Qianfan provider profile sends its model-list path and bearer header", async () => {

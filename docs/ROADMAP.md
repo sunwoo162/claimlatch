@@ -48,6 +48,7 @@
 - Moonshot OpenAI-compatible proxy provider profile with contract coverage
 - Koa route adapter example without a core framework dependency
 - Baidu Qianfan v2 OpenAI-compatible proxy provider profile with model-list contract coverage
+- Alibaba Cloud DashScope OpenAI-compatible proxy provider profile with model-list contract coverage
 
 ## Next
 
