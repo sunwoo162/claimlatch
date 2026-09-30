@@ -30,6 +30,10 @@
     "./examples/hono-route-handler.js": {
       "types": "./dist/examples/hono-route-handler.d.ts",
       "import": "./dist/examples/hono-route-handler.js"
+    },
+    "./examples/sveltekit-route-handler.js": {
+      "types": "./dist/examples/sveltekit-route-handler.d.ts",
+      "import": "./dist/examples/sveltekit-route-handler.js"
     }
   },
   "files": [

@@ -38,6 +38,7 @@
 - Expanded the frozen independent benchmark to 196 balanced cases across 98 paired topics with WebDAV RFC 2518-backed HTTP 102 Processing and Experimental RFC 2774-backed HTTP 510 Not Extended pairs; the documentation records RFC 4918's removal note for HTTP 102.
 - Added a dependency-light Fastify route adapter example using the Fetch-native guarded answer handler.
 - Added a dependency-light Hono route adapter example using the Fetch-native guarded answer handler.
+- Added a dependency-light SvelteKit route adapter example using the Fetch-native guarded answer handler.
 - Synced the roadmap with the implemented credential-free calibration dataset validation mode.
 
 ## 0.3.86 - 2026-09-30

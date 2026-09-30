@@ -15,6 +15,10 @@ import {
   createHonoGuardedAnswerHandler,
   type HonoContext,
 } from "../examples/hono-route-handler.js";
+import {
+  createSvelteKitGuardedAnswerHandler,
+  type SvelteKitRequestEvent,
+} from "../examples/sveltekit-route-handler.js";
 import { GET, POST, runtime } from "../examples/next-route-handler.js";
 import { action, loader } from "../examples/remix-route-handler.js";
 import {
@@ -149,6 +153,33 @@ test("Hono example adapts c.req.raw to the guarded Fetch handler", async () => {
   };
 
   const response = await handler(context);
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get("content-type"), "application/json");
+  assert.equal(response.headers.get("x-claimlatch-result"), "pass");
+  assert.deepEqual(await response.json(), { answer: "verified" });
+});
+
+test("SvelteKit example adapts event.request to the guarded Fetch handler", async () => {
+  const handler = createSvelteKitGuardedAnswerHandler(async (request) => {
+    assert.equal(request.method, "POST");
+    assert.equal(request.url, "https://example.test/answer");
+    assert.deepEqual(await request.json(), { question: "question", draft: "draft" });
+    return new Response(JSON.stringify({ answer: "verified" }), {
+      status: 200,
+      headers: { "content-type": "application/json", "x-claimlatch-result": "pass" },
+    });
+  });
+
+  const event: SvelteKitRequestEvent = {
+    request: new Request("https://example.test/answer", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ question: "question", draft: "draft" }),
+    }),
+  };
+
+  const response = await handler(event);
 
   assert.equal(response.status, 200);
   assert.equal(response.headers.get("content-type"), "application/json");

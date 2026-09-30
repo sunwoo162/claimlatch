@@ -43,6 +43,7 @@
 - Express route adapter example without a core framework dependency
 - Fastify route adapter example without a core framework dependency
 - Hono route adapter example without a core framework dependency
+- SvelteKit route adapter example without a core framework dependency
 
 ## Next
 
