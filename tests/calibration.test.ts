@@ -122,6 +122,34 @@ test("calibration dataset validation returns hashes and counts without fitting",
   });
 });
 
+test("calibration dataset validation rejects malformed or shared manifests", () => {
+  const validInput = {
+    calibration: {
+      manifestSha256: "1".repeat(64),
+      observations: [observation("cal-1", "SUPPORTED", "SUPPORTED", 0.5)],
+    },
+    evaluation: {
+      manifestSha256: "2".repeat(64),
+      observations: [observation("eval-1", "SUPPORTED", "CONTRADICTED", 0.25)],
+    },
+  };
+
+  assert.throws(
+    () => validateCalibrationDatasets({
+      ...validInput,
+      calibration: { ...validInput.calibration, manifestSha256: "not-a-hash" },
+    }),
+    /Invalid calibration calibration manifest SHA-256/,
+  );
+  assert.throws(
+    () => validateCalibrationDatasets({
+      ...validInput,
+      evaluation: { ...validInput.evaluation, manifestSha256: validInput.calibration.manifestSha256 },
+    }),
+    /manifests must be distinct/,
+  );
+});
+
 test("profile fitting produces a monotonic step mapping", () => {
   const result = createConfidenceCalibrationProfile({
     id: "fitted-profile-v1",

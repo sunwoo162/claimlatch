@@ -112,6 +112,51 @@ test("calibration CLI validates datasets without profile metadata or output", as
   }
 });
 
+test("calibration CLI validation fails closed for overlapping source case and claim pairs", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "claimlatch-calibration-validate-overlap-"));
+  try {
+    const calibrationPath = join(directory, "calibration.jsonl");
+    const evaluationPath = join(directory, "evaluation.jsonl");
+    const sharedPair = observation("calibration-1", "shared-case", "shared-claim");
+    await writeFile(calibrationPath, `${sharedPair}\n`, "utf8");
+    await writeFile(evaluationPath, `${observation("evaluation-1", "shared-case", "shared-claim")}\n`, "utf8");
+
+    const result = await runCli([
+      "--validate",
+      "--calibration", calibrationPath,
+      "--evaluation", evaluationPath,
+    ]);
+
+    assert.equal(result.exitCode, 2);
+    assert.equal(result.stdout, "");
+    assert.match(result.stderr, /source case\/claim pair/);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+test("calibration CLI validation fails closed for empty datasets", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "claimlatch-calibration-validate-empty-"));
+  try {
+    const calibrationPath = join(directory, "calibration.jsonl");
+    const evaluationPath = join(directory, "evaluation.jsonl");
+    await writeFile(calibrationPath, "\n# intentionally empty\n", "utf8");
+    await writeFile(evaluationPath, `${observation("evaluation-1", "case-eval", "claim-eval")}\n`, "utf8");
+
+    const result = await runCli([
+      "--validate",
+      "--calibration", calibrationPath,
+      "--evaluation", evaluationPath,
+    ]);
+
+    assert.equal(result.exitCode, 2);
+    assert.equal(result.stdout, "");
+    assert.match(result.stderr, /contains no observations/);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
 test("calibration CLI does not write a profile when datasets overlap", async () => {
   const directory = await mkdtemp(join(tmpdir(), "claimlatch-calibration-error-"));
   try {
