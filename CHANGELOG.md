@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.84 - 2026-09-30
+
+- Added deterministic `npm run bench:manifest` generation for frozen benchmark SHA-256 manifests and case counts.
+
 ## 0.3.83 - 2026-09-30
 
 - Expanded the frozen independent benchmark to 84 balanced cases across 42 paired topics with an IETF RFC 9110-backed HTTP 202 Accepted pair.
