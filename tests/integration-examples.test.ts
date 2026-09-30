@@ -19,6 +19,10 @@ import {
   createSvelteKitGuardedAnswerHandler,
   type SvelteKitRequestEvent,
 } from "../examples/sveltekit-route-handler.js";
+import {
+  createAwsLambdaHttpApiV2Handler,
+  type AwsLambdaHttpApiV2Event,
+} from "../examples/aws-lambda-http-api-handler.js";
 import { GET, POST, runtime } from "../examples/next-route-handler.js";
 import { action, loader } from "../examples/remix-route-handler.js";
 import {
@@ -185,6 +189,39 @@ test("SvelteKit example adapts event.request to the guarded Fetch handler", asyn
   assert.equal(response.headers.get("content-type"), "application/json");
   assert.equal(response.headers.get("x-claimlatch-result"), "pass");
   assert.deepEqual(await response.json(), { answer: "verified" });
+});
+
+test("AWS Lambda HTTP API example adapts payload v2 events and responses", async () => {
+  const handler = createAwsLambdaHttpApiV2Handler(async (request) => {
+    assert.equal(request.method, "POST");
+    assert.equal(request.url, "https://lambda.invalid/answer?mode=verified");
+    assert.equal(request.headers.get("x-request-id"), "request-1");
+    assert.equal(request.headers.get("cookie"), "session=abc; theme=dark");
+    assert.deepEqual(await request.json(), { question: "question", draft: "draft" });
+    return new Response(JSON.stringify({ answer: "verified" }), {
+      status: 200,
+      headers: { "content-type": "application/json", "x-claimlatch-result": "pass" },
+    });
+  });
+
+  const event: AwsLambdaHttpApiV2Event = {
+    version: "2.0",
+    rawPath: "/answer",
+    rawQueryString: "mode=verified",
+    headers: { "content-type": "application/json", "x-request-id": "request-1" },
+    cookies: ["session=abc", "theme=dark"],
+    requestContext: { http: { method: "POST" } },
+    body: btoa(JSON.stringify({ question: "question", draft: "draft" })),
+    isBase64Encoded: true,
+  };
+
+  const response = await handler(event);
+
+  assert.equal(response.statusCode, 200);
+  assert.equal(response.isBase64Encoded, true);
+  assert.equal(response.headers["content-type"], "application/json");
+  assert.equal(response.headers["x-claimlatch-result"], "pass");
+  assert.deepEqual(JSON.parse(atob(response.body)), { answer: "verified" });
 });
 
 test("receipt storage example renders the canonical payload hash", () => {
