@@ -39,6 +39,18 @@ export { extractPdfPages } from "./providers/pdf.js";
 export type { PdfPageText, PdfTextParser } from "./providers/pdf.js";
 export { ClaimLatch } from "./gate.js";
 export { DEFAULT_POLICY, calculateCoverage, evaluatePolicy, mergePolicy } from "./policy.js";
+export {
+  ConfidenceEvaluationError,
+  applyConfidenceCalibrationProfile,
+  createClaimConfidence,
+  validateConfidenceCalibrationProfile,
+} from "./confidence.js";
+export {
+  createConfidenceCalibrationProfile,
+  evaluateCalibration,
+  hashCalibrationDataset,
+  parseCalibrationJsonl,
+} from "./calibration.js";
 export { LlmClaimExtractor, LlmClaimVerifier, OpenAICompatibleClient } from "./providers/openai-compatible.js";
 export { StaticEvidenceProvider } from "./providers/static.js";
 export { TavilyEvidenceProvider } from "./providers/tavily.js";

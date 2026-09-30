@@ -10,6 +10,7 @@ A PASS means the configured pipeline found no policy violation under the evidenc
 - Binds verifier decisions to concrete evidence IDs.
 - Can bind evidence to fetched source quotes and content hashes instead of search snippets alone.
 - Separates evidence coverage from truth probability.
+- Keeps optional calibrated confidence scoped to verification-status correctness rather than factual truth probability.
 - Revalidates plugin output at the core boundary.
 - Makes the release rule deterministic and inspectable.
 - Allows applications to fail closed instead of silently shipping unverifiable claims.
@@ -28,6 +29,15 @@ A PASS means the configured pipeline found no policy violation under the evidenc
 - A primary source can itself be wrong, stale, compromised, or inappropriate for the claim.
 - Policies can be configured too loosely.
 - A PASS says nothing about omitted facts that were never extracted.
+- A confidence value can be miscalibrated when the scorer, labels, source distribution, or deployment task differs from the calibration data.
+
+## Confidence trust boundary
+
+Confidence is caller-owned metadata. ClaimLatch accepts it only when the caller supplies a scorer and a profile with matching IDs; the profile must contain independent calibration/evaluation dataset hashes and a monotonic mapping. The resulting value means: “estimated probability that this claim's emitted verification status is correct under the calibrated distribution.” It does not mean that the claim is true, that the evidence source is authoritative, or that the answer is safe to release.
+
+The confidence path never overrides the deterministic policy gate. No profile means no confidence field, and adding or removing confidence cannot turn a policy `BLOCK` into `PASS` or change coverage/counts. A scorer failure or out-of-range score fails closed. Signed receipts include the optional confidence object in the signed payload and reject malformed present confidence, while older receipts without confidence remain valid.
+
+Operators should calibrate with independent labels, keep calibration and evaluation cases disjoint, record the generated profile and metrics, monitor distribution shift, and avoid using the value as the sole basis for medical, legal, financial, safety-critical, or other consequential decisions.
 
 ## Provenance is auditability, not authority
 

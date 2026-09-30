@@ -1,7 +1,9 @@
 import { calculateCoverage, evaluatePolicy, mergePolicy, summarizeClaims } from "./policy.js";
+import { createClaimConfidence, validateConfidenceCalibrationProfile } from "./confidence.js";
 import type {
   ClaimExtractor,
   ClaimVerifier,
+  ConfidenceCalibrationOptions,
   EvidenceProvider,
   VerificationInput,
   VerificationReport,
@@ -12,6 +14,7 @@ export interface ClaimLatchOptions {
   evidenceProvider: EvidenceProvider;
   verifier: ClaimVerifier;
   concurrency?: number;
+  confidence?: ConfidenceCalibrationOptions;
 }
 
 export class ClaimLatch {
@@ -19,12 +22,20 @@ export class ClaimLatch {
   readonly #evidenceProvider: EvidenceProvider;
   readonly #verifier: ClaimVerifier;
   readonly #concurrency: number;
+  readonly #confidence: ConfidenceCalibrationOptions | undefined;
 
   constructor(options: ClaimLatchOptions) {
     this.#extractor = options.extractor;
     this.#evidenceProvider = options.evidenceProvider;
     this.#verifier = options.verifier;
     this.#concurrency = Math.max(1, Math.floor(options.concurrency ?? 4));
+    this.#confidence = options.confidence;
+    if (this.#confidence) {
+      validateConfidenceCalibrationProfile(this.#confidence.profile);
+      if (this.#confidence.scorer.id !== this.#confidence.profile.scorerId) {
+        throw new Error("Confidence scorer does not match the calibration profile.");
+      }
+    }
   }
 
   async verify(input: VerificationInput): Promise<VerificationReport> {
@@ -40,7 +51,16 @@ export class ClaimLatch {
         const rawEvidence = await this.#evidenceProvider.search(claim);
         const evidence = sanitizeEvidence(claim.id, rawEvidence);
         const rawVerification = await this.#verifier.verify({ claim, evidence });
-        return sanitizeVerification(claim, evidence, rawVerification);
+        const verification = sanitizeVerification(claim, evidence, rawVerification);
+        if (!this.#confidence) return verification;
+        return {
+          ...verification,
+          confidence: await createClaimConfidence({
+            scorer: this.#confidence.scorer,
+            profile: this.#confidence.profile,
+            verification,
+          }),
+        };
       },
     );
 

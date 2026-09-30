@@ -9,7 +9,7 @@ import {
   hashVerificationReceiptPayload,
   verifySignedVerificationReceipt,
 } from "../src/receipt.js";
-import type { VerificationReport } from "../src/types.js";
+import type { ClaimVerification, VerificationReport } from "../src/types.js";
 
 const privateKeyPem = `-----BEGIN PRIVATE KEY-----
 MC4CAQAwBQYDK2VwBCIEIA5o+kxfZLkCkVmfck+DWeQHUPJMmhrVvy3bMY5B4yce
@@ -30,6 +30,30 @@ const report: VerificationReport = {
   generatedAt: "2026-09-29T00:00:00.000Z",
 };
 
+const confidenceBearingClaim: ClaimVerification = {
+  claim: {
+    id: "claim-1",
+    text: "The fixture claim is supported.",
+    kind: "fact",
+    importance: "normal",
+  },
+  status: "SUPPORTED",
+  reason: "Fixture evidence supports the claim.",
+  evidenceIds: ["evidence-1"],
+  evidence: [],
+  confidence: {
+    value: 0.875,
+    meaning: "verification-status-correctness",
+    scorerId: "fixture-scorer-v1",
+    calibrationProfileId: "fixture-profile-v1",
+  },
+};
+
+const confidenceBearingReport: VerificationReport = {
+  ...report,
+  claims: [confidenceBearingClaim],
+};
+
 test("signed verification receipts are deterministic and verifiable", () => {
   const first = createSignedVerificationReceipt(report, { privateKeyPem, publicKeyPem, keyId: "fixture-key" });
   const second = createSignedVerificationReceipt(report, { privateKeyPem, publicKeyPem, keyId: "fixture-key" });
@@ -43,6 +67,20 @@ test("signed verification receipts are deterministic and verifiable", () => {
   const secondHash = hashVerificationReceiptPayload(second.payload);
   assert.equal(firstHash, secondHash);
   assert.match(firstHash, /^[0-9a-f]{64}$/u);
+});
+
+test("signed receipts cover optional confidence values", () => {
+  const receipt = createSignedVerificationReceipt(confidenceBearingReport, { privateKeyPem, publicKeyPem });
+
+  assert.deepEqual(receipt.payload.report.claims[0]?.confidence, confidenceBearingClaim.confidence);
+  assert.equal(verifySignedVerificationReceipt(receipt), true);
+});
+
+test("legacy reports without confidence remain valid", () => {
+  const receipt = createSignedVerificationReceipt(report, { privateKeyPem, publicKeyPem });
+
+  assert.equal(receipt.payload.report.claims.length, 0);
+  assert.equal(verifySignedVerificationReceipt(receipt), true);
 });
 
 test("signed verification receipt creation rejects empty key IDs", () => {
@@ -63,6 +101,53 @@ test("receipt verification fails when the report is tampered with", () => {
   };
 
   assert.equal(verifySignedVerificationReceipt(tampered), false);
+});
+
+test("receipt verification fails when confidence is removed or changed", () => {
+  const receipt = createSignedVerificationReceipt(confidenceBearingReport, { privateKeyPem, publicKeyPem });
+  const claim = confidenceBearingClaim;
+
+  const removed = {
+    ...receipt,
+    payload: {
+      ...receipt.payload,
+      report: {
+        ...receipt.payload.report,
+        claims: [{ ...claim, confidence: undefined }],
+      },
+    },
+  } as unknown as typeof receipt;
+  const changed = {
+    ...receipt,
+    payload: {
+      ...receipt.payload,
+      report: {
+        ...receipt.payload.report,
+        claims: [{ ...claim, confidence: { ...claim.confidence!, value: 0.1 } }],
+      },
+    },
+  } as typeof receipt;
+
+  assert.equal(verifySignedVerificationReceipt(removed), false);
+  assert.equal(verifySignedVerificationReceipt(changed), false);
+});
+
+test("receipt verification rejects malformed confidence provenance", () => {
+  const malformed = createSignedVerificationReceipt(
+    {
+      ...confidenceBearingReport,
+      claims: [{
+        ...confidenceBearingClaim,
+        confidence: {
+          ...confidenceBearingClaim.confidence!,
+          value: 1.1,
+        },
+      }],
+    } as unknown as VerificationReport,
+    { privateKeyPem, publicKeyPem },
+  );
+
+  assert.equal(verifySignedVerificationReceipt(malformed), false);
 });
 
 test("receipt verification fails for a signed report with an invalid shape", () => {

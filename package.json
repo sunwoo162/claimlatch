@@ -11,7 +11,8 @@
     "claimlatch": "dist/src/cli.js",
     "claimlatch-proxy": "dist/src/proxy-cli.js",
     "claimlatch-bench": "dist/src/benchmark-cli.js",
-    "claimlatch-receipt": "dist/src/receipt-cli.js"
+    "claimlatch-receipt": "dist/src/receipt-cli.js",
+    "claimlatch-calibrate": "dist/src/calibration-cli.js"
   },
   "exports": {
     ".": {
@@ -42,7 +43,8 @@
     "prepublishOnly": "npm run check",
     "bench": "npm run build && node dist/src/benchmark-cli.js --dataset benchmarks/independent.jsonl",
     "bench:manifest": "npm run build && node dist/src/benchmark-manifest-cli.js",
-    "bench:validate": "npm run build && node dist/src/benchmark-cli.js --validate --dataset benchmarks/independent.jsonl --manifest benchmarks/MANIFEST.json --format json"
+    "bench:validate": "npm run build && node dist/src/benchmark-cli.js --validate --dataset benchmarks/independent.jsonl --manifest benchmarks/MANIFEST.json --format json",
+    "calibrate": "npm run build && node dist/src/calibration-cli.js"
   },
   "devDependencies": {
     "typescript": "^5.8.3"
