@@ -25,6 +25,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
     "openai",
     "openrouter",
     "perplexity",
+    "qianfan",
     "sambanova",
     "siliconflow",
     "together",
@@ -32,7 +33,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
   ]);
   assert.equal(
     formatProxyProviderProfileNames(),
-    "azure, cerebras, cohere, deepinfra, deepseek, fireworks, friendli, gemini, groq, huggingface, mistral, moonshot, nebius, nvidia, openai, openrouter, perplexity, sambanova, siliconflow, together, or xai",
+    "azure, cerebras, cohere, deepinfra, deepseek, fireworks, friendli, gemini, groq, huggingface, mistral, moonshot, nebius, nvidia, openai, openrouter, perplexity, qianfan, sambanova, siliconflow, together, or xai",
   );
 });
 
@@ -192,6 +193,15 @@ test("proxy profiles provide Perplexity Router-compatible Chat Completions defau
     upstreamBaseUrl: "https://api.perplexity.ai/router/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+  });
+});
+
+test("proxy profiles provide Qianfan v2-compatible Chat Completions defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("qianfan"), {
+    upstreamBaseUrl: "https://qianfan.baidubce.com/v2",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
   });
 });
 

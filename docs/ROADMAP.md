@@ -30,7 +30,7 @@
 - Signed receipt persistence, verification CLI, and key rotation support
 - Buffered multi-choice, streaming, structured-output, and multimodal proxy verification
 - Provider compatibility profiles for hosted OpenAI-compatible endpoints
-- Expanded 196-case independent benchmark with balanced train/dev/test splits
+- Expanded 200-case independent benchmark with balanced train/dev/test splits
 - Credential-free benchmark manifest validation in local scripts and CI
 - Opt-in calibrated verification-status confidence with offline isotonic fitting, evaluation metrics, and CLI profile generation
 - Credential-free calibration and evaluation dataset validation before profile fitting
@@ -47,6 +47,7 @@
 - AWS Lambda HTTP API payload v2 adapter example without an AWS SDK dependency
 - Moonshot OpenAI-compatible proxy provider profile with contract coverage
 - Koa route adapter example without a core framework dependency
+- Baidu Qianfan v2 OpenAI-compatible proxy provider profile with model-list contract coverage
 
 ## Next
 

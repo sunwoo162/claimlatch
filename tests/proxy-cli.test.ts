@@ -23,7 +23,7 @@ test("proxy CLI help documents credentials, routes, and fail-closed behavior", (
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS/);
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_MODELS_PATH.*profile supplies one/);
   assert.match(help, /CLAIMLATCH_PROXY_PROVIDER_PROFILE/);
-  assert.match(help, /azure, cerebras, cohere, deepinfra, deepseek, fireworks, friendli, gemini, groq, huggingface, mistral, moonshot, nebius, nvidia, openai, openrouter, perplexity, sambanova, siliconflow, together, or xai/);
+  assert.match(help, /azure, cerebras, cohere, deepinfra, deepseek, fireworks, friendli, gemini, groq, huggingface, mistral, moonshot, nebius, nvidia, openai, openrouter, perplexity, qianfan, sambanova, siliconflow, together, or xai/);
   assert.match(help, /PASS.*BLOCK/s);
   assert.match(help, /credential-free/);
 });
@@ -121,6 +121,7 @@ test("proxy CLI resolves every hosted built-in profile without an explicit base 
     nvidia: "https://integrate.api.nvidia.com/v1",
     openai: "https://api.openai.com/v1",
     perplexity: "https://api.perplexity.ai/router/v1",
+    qianfan: "https://qianfan.baidubce.com/v2",
     sambanova: "https://api.sambanova.ai/v1",
     siliconflow: "https://api.siliconflow.cn/v1",
     together: "https://api.together.xyz/v1",

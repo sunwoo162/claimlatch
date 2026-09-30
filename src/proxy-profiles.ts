@@ -16,6 +16,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "openai",
   "openrouter",
   "perplexity",
+  "qianfan",
   "sambanova",
   "siliconflow",
   "together",
@@ -124,6 +125,12 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamBaseUrl: "https://api.perplexity.ai/router/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+  },
+  qianfan: {
+    upstreamBaseUrl: "https://qianfan.baidubce.com/v2",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
   },
   sambanova: {
     upstreamBaseUrl: "https://api.sambanova.ai/v1",

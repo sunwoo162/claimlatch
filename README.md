@@ -188,6 +188,8 @@ For xAI's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PRO
 
 For Perplexity's Router API, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="perplexity"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.perplexity.ai/router/v1`, bearer authentication, and `/chat/completions`.
 
+For Baidu Qianfan's v2 OpenAI-compatible API, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="qianfan"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://qianfan.baidubce.com/v2`, bearer authentication, `/chat/completions`, and `/models`; see [Qianfan's OpenAI-compatible SDK documentation](https://cloud.baidu.com/doc/qianfan-docs/s/Fm9l6ocai) and [model-list API reference](https://cloud.baidu.com/doc/qianfan-api/s/Dmba8k71y).
+
 For SambaNova's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="sambanova"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.sambanova.ai/v1`, bearer authentication, and `/chat/completions`.
 
 For SiliconFlow's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="siliconflow"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.siliconflow.cn/v1`, bearer authentication, and `/chat/completions`; see [SiliconFlow's Chat Completions documentation](https://docs.siliconflow.cn/docs/api/chat-completions-post).
