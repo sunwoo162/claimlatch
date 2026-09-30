@@ -59,13 +59,16 @@ The repository also includes a small, human-authored fixture for the opt-in veri
 The fixture's raw scores belong to `claimlatch-fixture-scorer-v1`; they are deterministic fixture inputs, not live provider measurements or a production calibration claim. Reproduce and validate the committed artifacts without credentials:
 
 ```bash
-npm run calibrate -- \
+npm run calibrate --silent -- \
   --calibration benchmarks/confidence-calibration.jsonl \
   --evaluation benchmarks/confidence-evaluation.jsonl \
   --output benchmarks/confidence-profile.json \
   --profile-id claimlatch-status-fixture-v1 \
   --scorer-id claimlatch-fixture-scorer-v1 \
-  --created-at 2026-09-30T00:00:00.000Z
+  --created-at 2026-09-30T00:00:00.000Z \
+  > benchmarks/confidence-evaluation.json
 ```
+
+The command writes the profile to `--output` and emits the evaluation metrics as JSON on stdout; redirecting stdout regenerates the committed evaluation artifact as well. `--silent` keeps npm's own lifecycle output out of the JSON file.
 
 `tests/calibration-fixture.test.ts` regenerates the profile and metrics in memory and fails if the committed artifacts drift.
