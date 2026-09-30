@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added an OVHcloud AI Endpoints OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions coverage and fail-closed model-route handling.
 - Added a Lamini OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions and model-list defaults and wire-contract coverage.
 - Added a Scaleway Generative APIs OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions and model-list defaults and wire-contract coverage.
 - Added an Inference.net OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions and model-list defaults and wire-contract coverage.

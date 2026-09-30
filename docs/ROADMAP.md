@@ -68,6 +68,7 @@
 - Inference.net OpenAI-compatible proxy provider profile with Chat Completions and model-list contract coverage
 - Scaleway Generative APIs OpenAI-compatible proxy provider profile with Chat Completions and model-list contract coverage
 - Lamini OpenAI-compatible proxy provider profile with Chat Completions and model-list contract coverage
+- OVHcloud AI Endpoints OpenAI-compatible proxy provider profile with Chat Completions contract coverage and explicit fail-closed handling for its separate model catalog API
 
 ## Next
 
