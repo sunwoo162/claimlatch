@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added a Baseten Model APIs OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions and model-list defaults and wire-contract coverage.
 - Added configurable upstream API key authentication prefixes for provider compatibility, while preserving Bearer as the Authorization default and raw values for custom credential headers.
 - Added a Xiaomi MiMo OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions and model-list coverage.
 - Added a Cloudflare Workers AI OpenAI-compatible proxy provider profile with account-scoped base URL configuration, documented bearer-authenticated Chat Completions coverage, and fail-closed model-route handling.

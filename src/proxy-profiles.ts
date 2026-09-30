@@ -3,6 +3,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "aimlapi",
   "azure",
   "baichuan",
+  "baseten",
   "cerebras",
   "chutes",
   "cloudflare",
@@ -92,6 +93,12 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
     upstreamModelsPath: null,
+  },
+  baseten: {
+    upstreamBaseUrl: "https://inference.baseten.co/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
   },
   cerebras: {
     upstreamBaseUrl: "https://api.cerebras.ai/v1",
