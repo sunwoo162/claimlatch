@@ -33,6 +33,7 @@
 - Expanded 84-case independent benchmark with balanced train/dev/test splits
 - Credential-free benchmark manifest validation in local scripts and CI
 - Opt-in calibrated verification-status confidence with offline isotonic fitting, evaluation metrics, and CLI profile generation
+- Credential-free calibration and evaluation dataset validation before profile fitting
 - Signed receipt validation and package-root exports for confidence/calibration provenance
 - Next.js App Router Fetch-native route handler example with explicit Node.js runtime
 - Remix loader/action route module example using the Fetch-native guarded handler
