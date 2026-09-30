@@ -184,6 +184,7 @@ test("proxy profiles provide OVHcloud-compatible Chat Completions defaults", () 
     upstreamBaseUrl: "https://oai.endpoints.kepler.ai.cloud.ovh.net/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: null,
   });
 });
 

@@ -9,7 +9,7 @@ export interface OpenAIProxyOptions {
   upstreamApiKey?: string;
   upstreamApiKeyHeader?: string;
   upstreamChatCompletionsPath?: string;
-  upstreamModelsPath?: string;
+  upstreamModelsPath?: string | null;
   upstreamRequestHeaders?: Record<string, string>;
   upstreamResponseHeaderNames?: string[];
   upstreamResponseHeaderPrefixes?: string[];
@@ -110,7 +110,9 @@ export function createOpenAIProxy(options: OpenAIProxyOptions): OpenAIProxyServe
   const upstreamChatCompletionsPath = normalizeUpstreamChatCompletionsPath(
     options.upstreamChatCompletionsPath ?? "/chat/completions",
   );
-  const upstreamModelsPath = normalizeUpstreamModelsPath(options.upstreamModelsPath ?? "/models");
+  const upstreamModelsPath = options.upstreamModelsPath === null
+    ? undefined
+    : normalizeUpstreamModelsPath(options.upstreamModelsPath ?? "/models");
   const upstreamRequestHeaders = normalizeUpstreamRequestHeaders(options.upstreamRequestHeaders ?? {});
   const upstreamResponseHeaderNames = normalizeResponseHeaderConfiguration(
     options.upstreamResponseHeaderNames ?? [],
@@ -184,7 +186,7 @@ async function handleRequest(input: {
   upstreamTimeoutMs: number;
   upstreamApiKeyHeader: string;
   upstreamChatCompletionsPath: string;
-  upstreamModelsPath: string;
+  upstreamModelsPath: string | undefined;
   upstreamRequestHeaders: ReadonlyMap<string, string>;
   upstreamResponseHeaderNames: ReadonlySet<string>;
   upstreamResponseHeaderPrefixes: ReadonlySet<string>;
@@ -202,6 +204,10 @@ async function handleRequest(input: {
 
   const modelId = request.method === "GET" ? extractModelId(path) : undefined;
   if (request.method === "GET" && modelId !== undefined) {
+    if (input.upstreamModelsPath === undefined) {
+      writeUnavailableModelRoute(response);
+      return;
+    }
     await handleModelsRequest({
       ...input,
       ...(input.options.upstreamApiKey ? { upstreamApiKey: input.options.upstreamApiKey } : {}),
@@ -212,9 +218,15 @@ async function handleRequest(input: {
   }
 
   if (request.method === "GET" && (path === "/v1/models" || path === "/models")) {
+    const upstreamModelsPath = input.upstreamModelsPath;
+    if (upstreamModelsPath === undefined) {
+      writeUnavailableModelRoute(response);
+      return;
+    }
     await handleModelsRequest({
       ...input,
       ...(input.options.upstreamApiKey ? { upstreamApiKey: input.options.upstreamApiKey } : {}),
+      upstreamModelsPath,
       requestQuery: query,
     });
     return;
@@ -477,6 +489,16 @@ async function handleRequest(input: {
   );
   if (!copiedContentType) response.setHeader("content-type", "application/json; charset=utf-8");
   response.end(upstreamText);
+}
+
+function writeUnavailableModelRoute(response: ServerResponse): void {
+  writeJson(response, 404, {
+    error: {
+      type: "claimlatch_proxy_error",
+      code: "claimlatch_model_route_unavailable",
+      message: "The configured provider does not expose a model-list route.",
+    },
+  });
 }
 
 async function handleModelsRequest(input: {

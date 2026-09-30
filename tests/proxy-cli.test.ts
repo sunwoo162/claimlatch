@@ -159,9 +159,16 @@ test("proxy CLI resolves every hosted built-in profile without an explicit base 
       upstreamBaseUrl,
       upstreamApiKeyHeader: "authorization",
       upstreamChatCompletionsPath,
-      upstreamModelsPath: "/models",
+      upstreamModelsPath: profile === "ovhcloud" ? null : "/models",
     });
   }
+});
+
+test("proxy CLI allows an explicit OVHcloud model route override", () => {
+  assert.equal(resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "ovhcloud",
+    CLAIMLATCH_PROXY_UPSTREAM_MODELS_PATH: "/v1/models",
+  }).upstreamModelsPath, "/v1/models");
 });
 
 test("provider-compatible proxy example preserves the configured model route", () => {
