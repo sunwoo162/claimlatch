@@ -30,12 +30,13 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
     "sambanova",
     "siliconflow",
     "together",
+    "volcengine",
     "xai",
     "zai",
   ]);
   assert.equal(
     formatProxyProviderProfileNames(),
-    "azure, cerebras, cohere, dashscope, deepinfra, deepseek, fireworks, friendli, gemini, groq, huggingface, mistral, moonshot, nebius, nvidia, openai, openrouter, perplexity, qianfan, sambanova, siliconflow, together, xai, or zai",
+    "azure, cerebras, cohere, dashscope, deepinfra, deepseek, fireworks, friendli, gemini, groq, huggingface, mistral, moonshot, nebius, nvidia, openai, openrouter, perplexity, qianfan, sambanova, siliconflow, together, volcengine, xai, or zai",
   );
 });
 
@@ -202,6 +203,14 @@ test("proxy profiles provide xAI-compatible Chat Completions defaults", () => {
 test("proxy profiles provide Z.AI-compatible Chat Completions defaults", () => {
   assert.deepEqual(resolveProxyProviderProfile("zai"), {
     upstreamBaseUrl: "https://api.z.ai/api/paas/v4",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  });
+});
+
+test("proxy profiles provide Volcengine Ark-compatible Chat Completions defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("volcengine"), {
+    upstreamBaseUrl: "https://ark.cn-beijing.volces.com/api/v3",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
   });

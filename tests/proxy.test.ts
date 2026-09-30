@@ -29,6 +29,7 @@ const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "azure"
   sambanova: "https://api.sambanova.ai/v1",
   siliconflow: "https://api.siliconflow.cn/v1",
   together: "https://api.together.xyz/v1",
+  volcengine: "https://ark.cn-beijing.volces.com/api/v3",
   xai: "https://api.x.ai/v1",
   zai: "https://api.z.ai/api/paas/v4",
 } as const;
@@ -1335,6 +1336,40 @@ test("Z.AI provider profile sends the OpenAI-compatible bearer contract", async 
 
   assert.equal(capturedUrl, "https://api.z.ai/api/paas/v4/chat/completions");
   assert.equal(capturedHeaders?.get("authorization"), "Bearer zai-key");
+  assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
+test("Volcengine Ark provider profile sends the OpenAI-compatible bearer contract", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "volcengine",
+  });
+  let capturedUrl: string | undefined;
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "volcengine-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrl = String(input);
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({
+        id: "chatcmpl_volcengine_profile",
+        object: "chat.completion",
+        choices: [{ message: { role: "assistant", content: "Volcengine Ark-compatible answer." } }],
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ model: "doubao-seed-2-1-pro-260628", messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 200);
+  });
+
+  assert.equal(capturedUrl, "https://ark.cn-beijing.volces.com/api/v3/chat/completions");
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer volcengine-key");
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 

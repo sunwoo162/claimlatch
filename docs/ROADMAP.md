@@ -50,6 +50,7 @@
 - Baidu Qianfan v2 OpenAI-compatible proxy provider profile with model-list contract coverage
 - Alibaba Cloud DashScope OpenAI-compatible proxy provider profile with model-list contract coverage
 - Z.AI OpenAI-compatible proxy provider profile with Chat Completions contract coverage
+- Volcengine Ark OpenAI-compatible proxy provider profile with Chat Completions contract coverage
 
 ## Next
 

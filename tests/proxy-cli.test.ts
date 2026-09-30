@@ -23,7 +23,7 @@ test("proxy CLI help documents credentials, routes, and fail-closed behavior", (
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS/);
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_MODELS_PATH.*profile supplies one/);
   assert.match(help, /CLAIMLATCH_PROXY_PROVIDER_PROFILE/);
-  assert.match(help, /azure, cerebras, cohere, dashscope, deepinfra, deepseek, fireworks, friendli, gemini, groq, huggingface, mistral, moonshot, nebius, nvidia, openai, openrouter, perplexity, qianfan, sambanova, siliconflow, together, xai, or zai/);
+  assert.match(help, /azure, cerebras, cohere, dashscope, deepinfra, deepseek, fireworks, friendli, gemini, groq, huggingface, mistral, moonshot, nebius, nvidia, openai, openrouter, perplexity, qianfan, sambanova, siliconflow, together, volcengine, xai, or zai/);
   assert.match(help, /PASS.*BLOCK/s);
   assert.match(help, /credential-free/);
 });
@@ -126,6 +126,7 @@ test("proxy CLI resolves every hosted built-in profile without an explicit base 
     sambanova: "https://api.sambanova.ai/v1",
     siliconflow: "https://api.siliconflow.cn/v1",
     together: "https://api.together.xyz/v1",
+    volcengine: "https://ark.cn-beijing.volces.com/api/v3",
     xai: "https://api.x.ai/v1",
     zai: "https://api.z.ai/api/paas/v4",
   } as const;

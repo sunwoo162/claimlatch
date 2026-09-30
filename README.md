@@ -186,6 +186,8 @@ For Google's Gemini OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH
 
 For Together AI's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="together"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.together.xyz/v1`, bearer authentication, and `/chat/completions`.
 
+For Volcengine Ark's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="volcengine"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://ark.cn-beijing.volces.com/api/v3`, bearer authentication, and `/chat/completions`; see [Volcengine Ark's OpenAI SDK compatibility guide](https://docs.volcengine.com/docs/ark/compatible-with-openai-sdk?lang=en).
+
 For xAI's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="xai"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.x.ai/v1`, bearer authentication, and `/chat/completions`.
 
 For Z.AI's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="zai"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.z.ai/api/paas/v4`, bearer authentication, and `/chat/completions`; see [Z.AI's Chat Completion API reference](https://docs.z.ai/api-reference/llm/chat-completion).
