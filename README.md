@@ -334,6 +334,8 @@ export const POST = guarded;
 
 The complete route-oriented example is in [`examples/fetch-route-handler.ts`](examples/fetch-route-handler.ts). It keeps the same fail-closed contract as the Node HTTP integration, including 413 request-size limits, 422 blocked reports, and 502 fail-closed verification errors. Custom paths must be absolute URL paths without query strings or fragments.
 
+For a Next.js App Router route, copy [`examples/next-route-handler.ts`](examples/next-route-handler.ts) to a route such as `app/api/answer/route.ts`. It exports the framework-native `GET` and `POST` handlers, initializes the gate lazily, and keeps credentials out of module-load time.
+
 ### Structured-output proxy policy example
 
 `structuredOutputVerifier` is the application-owned safety boundary for tool calls and multimodal output. The runnable example below allows only the comma-separated tool names in `CLAIMLATCH_ALLOWED_TOOLS`; any other tool call is returned as a deterministic BLOCK report. The example uses a local policy report for structured output and the configured ClaimLatch gate for ordinary textual responses.
