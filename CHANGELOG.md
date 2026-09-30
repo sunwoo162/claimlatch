@@ -40,6 +40,7 @@
 - Added a dependency-light Hono route adapter example using the Fetch-native guarded answer handler.
 - Added a dependency-light SvelteKit route adapter example using the Fetch-native guarded answer handler.
 - Added a dependency-light AWS Lambda HTTP API payload v2 adapter example using the Fetch-native guarded answer handler.
+- Added a Moonshot OpenAI-compatible proxy provider profile using the documented bearer-authenticated Chat Completions endpoint.
 - Synced the roadmap with the implemented credential-free calibration dataset validation mode.
 
 ## 0.3.86 - 2026-09-30
