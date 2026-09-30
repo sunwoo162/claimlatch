@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Added fail-closed regression coverage for calibration dataset validation, including empty datasets, malformed manifests, and overlapping source case/claim pairs.
+- Expanded the frozen independent benchmark to 90 balanced cases across 45 paired topics with an IETF RFC 9110-backed HTTP 206 Partial Content pair.
 - Added a dependency-light Fastify route adapter example using the Fetch-native guarded answer handler.
 - Synced the roadmap with the implemented credential-free calibration dataset validation mode.
 
