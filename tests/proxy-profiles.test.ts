@@ -24,6 +24,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
     "groq",
     "huggingface",
     "hyperbolic",
+    "inferencenet",
     "ionos",
     "hunyuan",
     "minimax",
@@ -50,7 +51,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
   ]);
   assert.equal(
     formatProxyProviderProfileNames(),
-    "ai21, aimlapi, azure, cerebras, chutes, cohere, dashscope, deepinfra, deepseek, featherless, fireworks, friendli, gemini, groq, huggingface, hyperbolic, ionos, hunyuan, minimax, mistral, moonshot, nebius, novita, nvidia, openai, openrouter, perplexity, poe, qianfan, requesty, sambanova, siliconflow, stepfun, together, tokenhub, upstage, volcengine, xai, or zai",
+    "ai21, aimlapi, azure, cerebras, chutes, cohere, dashscope, deepinfra, deepseek, featherless, fireworks, friendli, gemini, groq, huggingface, hyperbolic, inferencenet, ionos, hunyuan, minimax, mistral, moonshot, nebius, novita, nvidia, openai, openrouter, perplexity, poe, qianfan, requesty, sambanova, siliconflow, stepfun, together, tokenhub, upstage, volcengine, xai, or zai",
   );
 });
 
@@ -145,6 +146,15 @@ test("proxy profiles provide Hyperbolic-compatible Chat Completions defaults", (
     upstreamBaseUrl: "https://api.hyperbolic.xyz/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+  });
+});
+
+test("proxy profiles provide Inference.net-compatible Chat Completions and model-list defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("inferencenet"), {
+    upstreamBaseUrl: "https://api.inference.net/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
   });
 });
 
