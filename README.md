@@ -595,6 +595,8 @@ claimlatch-calibrate \
 
 Validation reports the canonical SHA-256 hash and observation count for each dataset, and fails closed when manifests are invalid, datasets are empty, or source case/claim pairs overlap.
 
+The repository includes a committed independent-label fixture under [`benchmarks/`](benchmarks/): `confidence-calibration.jsonl` and `confidence-evaluation.jsonl` contain 12 disjoint observations each, while `confidence-profile.json` and `confidence-evaluation.json` are the profile and deterministic metrics generated from them. The raw scores use the named fixture scorer `claimlatch-fixture-scorer-v1`; these artifacts demonstrate reproducibility and status-correctness semantics, not live provider performance or a production trust guarantee. The fixture regression test regenerates both outputs before accepting them.
+
 ## Offline demo
 
 The offline demo shows the gate with deterministic fake providers and makes no network or model calls.
@@ -611,7 +613,7 @@ PASS is not proof of universal truth. Claim extraction, search, source selection
 
 ## Project status
 
-`0.3.86` adds credential-free calibration and evaluation dataset validation with canonical hashes, observation counts, disjoint source case/claim checks, and release metadata consistency coverage.
+`0.3.86` adds credential-free calibration and evaluation dataset validation with canonical hashes, observation counts, disjoint source case/claim checks, and release metadata consistency coverage. The repository also carries a committed independently labelled calibration fixture with reproducible profile and evaluation artifacts.
 
 `0.3.85` adds opt-in calibrated verification-status confidence with offline isotonic fitting, evaluation metrics, CLI profile generation, signed receipt coverage, package-root exports, and fail-closed duplicate CLI/proxy header configuration validation.
 

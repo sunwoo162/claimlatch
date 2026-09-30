@@ -35,13 +35,13 @@
 - Opt-in calibrated verification-status confidence with offline isotonic fitting, evaluation metrics, and CLI profile generation
 - Credential-free calibration and evaluation dataset validation before profile fitting
 - Signed receipt validation and package-root exports for confidence/calibration provenance
+- Independently labelled confidence calibration fixture with committed generated evaluation metrics
 - Next.js App Router Fetch-native route handler example with explicit Node.js runtime
 - Remix loader/action route module example using the Fetch-native guarded handler
 - Cloudflare Worker Fetch-native integration example
 
 ## Next
 
-- Commit an independently labelled confidence calibration fixture and generated evaluation metrics before declaring calibration experiments complete
 - Add provider-specific proxy compatibility tests and examples as upstream contracts are verified (Azure-style and hosted profiles are available)
 - Continue adding framework-oriented integration examples while keeping the core package dependency-light
 - Expand the benchmark only with independently sourced labels, provenance, and manifest updates
