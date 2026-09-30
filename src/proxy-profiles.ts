@@ -21,6 +21,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "sambanova",
   "siliconflow",
   "together",
+  "volcengine",
   "xai",
   "zai",
 ] as const;
@@ -152,6 +153,11 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
   },
   together: {
     upstreamBaseUrl: "https://api.together.xyz/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  },
+  volcengine: {
+    upstreamBaseUrl: "https://ark.cn-beijing.volces.com/api/v3",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
   },
