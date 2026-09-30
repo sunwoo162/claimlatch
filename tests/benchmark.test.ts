@@ -179,6 +179,23 @@ test("independent benchmark contains a balanced expanded label set", async () =>
   assert.ok(cases.every((item) => (item.labelSourceUrls?.length ?? 0) > 0));
 });
 
+test("independent benchmark preserves one positive and one negative label per question", async () => {
+  const raw = await readFile(new URL("../../benchmarks/independent.jsonl", import.meta.url), "utf8");
+  const cases = parseBenchmarkJsonl(raw);
+  const byQuestion = new Map<string, typeof cases>();
+
+  for (const item of cases) {
+    const group = byQuestion.get(item.question) ?? [];
+    group.push(item);
+    byQuestion.set(item.question, group);
+  }
+
+  assert.equal(byQuestion.size, 53);
+  assert.ok([...byQuestion.values()].every((group) => {
+    return group.length === 2 && group.filter((item) => item.expectedPassed).length === 1;
+  }));
+});
+
 test("benchmark dataset is partitioned into balanced train, dev, and test splits", async () => {
   const splitNames = ["train", "dev", "test"] as const;
   const splitCases = await Promise.all(splitNames.map(async (split) => {
