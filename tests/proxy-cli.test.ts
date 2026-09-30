@@ -24,7 +24,7 @@ test("proxy CLI help documents credentials, routes, and fail-closed behavior", (
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_API_KEY_PREFIX.*default Bearer/);
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_MODELS_PATH.*profile supplies one/);
   assert.match(help, /CLAIMLATCH_PROXY_PROVIDER_PROFILE/);
-  assert.match(help, /ai21, aimlapi, azure, baichuan, baseten, cerebras, chutes, clarifai, cloudflare, cohere, dashscope, deepinfra, deepseek, featherless, fireworks, friendli, gemini, groq, huggingface, hyperbolic, inferencenet, ionos, lamini, hunyuan, minimax, mimo, mistral, moonshot, nebius, novita, nvidia, openai, openrouter, ovhcloud, perplexity, poe, qianfan, requesty, sambanova, scaleway, siliconflow, stepfun, together, tokenhub, upstage, volcengine, xai, or zai/);
+  assert.match(help, /ai21, aimlapi, azure, baichuan, baseten, cerebras, chutes, clarifai, cloudflare, cohere, dashscope, deepinfra, deepseek, featherless, fireworks, friendli, gemini, groq, huggingface, hyperbolic, inferencenet, ionos, lamini, hunyuan, minimax, mimo, mistral, modal, moonshot, nebius, novita, nvidia, openai, openrouter, ovhcloud, perplexity, poe, qianfan, requesty, sambanova, scaleway, siliconflow, stepfun, together, tokenhub, upstage, volcengine, xai, or zai/);
   assert.match(help, /PASS.*BLOCK/s);
   assert.match(help, /credential-free/);
 });
@@ -197,6 +197,24 @@ test("proxy CLI requires an explicit account-scoped base URL for Cloudflare Work
     upstreamBaseUrl: "https://api.cloudflare.com/client/v4/accounts/account-123/ai/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: null,
+  });
+});
+
+test("proxy CLI requires an explicit endpoint URL for Modal", () => {
+  assert.throws(
+    () => resolveProxyProviderConfiguration({
+      CLAIMLATCH_PROXY_PROVIDER_PROFILE: "modal",
+    }),
+    /Set CLAIMLATCH_PROXY_UPSTREAM_BASE_URL/,
+  );
+  assert.deepEqual(resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "modal",
+    CLAIMLATCH_PROXY_UPSTREAM_BASE_URL: "https://modal-endpoint.example",
+  }), {
+    upstreamBaseUrl: "https://modal-endpoint.example",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/v1/chat/completions",
     upstreamModelsPath: null,
   });
 });
