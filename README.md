@@ -546,7 +546,7 @@ PASS is not proof of universal truth. Claim extraction, search, source selection
 
 ## Project status
 
-The unreleased policy hardening normalizes trailing-dot hostnames when comparing evidence sources for cross-source contradictions.
+`0.3.71` normalizes trailing-dot hostnames when comparing evidence sources for cross-source contradictions.
 
 `0.3.70` rejects OpenRouter attribution URLs containing embedded username or password credentials before they become upstream headers.
 
