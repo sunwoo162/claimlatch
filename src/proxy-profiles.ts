@@ -21,6 +21,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "lamini",
   "hunyuan",
   "minimax",
+  "mimo",
   "mistral",
   "moonshot",
   "nebius",
@@ -185,6 +186,12 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamBaseUrl: "https://api.minimax.io/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+  },
+  mimo: {
+    upstreamBaseUrl: "https://api.xiaomimimo.com/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
   },
   mistral: {
     upstreamBaseUrl: "https://api.mistral.ai/v1",

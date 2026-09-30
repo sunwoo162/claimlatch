@@ -30,6 +30,7 @@ const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "azure"
   lamini: "https://api.lamini.ai/inf",
   hunyuan: "https://api.hunyuan.cloud.tencent.com/v1",
   minimax: "https://api.minimax.io/v1",
+  mimo: "https://api.xiaomimimo.com/v1",
   mistral: "https://api.mistral.ai/v1",
   moonshot: "https://api.moonshot.ai/v1",
   nebius: "https://api.tokenfactory.nebius.com/v1",
@@ -2107,6 +2108,73 @@ test("Baichuan provider profile fails closed for unsupported model routes", asyn
   });
 
   assert.equal(upstreamCalled, false);
+});
+
+test("Xiaomi MiMo provider profile sends the OpenAI-compatible bearer contract", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "mimo",
+  });
+  let capturedUrl: string | undefined;
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "mimo-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrl = String(input);
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({
+        id: "chatcmpl_mimo_profile",
+        object: "chat.completion",
+        choices: [{ message: { role: "assistant", content: "MiMo-compatible answer." } }],
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ model: "mimo-v2.5-pro", messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 200);
+  });
+
+  assert.equal(capturedUrl, "https://api.xiaomimimo.com/v1/chat/completions");
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer mimo-key");
+  assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
+test("Xiaomi MiMo provider profile sends its model-list path and bearer header", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "mimo",
+  });
+  let capturedUrl: string | undefined;
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "mimo-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrl = String(input);
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({ object: "list", data: [{ id: "mimo-v2.5-pro", object: "model" }] }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/models?limit=1`);
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), {
+      object: "list",
+      data: [{ id: "mimo-v2.5-pro", object: "model" }],
+    });
+  });
+
+  assert.equal(capturedUrl, "https://api.xiaomimimo.com/v1/models?limit=1");
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer mimo-key");
+  assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
 test("OVHcloud provider profile fails closed for unsupported model routes", async () => {
