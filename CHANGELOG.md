@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.72 - 2026-09-30
+
+- Added a Next.js App Router route handler example with lazy gate initialization.
+
 ## 0.3.71 - 2026-09-30
 
 - Normalizes trailing-dot hostnames when comparing evidence sources for cross-source contradictions.
