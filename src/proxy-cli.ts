@@ -1,7 +1,11 @@
 #!/usr/bin/env node
 import { createDefaultClaimLatch } from "./default-gate.js";
 import { createOpenAIProxy } from "./proxy.js";
-import { renderProxyHelp, resolveProxyProviderConfiguration } from "./proxy-cli-options.js";
+import {
+  parseProxyHeaderList,
+  renderProxyHelp,
+  resolveProxyProviderConfiguration,
+} from "./proxy-cli-options.js";
 
 async function main(): Promise<void> {
   if (process.argv.includes("--help") || process.argv.includes("-h")) {
@@ -43,10 +47,10 @@ async function main(): Promise<void> {
       ? { upstreamRequestHeaders: providerConfiguration.upstreamRequestHeaders }
       : {}),
     ...(upstreamResponseHeaderNames !== undefined
-      ? { upstreamResponseHeaderNames: parseHeaderList(upstreamResponseHeaderNames, "CLAIMLATCH_PROXY_UPSTREAM_RESPONSE_HEADER_NAMES") }
+      ? { upstreamResponseHeaderNames: parseProxyHeaderList(upstreamResponseHeaderNames, "CLAIMLATCH_PROXY_UPSTREAM_RESPONSE_HEADER_NAMES") }
       : {}),
     ...(upstreamResponseHeaderPrefixes !== undefined
-      ? { upstreamResponseHeaderPrefixes: parseHeaderList(upstreamResponseHeaderPrefixes, "CLAIMLATCH_PROXY_UPSTREAM_RESPONSE_HEADER_PREFIXES") }
+      ? { upstreamResponseHeaderPrefixes: parseProxyHeaderList(upstreamResponseHeaderPrefixes, "CLAIMLATCH_PROXY_UPSTREAM_RESPONSE_HEADER_PREFIXES") }
       : {}),
     policy: {
       requireRetrievedDocumentForDecisiveClaims:
@@ -75,14 +79,6 @@ function parseTimeout(value: string): number {
     throw new Error("CLAIMLATCH_PROXY_UPSTREAM_TIMEOUT_MS must be a finite non-negative number.");
   }
   return parsed;
-}
-
-function parseHeaderList(value: string, variableName: string): string[] {
-  const headers = value.split(",").map((header) => header.trim()).filter(Boolean);
-  if (value.trim() !== "" && headers.length === 0) {
-    throw new Error(`${variableName} must contain a comma-separated header list.`);
-  }
-  return headers;
 }
 
 main().catch((error: unknown) => {

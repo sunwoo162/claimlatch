@@ -5,6 +5,7 @@ import {
   resolveProviderCompatibleProxyConfiguration,
 } from "../examples/provider-compatible-proxy.js";
 import {
+  parseProxyHeaderList,
   parseProxyHeaderMap,
   renderProxyHelp,
   resolveProxyProviderConfiguration,
@@ -45,6 +46,27 @@ test("proxy header map parser rejects duplicate header names case-insensitively"
   assert.throws(
     () => parseProxyHeaderMap("x-tenant=prod,X-Tenant=staging"),
     /duplicate header name/,
+  );
+});
+
+test("proxy response header list parser preserves trimmed entries", () => {
+  assert.deepEqual(
+    parseProxyHeaderList(" x-vendor-request-id, x-vendor-rate- ", "NAMES"),
+    ["x-vendor-request-id", "x-vendor-rate-"],
+  );
+});
+
+test("proxy response header list parser rejects duplicate names case-insensitively", () => {
+  assert.throws(
+    () => parseProxyHeaderList("x-vendor-request-id,X-Vendor-Request-Id", "NAMES"),
+    /NAMES contains a duplicate header entry/,
+  );
+});
+
+test("proxy response header list parser rejects duplicate prefixes case-insensitively", () => {
+  assert.throws(
+    () => parseProxyHeaderList("x-vendor-rate-,X-Vendor-Rate-", "PREFIXES"),
+    /PREFIXES contains a duplicate header entry/,
   );
 });
 

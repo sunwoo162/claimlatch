@@ -8,6 +8,25 @@ export interface ProxyProviderConfiguration {
   upstreamRequestHeaders?: Record<string, string>;
 }
 
+export function parseProxyHeaderList(
+  value: string,
+  variableName = "CLAIMLATCH_PROXY_UPSTREAM_RESPONSE_HEADER_NAMES",
+): string[] {
+  const headers = value.split(",").map((header) => header.trim()).filter(Boolean);
+  if (value.trim() !== "" && headers.length === 0) {
+    throw new Error(`${variableName} must contain a comma-separated header list.`);
+  }
+  const headerNames = new Set<string>();
+  for (const header of headers) {
+    const normalizedHeader = header.toLowerCase();
+    if (headerNames.has(normalizedHeader)) {
+      throw new Error(`${variableName} contains a duplicate header entry: ${header}.`);
+    }
+    headerNames.add(normalizedHeader);
+  }
+  return headers;
+}
+
 export function parseProxyHeaderMap(value: string, variableName = "CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS"): Record<string, string> {
   const headers: Record<string, string> = {};
   const headerNames = new Set<string>();
