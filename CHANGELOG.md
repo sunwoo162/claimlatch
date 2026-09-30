@@ -30,6 +30,7 @@
 - Expanded the frozen independent benchmark to 164 balanced cases across 82 paired topics with IETF RFC 9110-backed HTTP 503 Service Unavailable and HTTP 504 Gateway Timeout pairs.
 - Expanded the frozen independent benchmark to 168 balanced cases across 84 paired topics with IETF RFC 9110-backed HTTP 418 (Unused) and HTTP 505 HTTP Version Not Supported pairs.
 - Expanded the frozen independent benchmark to 172 balanced cases across 86 paired topics with WebDAV IETF RFC 4918/RFC 5842-backed HTTP 207 Multi-Status and HTTP 208 Already Reported pairs.
+- Expanded the frozen independent benchmark to 176 balanced cases across 88 paired topics with WebDAV IETF RFC 4918/RFC 5842-backed HTTP 507 Insufficient Storage and HTTP 508 Loop Detected pairs.
 - Added a dependency-light Fastify route adapter example using the Fetch-native guarded answer handler.
 - Synced the roadmap with the implemented credential-free calibration dataset validation mode.
 
