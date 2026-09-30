@@ -40,6 +40,13 @@ test("signed verification receipts are deterministic and verifiable", () => {
   assert.equal(verifySignedVerificationReceipt(first), true);
 });
 
+test("signed verification receipt creation rejects empty key IDs", () => {
+  assert.throws(
+    () => createSignedVerificationReceipt(report, { privateKeyPem, publicKeyPem, keyId: "   " }),
+    /keyId must be a non-empty string/,
+  );
+});
+
 test("receipt verification fails when the report is tampered with", () => {
   const receipt = createSignedVerificationReceipt(report, { privateKeyPem, publicKeyPem });
   const tampered = {
