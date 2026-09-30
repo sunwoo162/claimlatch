@@ -611,6 +611,8 @@ PASS is not proof of universal truth. Claim extraction, search, source selection
 
 ## Project status
 
+`0.3.86` adds credential-free calibration and evaluation dataset validation with canonical hashes, observation counts, disjoint source case/claim checks, and release metadata consistency coverage.
+
 `0.3.85` adds opt-in calibrated verification-status confidence with offline isotonic fitting, evaluation metrics, CLI profile generation, signed receipt coverage, package-root exports, and fail-closed duplicate CLI/proxy header configuration validation.
 
 `0.3.84` adds deterministic `npm run bench:manifest` generation for frozen benchmark SHA-256 manifests and case counts.
