@@ -12,6 +12,8 @@ The aggregate is partitioned into frozen, balanced splits:
 
 Every case appears exactly once across the three splits. Keep the test split untouched while tuning prompts, provider settings, or policies.
 
+After changing a frozen dataset, run `npm run bench:manifest` to regenerate the deterministic manifest output, then run `npm run bench:validate` before committing the updated files.
+
 The important metric is **false-pass rate**: among deliberately false answers, how often did the configured gate return PASS?
 
 Run with real providers:

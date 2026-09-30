@@ -49,6 +49,38 @@ export interface BenchmarkManifest {
   files: Record<string, BenchmarkManifestEntry>;
 }
 
+export interface BenchmarkManifestSource {
+  fileName: string;
+  content: string;
+  caseCount: number;
+}
+
+export function createBenchmarkManifest(
+  sources: readonly BenchmarkManifestSource[],
+): BenchmarkManifest {
+  if (sources.length === 0) throw new Error("Benchmark manifest sources cannot be empty.");
+
+  const files: Record<string, BenchmarkManifestEntry> = {};
+  for (const source of [...sources].sort((left, right) => left.fileName.localeCompare(right.fileName))) {
+    if (!/^[a-z\d][a-z\d._-]*\.jsonl$/iu.test(source.fileName)) {
+      throw new Error(`Benchmark manifest file name is unsafe: ${source.fileName}`);
+    }
+    if (files[source.fileName]) {
+      throw new Error(`Duplicate benchmark manifest file: ${source.fileName}`);
+    }
+    if (!Number.isInteger(source.caseCount) || source.caseCount <= 0) {
+      throw new Error(`Benchmark manifest case count is invalid: ${source.fileName}`);
+    }
+    const canonical = source.content.replace(/\r\n?/gu, "\n");
+    files[source.fileName] = {
+      sha256: createHash("sha256").update(canonical).digest("hex"),
+      cases: source.caseCount,
+    };
+  }
+
+  return { version: 1, files };
+}
+
 export async function runBenchmark(gate: ClaimLatch, cases: readonly BenchmarkCase[]): Promise<BenchmarkReport> {
   const results: BenchmarkCaseResult[] = [];
 
