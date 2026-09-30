@@ -17,6 +17,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "hyperbolic",
   "inferencenet",
   "ionos",
+  "lamini",
   "hunyuan",
   "minimax",
   "mistral",
@@ -157,6 +158,12 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
   },
   ionos: {
     upstreamBaseUrl: "https://openai.inference.de-txl.ionos.com/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
+  },
+  lamini: {
+    upstreamBaseUrl: "https://api.lamini.ai/inf",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
     upstreamModelsPath: "/models",

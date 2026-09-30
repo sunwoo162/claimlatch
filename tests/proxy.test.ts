@@ -26,6 +26,7 @@ const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "azure"
   hyperbolic: "https://api.hyperbolic.xyz/v1",
   inferencenet: "https://api.inference.net/v1",
   ionos: "https://openai.inference.de-txl.ionos.com/v1",
+  lamini: "https://api.lamini.ai/inf",
   hunyuan: "https://api.hunyuan.cloud.tencent.com/v1",
   minimax: "https://api.minimax.io/v1",
   mistral: "https://api.mistral.ai/v1",
@@ -1615,6 +1616,39 @@ test("Scaleway provider profile sends its model-list path and bearer header", as
 
   assert.equal(capturedUrl, "https://api.scaleway.ai/v1/models");
   assert.equal(capturedHeaders?.get("authorization"), "Bearer scaleway-key");
+  assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
+test("Lamini provider profile sends its model-list path and bearer header", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "lamini",
+  });
+  let capturedUrl: string | undefined;
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "lamini-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrl = String(input);
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({ object: "list", data: [{ id: "meta-llama/Llama-3.2-3B-Instruct", object: "model" }] }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/models`);
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), {
+      object: "list",
+      data: [{ id: "meta-llama/Llama-3.2-3B-Instruct", object: "model" }],
+    });
+  });
+
+  assert.equal(capturedUrl, "https://api.lamini.ai/inf/models");
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer lamini-key");
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
