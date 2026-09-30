@@ -12,6 +12,7 @@ const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "azure"
   ai21: "https://api.ai21.com/studio/v1",
   aimlapi: "https://api.aimlapi.com",
   baichuan: "https://api.baichuan-ai.com/v1",
+  baseten: "https://inference.baseten.co/v1",
   cerebras: "https://api.cerebras.ai/v1",
   chutes: "https://llm.chutes.ai/v1",
   cohere: "https://api.cohere.ai/compatibility/v1",
@@ -2135,6 +2136,73 @@ test("Baichuan provider profile fails closed for unsupported model routes", asyn
   });
 
   assert.equal(upstreamCalled, false);
+});
+
+test("Baseten provider profile sends the OpenAI-compatible bearer contract", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "baseten",
+  });
+  let capturedUrl: string | undefined;
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "baseten-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrl = String(input);
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({
+        id: "chatcmpl_baseten_profile",
+        object: "chat.completion",
+        choices: [{ message: { role: "assistant", content: "Baseten-compatible answer." } }],
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ model: "zai-org/GLM-5.3", messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 200);
+  });
+
+  assert.equal(capturedUrl, "https://inference.baseten.co/v1/chat/completions");
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer baseten-key");
+  assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
+test("Baseten provider profile sends its model-list path and bearer header", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "baseten",
+  });
+  let capturedUrl: string | undefined;
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "baseten-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrl = String(input);
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({ object: "list", data: [{ id: "zai-org/GLM-5.3", object: "model" }] }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/models?limit=1`);
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), {
+      object: "list",
+      data: [{ id: "zai-org/GLM-5.3", object: "model" }],
+    });
+  });
+
+  assert.equal(capturedUrl, "https://inference.baseten.co/v1/models?limit=1");
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer baseten-key");
+  assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
 test("Cloudflare Workers AI provider profile sends the account-scoped bearer contract", async () => {

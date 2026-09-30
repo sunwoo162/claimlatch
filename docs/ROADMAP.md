@@ -73,6 +73,7 @@
 - Xiaomi MiMo OpenAI-compatible proxy provider profile with Chat Completions and model-list contract coverage
 - Cloudflare Workers AI OpenAI-compatible proxy provider profile with account-scoped Chat Completions contract coverage and explicit fail-closed handling when no model-list route is configured
 - Configurable upstream API key authentication prefixes for non-Bearer provider contracts
+- Baseten Model APIs OpenAI-compatible proxy provider profile with Chat Completions and model-list contract coverage
 
 ## Next
 
