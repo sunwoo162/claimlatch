@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-No unreleased changes.
+- Added fail-closed regression coverage for calibration dataset validation, including empty datasets, malformed manifests, and overlapping source case/claim pairs.
 
 ## 0.3.86 - 2026-09-30
 
