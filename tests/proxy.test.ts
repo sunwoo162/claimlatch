@@ -31,6 +31,7 @@ const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "azure"
   sambanova: "https://api.sambanova.ai/v1",
   siliconflow: "https://api.siliconflow.cn/v1",
   together: "https://api.together.xyz/v1",
+  tokenhub: "https://tokenhub.tencentmaas.com/v1",
   volcengine: "https://ark.cn-beijing.volces.com/api/v3",
   xai: "https://api.x.ai/v1",
   zai: "https://api.z.ai/api/paas/v4",
@@ -1270,6 +1271,39 @@ test("Qianfan provider profile sends its model-list path and bearer header", asy
 
   assert.equal(capturedUrl, "https://qianfan.baidubce.com/v2/models?limit=1");
   assert.equal(capturedHeaders?.get("authorization"), "Bearer qianfan-key");
+  assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
+test("TokenHub provider profile sends its model-list path and bearer header", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "tokenhub",
+  });
+  let capturedUrl: string | undefined;
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "tokenhub-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrl = String(input);
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({ object: "list", data: [{ id: "hy4-preview", object: "model" }] }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/models?limit=1`);
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), {
+      object: "list",
+      data: [{ id: "hy4-preview", object: "model" }],
+    });
+  });
+
+  assert.equal(capturedUrl, "https://tokenhub.tencentmaas.com/v1/models?limit=1");
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer tokenhub-key");
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 

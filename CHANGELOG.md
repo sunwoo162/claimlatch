@@ -9,6 +9,7 @@
 - Added a Volcengine Ark OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions defaults and wire-contract coverage.
 - Added a MiniMax OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions defaults and wire-contract coverage.
 - Added a Tencent Hunyuan OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions defaults and wire-contract coverage.
+- Added a Tencent Cloud TokenHub OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions and model-list defaults and wire-contract coverage.
 - Expanded the frozen independent benchmark to 200 balanced cases across 100 paired topics with IETF RFC 7725-backed HTTP 451 Unavailable For Legal Reasons and BIPM-backed SI mole pairs.
 - Added a Nebius Token Factory OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions defaults and profile coverage.
 - Added a SiliconFlow OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions defaults and profile coverage.
