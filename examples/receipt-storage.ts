@@ -2,6 +2,7 @@ import { generateKeyPairSync } from "node:crypto";
 import {
   createSignedVerificationReceipt,
   FileVerificationReceiptStore,
+  hashVerificationReceiptPayload,
   verifySignedVerificationReceipt,
 } from "../src/index.js";
 import type { VerificationReport } from "../src/types.js";
@@ -44,6 +45,17 @@ const report: VerificationReport = {
   generatedAt: "2026-09-29T00:00:00.000Z",
 };
 
+export interface ReceiptStorageOutput {
+  receiptId: string;
+  receiptDirectory: string;
+  verified: boolean;
+  payloadSha256?: string;
+}
+
+export function renderReceiptStorageOutput(output: ReceiptStorageOutput): string {
+  return JSON.stringify(output, null, 2);
+}
+
 async function main(): Promise<void> {
   const { privateKey, publicKey } = generateKeyPairSync("ed25519");
   const privateKeyPem = privateKey.export({ type: "pkcs8", format: "pem" });
@@ -62,12 +74,36 @@ async function main(): Promise<void> {
   const verified = stored !== undefined && verifySignedVerificationReceipt(stored, {
     keyResolver: (keyId) => keyId === undefined ? undefined : publicKeys.get(keyId),
   });
+  const payloadSha256 = stored ? hashVerificationReceiptPayload(stored.payload) : undefined;
 
-  process.stdout.write(`${JSON.stringify({ receiptId, receiptDirectory, verified }, null, 2)}\n`);
+  process.stdout.write(`${renderReceiptStorageOutput({
+    receiptId,
+    receiptDirectory,
+    verified,
+    ...(payloadSha256 ? { payloadSha256 } : {}),
+  })}\n`);
   if (!verified) throw new Error("Stored receipt did not verify.");
 }
 
-main().catch((error: unknown) => {
-  process.stderr.write(`receipt-storage: ${error instanceof Error ? error.message : String(error)}\n`);
-  process.exitCode = 1;
-});
+if (isReceiptStorageMainModule(import.meta.url, process.argv[1])) {
+  main().catch((error: unknown) => {
+    process.stderr.write(`receipt-storage: ${error instanceof Error ? error.message : String(error)}\n`);
+    process.exitCode = 1;
+  });
+}
+
+export function isReceiptStorageMainModule(moduleUrl: string, scriptPath: string | undefined): boolean {
+  if (!scriptPath) return false;
+  try {
+    const modulePath = decodeURIComponent(moduleUrl.replace(/^file:\/\//u, ""))
+      .replace(/^\/([A-Za-z]:)\//u, "$1/")
+      .replace(/\\/gu, "/");
+    const normalizedScriptPath = scriptPath.replace(/\\/gu, "/");
+    const isWindowsPath = /^[A-Za-z]:\//u.test(modulePath) || /^[A-Za-z]:\//u.test(normalizedScriptPath);
+    return isWindowsPath
+      ? modulePath.toLowerCase() === normalizedScriptPath.toLowerCase()
+      : modulePath === normalizedScriptPath;
+  } catch {
+    return false;
+  }
+}

@@ -424,6 +424,8 @@ The runnable [`examples/receipt-storage.ts`](examples/receipt-storage.ts) exampl
 npm run example:receipts
 ```
 
+The example prints the receipt ID, verification result, and canonical signed payload `payloadSha256` for audit logs; importing the example module does not write files or execute the demo.
+
 The generated key is for demonstration only. Production applications should load signing keys from a secret manager or HSM and use a durable, access-controlled receipt directory.
 
 ## Evidence provenance
@@ -547,6 +549,8 @@ It demonstrates plumbing, not factuality benchmark performance.
 PASS is not proof of universal truth. Claim extraction, search, source selection, document parsing, and entailment can all fail. Read [docs/TRUST_MODEL.md](docs/TRUST_MODEL.md) before using ClaimLatch in high-stakes decisions.
 
 ## Project status
+
+The unreleased receipt storage example prints the canonical signed payload SHA-256 and is safe to import without running the demo.
 
 `0.3.74` explicitly selects the Node.js runtime required by the default gate in the Next.js example.
 
