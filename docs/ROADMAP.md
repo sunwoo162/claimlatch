@@ -62,6 +62,7 @@
 - Upstage OpenAI-compatible proxy provider profile with Chat Completions contract coverage
 - Requesty OpenAI-compatible proxy provider profile with Chat Completions and model-list contract coverage
 - Featherless AI OpenAI-compatible proxy provider profile with Chat Completions and model-list contract coverage
+- IONOS Cloud AI Model Hub OpenAI-compatible proxy provider profile with Chat Completions and model-list contract coverage
 
 ## Next
 

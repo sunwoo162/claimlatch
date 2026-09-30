@@ -23,7 +23,7 @@ test("proxy CLI help documents credentials, routes, and fail-closed behavior", (
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS/);
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_MODELS_PATH.*profile supplies one/);
   assert.match(help, /CLAIMLATCH_PROXY_PROVIDER_PROFILE/);
-  assert.match(help, /ai21, azure, cerebras, chutes, cohere, dashscope, deepinfra, deepseek, featherless, fireworks, friendli, gemini, groq, huggingface, hunyuan, minimax, mistral, moonshot, nebius, novita, nvidia, openai, openrouter, perplexity, poe, qianfan, requesty, sambanova, siliconflow, stepfun, together, tokenhub, upstage, volcengine, xai, or zai/);
+  assert.match(help, /ai21, azure, cerebras, chutes, cohere, dashscope, deepinfra, deepseek, featherless, fireworks, friendli, gemini, groq, huggingface, ionos, hunyuan, minimax, mistral, moonshot, nebius, novita, nvidia, openai, openrouter, perplexity, poe, qianfan, requesty, sambanova, siliconflow, stepfun, together, tokenhub, upstage, volcengine, xai, or zai/);
   assert.match(help, /PASS.*BLOCK/s);
   assert.match(help, /credential-free/);
 });
@@ -119,6 +119,7 @@ test("proxy CLI resolves every hosted built-in profile without an explicit base 
     gemini: "https://generativelanguage.googleapis.com/v1beta/openai",
     groq: "https://api.groq.com/openai/v1",
     huggingface: "https://router.huggingface.co/v1",
+    ionos: "https://openai.inference.de-txl.ionos.com/v1",
     hunyuan: "https://api.hunyuan.cloud.tencent.com/v1",
     minimax: "https://api.minimax.io/v1",
     mistral: "https://api.mistral.ai/v1",
