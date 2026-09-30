@@ -18,6 +18,7 @@ const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "azure"
   groq: "https://api.groq.com/openai/v1",
   huggingface: "https://router.huggingface.co/v1",
   mistral: "https://api.mistral.ai/v1",
+  moonshot: "https://api.moonshot.ai/v1",
   nvidia: "https://integrate.api.nvidia.com/v1",
   openai: "https://api.openai.com/v1",
   perplexity: "https://api.perplexity.ai/router/v1",

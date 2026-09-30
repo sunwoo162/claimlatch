@@ -18,6 +18,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
     "groq",
     "huggingface",
     "mistral",
+    "moonshot",
     "nvidia",
     "openai",
     "openrouter",
@@ -28,7 +29,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
   ]);
   assert.equal(
     formatProxyProviderProfileNames(),
-    "azure, cerebras, cohere, deepinfra, deepseek, fireworks, gemini, groq, huggingface, mistral, nvidia, openai, openrouter, perplexity, sambanova, together, or xai",
+    "azure, cerebras, cohere, deepinfra, deepseek, fireworks, gemini, groq, huggingface, mistral, moonshot, nvidia, openai, openrouter, perplexity, sambanova, together, or xai",
   );
 });
 
@@ -82,6 +83,14 @@ test("proxy profiles provide Gemini OpenAI-compatible Chat Completions defaults"
 test("proxy profiles provide Mistral-compatible Chat Completions defaults", () => {
   assert.deepEqual(resolveProxyProviderProfile("mistral"), {
     upstreamBaseUrl: "https://api.mistral.ai/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  });
+});
+
+test("proxy profiles provide Moonshot-compatible Chat Completions defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("moonshot"), {
+    upstreamBaseUrl: "https://api.moonshot.ai/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
   });

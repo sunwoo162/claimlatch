@@ -9,6 +9,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "groq",
   "huggingface",
   "mistral",
+  "moonshot",
   "nvidia",
   "openai",
   "openrouter",
@@ -88,6 +89,11 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
   },
   mistral: {
     upstreamBaseUrl: "https://api.mistral.ai/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  },
+  moonshot: {
+    upstreamBaseUrl: "https://api.moonshot.ai/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
   },
