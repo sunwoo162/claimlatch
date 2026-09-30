@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import {
+  createBenchmarkManifest,
   parseBenchmarkJsonl,
   parseBenchmarkManifest,
   runBenchmark,
@@ -220,6 +221,26 @@ test("benchmark files match the committed integrity manifest", async () => {
     verifyBenchmarkManifestEntry(manifest, fileName, raw, parseBenchmarkJsonl(raw).length);
     assert.equal(createHash("sha256").update(raw.replace(/\r\n?/gu, "\n")).digest("hex"), metadata.sha256);
   }
+});
+
+test("benchmark manifest generation canonicalizes line endings and records case counts", () => {
+  const content = '{"id":"one"}\r\n';
+  const canonical = content.replace(/\r\n?/gu, "\n");
+  const manifest = createBenchmarkManifest([{
+    fileName: "dev.jsonl",
+    content,
+    caseCount: 1,
+  }]);
+
+  assert.deepEqual(manifest, {
+    version: 1,
+    files: {
+      "dev.jsonl": {
+        sha256: createHash("sha256").update(canonical).digest("hex"),
+        cases: 1,
+      },
+    },
+  });
 });
 
 test("benchmark manifest verification fails closed for tampered content or case counts", async () => {

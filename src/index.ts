@@ -1,6 +1,7 @@
 export { createDefaultClaimLatch } from "./default-gate.js";
 export type { DefaultClaimLatchOptions } from "./default-gate.js";
 export {
+  createBenchmarkManifest,
   parseBenchmarkJsonl,
   parseBenchmarkManifest,
   runBenchmark,
@@ -9,6 +10,7 @@ export {
 export type {
   BenchmarkCase,
   BenchmarkCaseResult,
+  BenchmarkManifestSource,
   BenchmarkManifest,
   BenchmarkManifestEntry,
   BenchmarkReport,

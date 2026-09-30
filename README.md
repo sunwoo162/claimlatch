@@ -485,6 +485,8 @@ Use `claimlatch-bench --validate` to verify the selected JSONL dataset and manif
 
 For a credential-free repository check, run `npm run bench:validate`. The same command runs in [the benchmark validation workflow](.github/workflows/benchmark-validation.yml) when benchmark inputs or validation code change.
 
+When adding or editing frozen benchmark files, run `npm run bench:manifest` to print the deterministic SHA-256 manifest JSON for review or redirection into `benchmarks/MANIFEST.json`. The command does not modify repository files by itself.
+
 Run it with configured live providers:
 
 ```bash
