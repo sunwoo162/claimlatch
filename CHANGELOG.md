@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.80 - 2026-09-30
+
+- Expanded the frozen independent benchmark to 80 balanced cases across 40 paired topics with a Google Gemini OpenAI compatibility endpoint pair.
+
 ## 0.3.79 - 2026-09-30
 
 - Added a Google Gemini OpenAI-compatible Chat Completions proxy provider profile with documented bearer authentication.
