@@ -171,9 +171,9 @@ test("independent benchmark contains a balanced expanded label set", async () =>
   const cases = parseBenchmarkJsonl(raw);
   const sourceUrls = new Set(cases.flatMap((item) => item.labelSourceUrls ?? []));
 
-  assert.equal(cases.length, 76);
-  assert.equal(cases.filter((item) => item.expectedPassed).length, 38);
-  assert.equal(cases.filter((item) => !item.expectedPassed).length, 38);
+  assert.equal(cases.length, 78);
+  assert.equal(cases.filter((item) => item.expectedPassed).length, 39);
+  assert.equal(cases.filter((item) => !item.expectedPassed).length, 39);
   assert.ok(sourceUrls.size >= 17);
   assert.ok(cases.every((item) => (item.labelSourceUrls?.length ?? 0) > 0));
 });
@@ -185,13 +185,13 @@ test("benchmark dataset is partitioned into balanced train, dev, and test splits
     return [split, parseBenchmarkJsonl(raw)] as const;
   }));
 
-  const expectedCounts = [48, 16, 12];
+  const expectedCounts = [48, 18, 12];
   const allCases = splitCases.flatMap(([, cases]) => cases);
   const aggregateRaw = await readFile(new URL("../../benchmarks/independent.jsonl", import.meta.url), "utf8");
   const aggregateCases = parseBenchmarkJsonl(aggregateRaw);
 
   assert.deepEqual(splitCases.map(([, cases]) => cases.length), expectedCounts);
-  assert.equal(new Set(allCases.map((item) => item.id)).size, 76);
+  assert.equal(new Set(allCases.map((item) => item.id)).size, 78);
   assert.deepEqual(
     new Set(allCases.map((item) => item.id)),
     new Set(aggregateCases.map((item) => item.id)),
@@ -226,7 +226,7 @@ test("benchmark manifest verification fails closed for tampered content or case 
   const manifest = parseBenchmarkManifest(await readFile(new URL("../../benchmarks/MANIFEST.json", import.meta.url), "utf8"));
   const raw = await readFile(new URL("../../benchmarks/dev.jsonl", import.meta.url), "utf8");
 
-  assert.equal(verifyBenchmarkManifestEntry(manifest, "dev.jsonl", raw, 16), undefined);
+  assert.equal(verifyBenchmarkManifestEntry(manifest, "dev.jsonl", raw, 18), undefined);
   assert.throws(
     () => verifyBenchmarkManifestEntry(manifest, "dev.jsonl", `${raw}\n`, 8),
     /SHA-256 mismatch/,
