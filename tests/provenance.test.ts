@@ -340,6 +340,39 @@ test("DNS resolution pins the selected public address for the document request",
   assert.equal(result[0]?.provenance?.kind, "retrieved-document");
 });
 
+test("DNS resolution pins a public IPv6 address with its address family", async () => {
+  let requestedAddress: string | undefined;
+  let requestedFamily: 4 | 6 | undefined;
+  const provider = new ProvenanceEvidenceProvider({
+    provider: new StaticEvidenceProvider(() => [
+      {
+        id: "e1",
+        claimId: "claim_1",
+        title: "Pinned IPv6 DNS target",
+        url: "http://public.example.test/mars",
+        snippet: "fallback",
+        sourceType: "unknown",
+        retrievedAt: "2026-09-28T00:00:00.000Z",
+        provider: "fixture",
+      },
+    ]),
+    lookupImpl: async () => [{ address: "2001:4860:4860::8888", family: 6 }],
+    requestImpl: async (_url: URL, options) => {
+      requestedAddress = options.address;
+      requestedFamily = options.family;
+      return new Response("Mars is known as the Red Planet.", {
+        status: 200,
+        headers: { "content-type": "text/plain" },
+      });
+    },
+  });
+
+  const result = await provider.search(claim);
+  assert.equal(requestedAddress, "2001:4860:4860::8888");
+  assert.equal(requestedFamily, 6);
+  assert.equal(result[0]?.provenance?.kind, "retrieved-document");
+});
+
 test("PDF provenance records the matching page and page-local quote offsets", async () => {
   const options = {
     provider: new StaticEvidenceProvider(() => [
