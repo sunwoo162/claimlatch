@@ -72,6 +72,12 @@ test("credentialed evidence URLs are redacted in fallback provenance", async () 
       sourceType: "unknown",
       retrievedAt: "2026-09-28T00:00:00.000Z",
       provider: "fixture",
+      provenance: {
+        kind: "search-snippet",
+        sourceUrl: "https://source-user:source-password@example.test/mars",
+        retrievedAt: "2026-09-28T00:00:00.000Z",
+        quote: "fallback",
+      },
     }]),
     fetchImpl: (async () => {
       called = true;
