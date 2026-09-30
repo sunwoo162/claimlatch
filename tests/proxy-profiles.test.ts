@@ -92,7 +92,7 @@ test("proxy profiles provide Aphrodite-compatible Chat Completions defaults", ()
   assert.deepEqual(resolveProxyProviderProfile("aphrodite"), {
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/v1/chat/completions",
-    upstreamModelsPath: null,
+    upstreamModelsPath: "/v1/models",
     upstreamModelRetrievalPath: null,
   });
 });

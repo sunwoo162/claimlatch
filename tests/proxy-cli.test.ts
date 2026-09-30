@@ -235,7 +235,7 @@ test("proxy CLI requires an explicit base URL for Aphrodite", () => {
     upstreamBaseUrl: "http://localhost:2242",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/v1/chat/completions",
-    upstreamModelsPath: null,
+    upstreamModelsPath: "/v1/models",
     upstreamModelRetrievalPath: null,
   });
 });

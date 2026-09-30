@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Added an Aphrodite Engine self-hosted OpenAI-compatible proxy provider profile with explicit base URL configuration, versioned Chat Completions coverage, fail-closed handling for undocumented model routes, and wire-contract tests.
+- Added an Aphrodite Engine self-hosted OpenAI-compatible proxy provider profile with explicit base URL configuration, versioned Chat Completions/model-list coverage, fail-closed handling for its undocumented model-retrieval route, and wire-contract tests.
 - Added a TensorRT-LLM `trtllm-serve` self-hosted OpenAI-compatible proxy provider profile with explicit base URL configuration, versioned Chat Completions/model-list coverage, fail-closed handling for its undocumented model-retrieval route, and wire-contract tests.
 - Added an OpenLLM self-hosted OpenAI-compatible proxy provider profile with explicit base URL configuration, versioned Chat Completions/model-list coverage, fail-closed handling for its undocumented model-retrieval route, and wire-contract tests.
 - Added a FastChat self-hosted OpenAI-compatible proxy provider profile with explicit base URL configuration, versioned Chat Completions/model-list coverage, fail-closed handling for its undocumented model-retrieval route, and wire-contract tests.
