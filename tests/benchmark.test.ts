@@ -221,6 +221,23 @@ test("benchmark dataset is partitioned into balanced train, dev, and test splits
   }));
 });
 
+test("benchmark splits keep paired questions in one partition", async () => {
+  const splitNames = ["train", "dev", "test"] as const;
+  const locations = new Map<string, Set<string>>();
+
+  for (const split of splitNames) {
+    const raw = await readFile(new URL(`../../benchmarks/${split}.jsonl`, import.meta.url), "utf8");
+    for (const item of parseBenchmarkJsonl(raw)) {
+      const splitNamesForQuestion = locations.get(item.question) ?? new Set<string>();
+      splitNamesForQuestion.add(split);
+      locations.set(item.question, splitNamesForQuestion);
+    }
+  }
+
+  assert.equal(locations.size, 53);
+  assert.ok([...locations.values()].every((splits) => splits.size === 1));
+});
+
 test("benchmark files match the committed integrity manifest", async () => {
   const manifestUrl = new URL("../../benchmarks/MANIFEST.json", import.meta.url);
   const manifest = parseBenchmarkManifest(await readFile(manifestUrl, "utf8"));
