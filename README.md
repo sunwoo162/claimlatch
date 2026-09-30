@@ -401,6 +401,14 @@ app.post("/answer", createHonoGuardedAnswerHandler());
 export default app;
 ```
 
+For SvelteKit, copy [`examples/sveltekit-route-handler.ts`](examples/sveltekit-route-handler.ts) to a `+server.ts` route and export the adapter as the `POST` handler. It passes SvelteKit's `event.request` to the same Fetch-native guarded handler without adding SvelteKit to ClaimLatch's package dependencies:
+
+```ts
+import { createSvelteKitGuardedAnswerHandler } from "claimlatch/examples/sveltekit-route-handler.js";
+
+export const POST = createSvelteKitGuardedAnswerHandler();
+```
+
 ### Structured-output proxy policy example
 
 `structuredOutputVerifier` is the application-owned safety boundary for tool calls and multimodal output. The runnable example below allows only the comma-separated tool names in `CLAIMLATCH_ALLOWED_TOOLS`; any other tool call is returned as a deterministic BLOCK report. The example uses a local policy report for structured output and the configured ClaimLatch gate for ordinary textual responses.
