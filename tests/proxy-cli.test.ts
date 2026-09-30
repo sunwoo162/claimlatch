@@ -63,6 +63,18 @@ test("proxy CLI resolves provider profile defaults and explicit overrides", () =
   });
 });
 
+test("proxy CLI resolves Azure deployment paths with an explicit base URL", () => {
+  assert.deepEqual(resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "azure",
+    CLAIMLATCH_PROXY_UPSTREAM_BASE_URL: "https://claimlatch-resource.openai.azure.com",
+  }), {
+    upstreamBaseUrl: "https://claimlatch-resource.openai.azure.com",
+    upstreamApiKeyHeader: "api-key",
+    upstreamChatCompletionsPath: "/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-10-21",
+    upstreamModelsPath: "/models",
+  });
+});
+
 test("proxy CLI resolves every hosted built-in profile without an explicit base URL", () => {
   const expected = {
     cerebras: "https://api.cerebras.ai/v1",
