@@ -14,6 +14,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "deepinfra",
   "deepseek",
   "featherless",
+  "fastchat",
   "fireworks",
   "friendli",
   "gemini",
@@ -168,6 +169,11 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
     upstreamModelsPath: "/models",
+  },
+  fastchat: {
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/v1/chat/completions",
+    upstreamModelsPath: "/v1/models",
   },
   fireworks: {
     upstreamBaseUrl: "https://api.fireworks.ai/inference/v1",
