@@ -359,6 +359,7 @@ A verification report can be wrapped in an Ed25519-signed receipt. The receipt i
 ```ts
 import {
   createSignedVerificationReceipt,
+  hashVerificationReceiptPayload,
   verifySignedVerificationReceipt,
 } from "claimlatch";
 
@@ -369,9 +370,12 @@ const receipt = createSignedVerificationReceipt(report, {
 });
 
 const isAuthentic = verifySignedVerificationReceipt(receipt);
+const payloadSha256 = hashVerificationReceiptPayload(receipt.payload);
 ```
 
 The signature does not establish that the report is factually correct. It only authenticates that the signed report payload has not changed and was verified against a particular public key. Manage the private key using an environment-appropriate secure mechanism such as a secret manager.
+
+`hashVerificationReceiptPayload` returns the same canonical payload SHA-256 surfaced by the receipt CLI JSON output, so SDK audit records can correlate with CLI verification logs.
 
 For a simple persistent backend, ClaimLatch includes a filesystem store. Receipt IDs are validated as safe filenames, writes use a temporary file followed by rename, and missing receipts return `undefined`; the store does not replace signature verification.
 
