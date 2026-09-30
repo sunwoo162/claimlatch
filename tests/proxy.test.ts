@@ -2093,15 +2093,17 @@ test("Baichuan provider profile fails closed for unsupported model routes", asyn
       return new Response("unexpected upstream request", { status: 500 });
     }) as typeof fetch,
   }, async (url) => {
-    const response = await fetch(`${url}/v1/models`);
-    assert.equal(response.status, 404);
-    assert.deepEqual(await response.json(), {
-      error: {
-        type: "claimlatch_proxy_error",
-        code: "claimlatch_model_route_unavailable",
-        message: "The configured provider does not expose a model-list route.",
-      },
-    });
+    for (const path of ["/v1/models", "/v1/models/Baichuan2-Turbo"]) {
+      const response = await fetch(`${url}${path}`);
+      assert.equal(response.status, 404);
+      assert.deepEqual(await response.json(), {
+        error: {
+          type: "claimlatch_proxy_error",
+          code: "claimlatch_model_route_unavailable",
+          message: "The configured provider does not expose a model-list route.",
+        },
+      });
+    }
   });
 
   assert.equal(upstreamCalled, false);
