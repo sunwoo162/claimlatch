@@ -523,7 +523,7 @@ Core invariants are checked again after custom providers return. Duplicate claim
 
 ## Independent-label benchmark
 
-`benchmarks/independent.jsonl` contains 130 cases across 65 paired topics, with one positive and one negative answer per topic. Each case records a public label-source URL, and labels were not generated from ClaimLatch output. The same frozen aggregate is partitioned into `benchmarks/train.jsonl` (94 cases), `benchmarks/dev.jsonl` (24 cases), and `benchmarks/test.jsonl` (12 cases), with balanced positive and negative labels in every split.
+`benchmarks/independent.jsonl` contains 134 cases across 67 paired topics, with one positive and one negative answer per topic. Each case records a public label-source URL, and labels were not generated from ClaimLatch output. The same frozen aggregate is partitioned into `benchmarks/train.jsonl` (98 cases), `benchmarks/dev.jsonl` (24 cases), and `benchmarks/test.jsonl` (12 cases), with balanced positive and negative labels in every split.
 
 The default `claimlatch-bench` command verifies `benchmarks/independent.jsonl` against `benchmarks/MANIFEST.json` before contacting any model or evidence provider. For a custom dataset, pass `--manifest <path>` to enable the same SHA-256 and case-count check; a mismatch fails closed before a benchmark report is produced.
 
@@ -551,7 +551,7 @@ claimlatch-bench --split dev
 claimlatch-bench --split test
 ```
 
-`--split` accepts `train`, `dev`, or `test` and cannot be combined with `--dataset`. The default is the 130-case `independent.jsonl` aggregate.
+`--split` accepts `train`, `dev`, or `test` and cannot be combined with `--dataset`. The default is the 134-case `independent.jsonl` aggregate.
 
 Use `claimlatch-bench --help` for the complete option list without configuring provider credentials.
 
