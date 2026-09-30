@@ -1,4 +1,5 @@
 export const PROXY_PROVIDER_PROFILE_NAMES = [
+  "ai21",
   "azure",
   "cerebras",
   "cohere",
@@ -53,6 +54,11 @@ export interface ProxyProviderProfile {
 type StaticProxyProviderProfileName = Exclude<ProxyProviderProfileName, "openrouter">;
 
 const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfileName, ProxyProviderProfile>> = {
+  ai21: {
+    upstreamBaseUrl: "https://api.ai21.com/studio/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  },
   azure: {
     upstreamApiKeyHeader: "api-key",
     upstreamChatCompletionsPath: "/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-10-21",

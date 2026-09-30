@@ -55,6 +55,7 @@
 - Tencent Hunyuan OpenAI-compatible proxy provider profile with Chat Completions contract coverage
 - Tencent Cloud TokenHub OpenAI-compatible proxy provider profile with model-list contract coverage
 - StepFun OpenAI-compatible proxy provider profile with Chat Completions contract coverage
+- AI21 OpenAI-compatible proxy provider profile with Chat Completions contract coverage
 
 ## Next
 

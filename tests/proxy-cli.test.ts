@@ -23,7 +23,7 @@ test("proxy CLI help documents credentials, routes, and fail-closed behavior", (
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS/);
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_MODELS_PATH.*profile supplies one/);
   assert.match(help, /CLAIMLATCH_PROXY_PROVIDER_PROFILE/);
-  assert.match(help, /azure, cerebras, cohere, dashscope, deepinfra, deepseek, fireworks, friendli, gemini, groq, huggingface, hunyuan, minimax, mistral, moonshot, nebius, nvidia, openai, openrouter, perplexity, qianfan, sambanova, siliconflow, stepfun, together, tokenhub, volcengine, xai, or zai/);
+  assert.match(help, /ai21, azure, cerebras, cohere, dashscope, deepinfra, deepseek, fireworks, friendli, gemini, groq, huggingface, hunyuan, minimax, mistral, moonshot, nebius, nvidia, openai, openrouter, perplexity, qianfan, sambanova, siliconflow, stepfun, together, tokenhub, volcengine, xai, or zai/);
   assert.match(help, /PASS.*BLOCK/s);
   assert.match(help, /credential-free/);
 });
@@ -106,6 +106,7 @@ test("proxy CLI resolves Azure deployment paths with an explicit base URL", () =
 
 test("proxy CLI resolves every hosted built-in profile without an explicit base URL", () => {
   const expected = {
+    ai21: "https://api.ai21.com/studio/v1",
     cerebras: "https://api.cerebras.ai/v1",
     cohere: "https://api.cohere.ai/compatibility/v1",
     dashscope: "https://dashscope.aliyuncs.com/compatible-mode/v1",

@@ -9,6 +9,7 @@ import type { OpenAIProxyOptions } from "../src/proxy.js";
 import type { ProxyProviderProfileName } from "../src/proxy-profiles.js";
 
 const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "azure" | "openrouter">, string> = {
+  ai21: "https://api.ai21.com/studio/v1",
   cerebras: "https://api.cerebras.ai/v1",
   cohere: "https://api.cohere.ai/compatibility/v1",
   dashscope: "https://dashscope.aliyuncs.com/compatible-mode/v1",
@@ -1339,6 +1340,40 @@ test("StepFun provider profile sends the OpenAI-compatible bearer contract", asy
 
   assert.equal(capturedUrl, "https://api.stepfun.ai/v1/chat/completions");
   assert.equal(capturedHeaders?.get("authorization"), "Bearer stepfun-key");
+  assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
+test("AI21 provider profile sends the OpenAI-compatible bearer contract", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "ai21",
+  });
+  let capturedUrl: string | undefined;
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "ai21-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrl = String(input);
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({
+        id: "chatcmpl_ai21_profile",
+        object: "chat.completion",
+        choices: [{ message: { role: "assistant", content: "AI21-compatible answer." } }],
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ model: "jamba-mini", messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 200);
+  });
+
+  assert.equal(capturedUrl, "https://api.ai21.com/studio/v1/chat/completions");
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer ai21-key");
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
