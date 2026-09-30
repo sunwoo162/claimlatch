@@ -19,6 +19,7 @@ const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "azure"
   huggingface: "https://router.huggingface.co/v1",
   mistral: "https://api.mistral.ai/v1",
   moonshot: "https://api.moonshot.ai/v1",
+  nebius: "https://api.tokenfactory.nebius.com/v1",
   nvidia: "https://integrate.api.nvidia.com/v1",
   openai: "https://api.openai.com/v1",
   perplexity: "https://api.perplexity.ai/router/v1",

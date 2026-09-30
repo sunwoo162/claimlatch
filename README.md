@@ -164,6 +164,8 @@ For Mistral's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY
 
 For Moonshot's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="moonshot"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.moonshot.ai/v1`, bearer authentication, and `/chat/completions`; see [Moonshot's Chat Completions documentation](https://platform.kimi.ai/docs/api/chat).
 
+For Nebius Token Factory's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="nebius"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.tokenfactory.nebius.com/v1`, bearer authentication, and `/chat/completions`; see [Nebius Token Factory's API reference](https://api.tokenfactory.nebius.com/docs).
+
 For the direct OpenAI API, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="openai"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.openai.com/v1`, bearer authentication, and `/chat/completions`.
 
 For NVIDIA NIM's hosted OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="nvidia"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://integrate.api.nvidia.com/v1`, bearer authentication, and `/chat/completions`.

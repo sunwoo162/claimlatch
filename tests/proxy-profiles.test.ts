@@ -19,6 +19,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
     "huggingface",
     "mistral",
     "moonshot",
+    "nebius",
     "nvidia",
     "openai",
     "openrouter",
@@ -30,7 +31,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
   ]);
   assert.equal(
     formatProxyProviderProfileNames(),
-    "azure, cerebras, cohere, deepinfra, deepseek, fireworks, gemini, groq, huggingface, mistral, moonshot, nvidia, openai, openrouter, perplexity, sambanova, siliconflow, together, or xai",
+    "azure, cerebras, cohere, deepinfra, deepseek, fireworks, gemini, groq, huggingface, mistral, moonshot, nebius, nvidia, openai, openrouter, perplexity, sambanova, siliconflow, together, or xai",
   );
 });
 
@@ -92,6 +93,14 @@ test("proxy profiles provide Mistral-compatible Chat Completions defaults", () =
 test("proxy profiles provide Moonshot-compatible Chat Completions defaults", () => {
   assert.deepEqual(resolveProxyProviderProfile("moonshot"), {
     upstreamBaseUrl: "https://api.moonshot.ai/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  });
+});
+
+test("proxy profiles provide Nebius-compatible Chat Completions defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("nebius"), {
+    upstreamBaseUrl: "https://api.tokenfactory.nebius.com/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
   });
