@@ -24,6 +24,7 @@ const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "azure"
   nvidia: "https://integrate.api.nvidia.com/v1",
   openai: "https://api.openai.com/v1",
   perplexity: "https://api.perplexity.ai/router/v1",
+  qianfan: "https://qianfan.baidubce.com/v2",
   sambanova: "https://api.sambanova.ai/v1",
   siliconflow: "https://api.siliconflow.cn/v1",
   together: "https://api.together.xyz/v1",
@@ -1199,6 +1200,39 @@ test("Azure provider profile sends its model-list path and api-key header", asyn
   );
   assert.equal(capturedHeaders?.get("api-key"), "azure-key");
   assert.equal(capturedHeaders?.get("authorization"), null);
+});
+
+test("Qianfan provider profile sends its model-list path and bearer header", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "qianfan",
+  });
+  let capturedUrl: string | undefined;
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "qianfan-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrl = String(input);
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({ object: "list", data: [{ id: "ernie-5.0", object: "model" }] }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/models?limit=1`);
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), {
+      object: "list",
+      data: [{ id: "ernie-5.0", object: "model" }],
+    });
+  });
+
+  assert.equal(capturedUrl, "https://qianfan.baidubce.com/v2/models?limit=1");
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer qianfan-key");
+  assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
 test("hosted Gemini provider profile sends the OpenAI-compatible bearer contract", async () => {
