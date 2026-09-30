@@ -1,6 +1,7 @@
 export const PROXY_PROVIDER_PROFILE_NAMES = [
   "ai21",
   "aimlapi",
+  "aphrodite",
   "azure",
   "baichuan",
   "baseten",
@@ -100,6 +101,12 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/v1/chat/completions",
     upstreamModelsPath: "/models",
+  },
+  aphrodite: {
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/v1/chat/completions",
+    upstreamModelsPath: "/v1/models",
+    upstreamModelRetrievalPath: null,
   },
   azure: {
     upstreamApiKeyHeader: "api-key",
