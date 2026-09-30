@@ -174,6 +174,8 @@ For Moonshot's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROX
 
 For Nebius Token Factory's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="nebius"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.tokenfactory.nebius.com/v1`, bearer authentication, and `/chat/completions`; see [Nebius Token Factory's API reference](https://api.tokenfactory.nebius.com/docs).
 
+For Novita AI's OpenAI-compatible LLM API, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="novita"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.novita.ai/openai/v1`, bearer authentication, `/chat/completions`, and `/models`; see [Novita's API reference overview](https://docs.novita.ai/api-reference/api-reference-overview) and [Chat Completion reference](https://docs.novita.ai/api-reference/model-apis-llm-create-chat-completion).
+
 For the direct OpenAI API, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="openai"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.openai.com/v1`, bearer authentication, and `/chat/completions`.
 
 For NVIDIA NIM's hosted OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="nvidia"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://integrate.api.nvidia.com/v1`, bearer authentication, and `/chat/completions`.

@@ -16,6 +16,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "mistral",
   "moonshot",
   "nebius",
+  "novita",
   "nvidia",
   "openai",
   "openrouter",
@@ -139,6 +140,12 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamBaseUrl: "https://api.tokenfactory.nebius.com/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+  },
+  novita: {
+    upstreamBaseUrl: "https://api.novita.ai/openai/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
   },
   nvidia: {
     upstreamBaseUrl: "https://integrate.api.nvidia.com/v1",

@@ -25,6 +25,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
     "mistral",
     "moonshot",
     "nebius",
+    "novita",
     "nvidia",
     "openai",
     "openrouter",
@@ -41,7 +42,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
   ]);
   assert.equal(
     formatProxyProviderProfileNames(),
-    "ai21, azure, cerebras, cohere, dashscope, deepinfra, deepseek, fireworks, friendli, gemini, groq, huggingface, hunyuan, minimax, mistral, moonshot, nebius, nvidia, openai, openrouter, perplexity, qianfan, sambanova, siliconflow, stepfun, together, tokenhub, volcengine, xai, or zai",
+    "ai21, azure, cerebras, cohere, dashscope, deepinfra, deepseek, fireworks, friendli, gemini, groq, huggingface, hunyuan, minimax, mistral, moonshot, nebius, novita, nvidia, openai, openrouter, perplexity, qianfan, sambanova, siliconflow, stepfun, together, tokenhub, volcengine, xai, or zai",
   );
 });
 
@@ -163,6 +164,15 @@ test("proxy profiles provide Nebius-compatible Chat Completions defaults", () =>
     upstreamBaseUrl: "https://api.tokenfactory.nebius.com/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+  });
+});
+
+test("proxy profiles provide Novita-compatible Chat Completions and model-list defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("novita"), {
+    upstreamBaseUrl: "https://api.novita.ai/openai/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
   });
 });
 
