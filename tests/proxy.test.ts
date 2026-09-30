@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { ClaimLatch } from "../src/gate.js";
 import { createOpenAIProxy } from "../src/proxy.js";
+import { resolveProxyProviderConfiguration } from "../src/proxy-cli-options.js";
 import type { ClaimExtractor, ClaimVerifier, EvidenceProvider } from "../src/types.js";
 import type { OpenAIProxyOptions } from "../src/proxy.js";
 
@@ -1095,6 +1096,82 @@ test("proxy supports provider-specific upstream chat completions paths and query
     capturedUrl,
     "https://resource.example/openai/deployments/gpt-4o/chat/completions?api-version=2024-10-21",
   );
+});
+
+test("Azure provider profile sends its deployment path and api-key header", async () => {
+  const env = {
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "azure",
+    CLAIMLATCH_PROXY_UPSTREAM_BASE_URL: "https://claimlatch-resource.openai.azure.com",
+  };
+  const profile = resolveProxyProviderConfiguration(env);
+  let capturedUrl: string | undefined;
+  let capturedHeaders: Headers | undefined;
+  let capturedBody: string | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "azure-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrl = String(input);
+      capturedHeaders = new Headers(init?.headers);
+      capturedBody = typeof init?.body === "string" ? init.body : undefined;
+      return new Response(JSON.stringify({
+        id: "chatcmpl_azure_profile",
+        object: "chat.completion",
+        choices: [{ message: { role: "assistant", content: "Azure-compatible answer." } }],
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ model: "gpt-4o-mini", messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 200);
+  });
+
+  assert.equal(
+    capturedUrl,
+    "https://claimlatch-resource.openai.azure.com/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-10-21",
+  );
+  assert.equal(capturedHeaders?.get("api-key"), "azure-key");
+  assert.equal(capturedHeaders?.get("authorization"), null);
+  assert.equal(JSON.parse(capturedBody ?? "{}").model, "gpt-4o-mini");
+});
+
+test("hosted Gemini provider profile sends the OpenAI-compatible bearer contract", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "gemini",
+  });
+  let capturedUrl: string | undefined;
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "gemini-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrl = String(input);
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({
+        id: "chatcmpl_gemini_profile",
+        object: "chat.completion",
+        choices: [{ message: { role: "assistant", content: "Gemini-compatible answer." } }],
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ model: "gemini-2.5-flash", messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 200);
+  });
+
+  assert.equal(capturedUrl, "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions");
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer gemini-key");
+  assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
 test("proxy supports a custom provider compatibility profile", async () => {
