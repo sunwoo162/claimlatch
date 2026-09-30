@@ -113,7 +113,7 @@ test("benchmark CLI help documents datasets, splits, manifests, and formats", ()
   assert.match(help, /--split <train\|dev\|test>/);
   assert.match(help, /--manifest <path>/);
   assert.match(help, /--format <text\|json\|junit\|sarif>/);
-  assert.match(help, /default is the 138-case independent\.jsonl aggregate/);
+  assert.match(help, /default is the 142-case independent\.jsonl aggregate/);
 });
 
 test("benchmark validation output is credential-free and deterministic", () => {
@@ -172,9 +172,9 @@ test("independent benchmark contains a balanced expanded label set", async () =>
   const cases = parseBenchmarkJsonl(raw);
   const sourceUrls = new Set(cases.flatMap((item) => item.labelSourceUrls ?? []));
 
-  assert.equal(cases.length, 138);
-  assert.equal(cases.filter((item) => item.expectedPassed).length, 69);
-  assert.equal(cases.filter((item) => !item.expectedPassed).length, 69);
+  assert.equal(cases.length, 142);
+  assert.equal(cases.filter((item) => item.expectedPassed).length, 71);
+  assert.equal(cases.filter((item) => !item.expectedPassed).length, 71);
   assert.ok(sourceUrls.size >= 17);
   assert.ok(cases.every((item) => (item.labelSourceUrls?.length ?? 0) > 0));
 });
@@ -190,7 +190,7 @@ test("independent benchmark preserves one positive and one negative label per qu
     byQuestion.set(item.question, group);
   }
 
-  assert.equal(byQuestion.size, 69);
+  assert.equal(byQuestion.size, 71);
   assert.ok([...byQuestion.values()].every((group) => {
     return group.length === 2 && group.filter((item) => item.expectedPassed).length === 1;
   }));
@@ -203,13 +203,13 @@ test("benchmark dataset is partitioned into balanced train, dev, and test splits
     return [split, parseBenchmarkJsonl(raw)] as const;
   }));
 
-  const expectedCounts = [102, 24, 12];
+  const expectedCounts = [106, 24, 12];
   const allCases = splitCases.flatMap(([, cases]) => cases);
   const aggregateRaw = await readFile(new URL("../../benchmarks/independent.jsonl", import.meta.url), "utf8");
   const aggregateCases = parseBenchmarkJsonl(aggregateRaw);
 
   assert.deepEqual(splitCases.map(([, cases]) => cases.length), expectedCounts);
-  assert.equal(new Set(allCases.map((item) => item.id)).size, 138);
+  assert.equal(new Set(allCases.map((item) => item.id)).size, 142);
   assert.deepEqual(
     new Set(allCases.map((item) => item.id)),
     new Set(aggregateCases.map((item) => item.id)),
@@ -234,7 +234,7 @@ test("benchmark splits keep paired questions in one partition", async () => {
     }
   }
 
-  assert.equal(locations.size, 69);
+  assert.equal(locations.size, 71);
   assert.ok([...locations.values()].every((splits) => splits.size === 1));
 });
 
