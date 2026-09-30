@@ -64,6 +64,7 @@ async function main(): Promise<void> {
 
 function parseArgs(argv: string[]): CliArgs {
   const result: CliArgs = { json: false, help: false, requireDocumentProvenance: false };
+  const seenValueOptions = new Set<string>();
 
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
@@ -71,27 +72,33 @@ function parseArgs(argv: string[]): CliArgs {
     switch (arg) {
       case "--question":
       case "-q":
+        rejectDuplicateValueOption(seenValueOptions, "--question");
         result.question = requireValue(arg, next);
         i += 1;
         break;
       case "--answer":
       case "-a":
+        rejectDuplicateValueOption(seenValueOptions, "--answer");
         result.answer = requireValue(arg, next);
         i += 1;
         break;
       case "--answer-file":
+        rejectDuplicateValueOption(seenValueOptions, "--answer-file");
         result.answerFile = requireValue(arg, next);
         i += 1;
         break;
       case "--minimum-coverage":
+        rejectDuplicateValueOption(seenValueOptions, "--minimum-coverage");
         result.minimumCoverage = parseUnitInterval(arg, requireValue(arg, next));
         i += 1;
         break;
       case "--allow-unsupported":
+        rejectDuplicateValueOption(seenValueOptions, "--allow-unsupported");
         result.allowUnsupported = parseNonNegativeInteger(arg, requireValue(arg, next));
         i += 1;
         break;
       case "--allow-unverifiable":
+        rejectDuplicateValueOption(seenValueOptions, "--allow-unverifiable");
         result.allowUnverifiable = parseNonNegativeInteger(arg, requireValue(arg, next));
         i += 1;
         break;
@@ -112,6 +119,11 @@ function parseArgs(argv: string[]): CliArgs {
   }
 
   return result;
+}
+
+function rejectDuplicateValueOption(seen: Set<string>, option: string): void {
+  if (seen.has(option)) throw new Error(`${option} may only be specified once.`);
+  seen.add(option);
 }
 
 function requireValue(name: string, value: string | undefined): string {
