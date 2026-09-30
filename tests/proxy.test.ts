@@ -35,6 +35,7 @@ const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "azure"
   novita: "https://api.novita.ai/openai/v1",
   nvidia: "https://integrate.api.nvidia.com/v1",
   openai: "https://api.openai.com/v1",
+  ovhcloud: "https://oai.endpoints.kepler.ai.cloud.ovh.net/v1",
   perplexity: "https://api.perplexity.ai/router/v1",
   poe: "https://api.poe.com/v1",
   qianfan: "https://qianfan.baidubce.com/v2",
@@ -2006,6 +2007,40 @@ test("OpenRouter provider profile forwards attribution headers with bearer auth"
   assert.equal(capturedHeaders?.get("authorization"), "Bearer openrouter-key");
   assert.equal(capturedHeaders?.get("http-referer"), "https://claimlatch.example");
   assert.equal(capturedHeaders?.get("x-title"), "ClaimLatch");
+});
+
+test("OVHcloud provider profile sends the OpenAI-compatible bearer contract", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "ovhcloud",
+  });
+  let capturedUrl: string | undefined;
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "ovhcloud-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrl = String(input);
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({
+        id: "chatcmpl_ovhcloud_profile",
+        object: "chat.completion",
+        choices: [{ message: { role: "assistant", content: "OVHcloud-compatible answer." } }],
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ model: "gpt-oss-20b", messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 200);
+  });
+
+  assert.equal(capturedUrl, "https://oai.endpoints.kepler.ai.cloud.ovh.net/v1/chat/completions");
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer ovhcloud-key");
+  assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
 test("hosted provider profiles preserve their resolver contracts through the proxy", async () => {

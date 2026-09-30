@@ -27,6 +27,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "nvidia",
   "openai",
   "openrouter",
+  "ovhcloud",
   "perplexity",
   "poe",
   "qianfan",
@@ -206,6 +207,11 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
   },
   openai: {
     upstreamBaseUrl: "https://api.openai.com/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  },
+  ovhcloud: {
+    upstreamBaseUrl: "https://oai.endpoints.kepler.ai.cloud.ovh.net/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
   },
