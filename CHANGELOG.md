@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.82 - 2026-09-30
+
+- Expanded the frozen independent benchmark to 82 balanced cases across 41 paired topics with an IETF RFC 9110-backed HTTP 204 No Content pair.
+
 ## 0.3.81 - 2026-09-30
 
 - Added a dependency-light Cloudflare Workers integration example using the Fetch-native guarded answer handler and environment bindings.
