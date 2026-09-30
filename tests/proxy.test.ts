@@ -1085,6 +1085,33 @@ test("proxy supports provider-specific upstream API key headers", async () => {
   assert.equal(capturedHeaders?.get("authorization"), null);
 });
 
+test("proxy supports a configurable upstream API key prefix", async () => {
+  let capturedHeaders: Headers | undefined;
+  await withProxyOptions({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://upstream.example/v1",
+    upstreamApiKey: "provider-key",
+    upstreamApiKeyPrefix: "Api-Key",
+    fetchImpl: (async (_input, init) => {
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({
+        id: "chatcmpl_provider_auth_prefix",
+        object: "chat.completion",
+        choices: [{ message: { role: "assistant", content: "Provider-prefix-compatible answer." } }],
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 200);
+  });
+
+  assert.equal(capturedHeaders?.get("authorization"), "Api-Key provider-key");
+});
+
 test("proxy forwards OpenRouter attribution headers to the upstream request", async () => {
   let capturedHeaders: Headers | undefined;
   await withProxyOptions({
@@ -2385,6 +2412,14 @@ test("proxy rejects restricted upstream API key header configuration", () => {
     upstreamBaseUrl: "https://upstream.example/v1",
     upstreamApiKeyHeader: "content-type",
   }), /restricted proxy header/);
+});
+
+test("proxy rejects an unsafe upstream API key prefix", () => {
+  assert.throws(() => createOpenAIProxy({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://upstream.example/v1",
+    upstreamApiKeyPrefix: "Api Key",
+  }), /authentication scheme token/);
 });
 
 test("proxy preserves compatible upstream response headers on pass", async () => {

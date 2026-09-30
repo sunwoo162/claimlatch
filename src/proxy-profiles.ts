@@ -62,6 +62,7 @@ export interface ProxyProviderProfileOptions {
 export interface ProxyProviderProfile {
   upstreamBaseUrl?: string;
   upstreamApiKeyHeader: string;
+  upstreamApiKeyPrefix?: string;
   upstreamChatCompletionsPath: string;
   upstreamModelsPath?: string | null;
   upstreamRequestHeaders?: Record<string, string>;

@@ -22,6 +22,7 @@ async function main(): Promise<void> {
     upstreamBaseUrl,
     upstreamApiKey,
     upstreamApiKeyHeader,
+    upstreamApiKeyPrefix,
     upstreamChatCompletionsPath,
     upstreamModelsPath,
     upstreamRequestHeaders,
@@ -56,6 +57,7 @@ async function main(): Promise<void> {
     upstreamChatCompletionsPath,
     upstreamModelsPath,
     upstreamApiKeyHeader,
+    ...(upstreamApiKeyPrefix !== undefined ? { upstreamApiKeyPrefix } : {}),
     ...(upstreamApiKey ? { upstreamApiKey } : {}),
     ...(process.env.CLAIMLATCH_PROXY_UPSTREAM_TIMEOUT_MS
       ? { upstreamTimeoutMs: parseTimeout(process.env.CLAIMLATCH_PROXY_UPSTREAM_TIMEOUT_MS) }
