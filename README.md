@@ -334,7 +334,7 @@ export const POST = guarded;
 
 The complete route-oriented example is in [`examples/fetch-route-handler.ts`](examples/fetch-route-handler.ts). It keeps the same fail-closed contract as the Node HTTP integration, including 413 request-size limits, 422 blocked reports, and 502 fail-closed verification errors. Custom paths must be absolute URL paths without query strings or fragments.
 
-For a Next.js App Router route, copy [`examples/next-route-handler.ts`](examples/next-route-handler.ts) to a route such as `app/api/answer/route.ts`. It exports the framework-native `GET` and `POST` handlers, initializes the gate lazily, and keeps credentials out of module-load time.
+For a Next.js App Router route, copy [`examples/next-route-handler.ts`](examples/next-route-handler.ts) to a route such as `app/api/answer/route.ts`. It exports the framework-native `GET` and `POST` handlers, explicitly selects the Node.js runtime required by the default gate, initializes the gate lazily, and keeps credentials out of module-load time.
 
 ### Structured-output proxy policy example
 
@@ -547,6 +547,8 @@ It demonstrates plumbing, not factuality benchmark performance.
 PASS is not proof of universal truth. Claim extraction, search, source selection, document parsing, and entailment can all fail. Read [docs/TRUST_MODEL.md](docs/TRUST_MODEL.md) before using ClaimLatch in high-stakes decisions.
 
 ## Project status
+
+The unreleased Next.js example explicitly selects the Node.js runtime required by the default gate.
 
 `0.3.73` redacts embedded URL credentials from fallback evidence metadata.
 

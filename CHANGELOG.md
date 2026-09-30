@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-No unreleased changes.
+- Explicitly selects the Node.js runtime in the Next.js route handler example.
 
 ## 0.3.73 - 2026-09-30
 
