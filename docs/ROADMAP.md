@@ -70,6 +70,7 @@
 - Lamini OpenAI-compatible proxy provider profile with Chat Completions and model-list contract coverage
 - OVHcloud AI Endpoints OpenAI-compatible proxy provider profile with Chat Completions contract coverage and explicit fail-closed handling for its separate model catalog API
 - Baichuan OpenAI-compatible proxy provider profile with Chat Completions contract coverage and explicit fail-closed handling when no model-list route is documented
+- Xiaomi MiMo OpenAI-compatible proxy provider profile with Chat Completions contract coverage and explicit fail-closed handling when no model-list route is documented
 
 ## Next
 
