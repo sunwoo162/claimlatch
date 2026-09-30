@@ -548,7 +548,7 @@ PASS is not proof of universal truth. Claim extraction, search, source selection
 
 ## Project status
 
-The unreleased Next.js example explicitly selects the Node.js runtime required by the default gate.
+`0.3.74` explicitly selects the Node.js runtime required by the default gate in the Next.js example.
 
 `0.3.73` redacts embedded URL credentials from fallback evidence metadata.
 
