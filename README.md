@@ -178,6 +178,8 @@ For DeepSeek's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROX
 
 For Fireworks' OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="fireworks"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.fireworks.ai/inference/v1`, bearer authentication, and `/chat/completions`.
 
+For FriendliAI's serverless OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="friendli"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.friendli.ai/serverless/v1`, bearer authentication, and `/chat/completions`; see [FriendliAI's OpenAI-compatible client guide](https://learn.friendli.ai/articles/4213111023-q10-1-how-do-i-connect-friendliai-with-litellm-or-other-openai-compatible-client).
+
 For Google's Gemini OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="gemini"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY` with a Gemini API key. The profile uses `https://generativelanguage.googleapis.com/v1beta/openai`, bearer authentication, and `/chat/completions`; select a compatible Gemini model in the request's `model` value. This profile follows Google's OpenAI compatibility endpoint, which uses `Authorization: Bearer <GEMINI_API_KEY>`.
 
 For Together AI's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="together"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.together.xyz/v1`, bearer authentication, and `/chat/completions`.

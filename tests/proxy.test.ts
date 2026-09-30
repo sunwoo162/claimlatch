@@ -14,6 +14,7 @@ const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "azure"
   deepinfra: "https://api.deepinfra.com/v1/openai",
   deepseek: "https://api.deepseek.com",
   fireworks: "https://api.fireworks.ai/inference/v1",
+  friendli: "https://api.friendli.ai/serverless/v1",
   gemini: "https://generativelanguage.googleapis.com/v1beta/openai",
   groq: "https://api.groq.com/openai/v1",
   huggingface: "https://router.huggingface.co/v1",
