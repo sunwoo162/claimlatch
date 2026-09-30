@@ -26,6 +26,7 @@
 - Expanded the frozen independent benchmark to 148 balanced cases across 74 paired topics with an IETF RFC 6585-backed HTTP 429 Too Many Requests and HTTP 431 Request Header Fields Too Large pairs.
 - Expanded the frozen independent benchmark to 152 balanced cases across 76 paired topics with IETF RFC 6585-backed HTTP 428 Precondition Required and HTTP 511 Network Authentication Required pairs.
 - Expanded the frozen independent benchmark to 156 balanced cases across 78 paired topics with IETF RFC 9110-backed HTTP 402 Payment Required and HTTP 500 Internal Server Error pairs.
+- Expanded the frozen independent benchmark to 160 balanced cases across 80 paired topics with IETF RFC 9110-backed HTTP 501 Not Implemented and HTTP 502 Bad Gateway pairs.
 - Added a dependency-light Fastify route adapter example using the Fetch-native guarded answer handler.
 - Synced the roadmap with the implemented credential-free calibration dataset validation mode.
 
