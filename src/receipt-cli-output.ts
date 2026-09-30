@@ -2,6 +2,7 @@ export interface ReceiptVerificationJsonInput {
   valid: boolean;
   filePath: string;
   publicKeyPath?: string;
+  payloadSha256?: string;
   receipt: unknown;
 }
 
@@ -30,6 +31,9 @@ export function renderReceiptVerificationJson(input: ReceiptVerificationJsonInpu
     ...(receipt?.algorithm === "Ed25519" ? { algorithm: "Ed25519" } : {}),
     ...(typeof payload?.keyId === "string" ? { keyId: payload.keyId } : {}),
     ...(input.publicKeyPath ? { publicKeyFile: input.publicKeyPath } : {}),
+    ...(input.valid && typeof input.payloadSha256 === "string" && /^[0-9a-f]{64}$/u.test(input.payloadSha256)
+      ? { payloadSha256: input.payloadSha256 }
+      : {}),
     ...(passed !== undefined ? { decision: passed ? "PASS" : "BLOCK" } : {}),
     ...(generatedAt !== undefined ? { generatedAt } : {}),
     ...(coverage !== undefined ? { coverage } : {}),

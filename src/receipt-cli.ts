@@ -2,7 +2,7 @@
 import { readFile } from "node:fs/promises";
 import { parseReceiptCliArguments, renderReceiptHelp } from "./receipt-cli-options.js";
 import { renderReceiptVerificationJson } from "./receipt-cli-output.js";
-import { verifySignedVerificationReceipt } from "./receipt.js";
+import { hashVerificationReceiptPayload, verifySignedVerificationReceipt } from "./receipt.js";
 import type { SignedVerificationReceipt } from "./types.js";
 
 async function main(): Promise<void> {
@@ -22,6 +22,7 @@ async function main(): Promise<void> {
       filePath,
       receipt: parsed,
       ...(publicKeyPath ? { publicKeyPath } : {}),
+      ...(valid ? { payloadSha256: hashVerificationReceiptPayload(parsed.payload) } : {}),
     })}\n`);
   } else {
     process.stdout.write(`Receipt ${valid ? "valid" : "invalid"}: ${filePath}\n`);

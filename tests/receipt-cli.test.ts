@@ -27,6 +27,7 @@ test("receipt CLI JSON output exposes signed receipt metadata for audit logs", (
     valid: true,
     filePath: "receipts/answer-001.json",
     publicKeyPath: "keys/current.pem",
+    payloadSha256: "a".repeat(64),
     receipt: {
       version: 1,
       algorithm: "Ed25519",
@@ -43,6 +44,7 @@ test("receipt CLI JSON output exposes signed receipt metadata for audit logs", (
     algorithm: "Ed25519",
     keyId: "key-2026-09",
     publicKeyFile: "keys/current.pem",
+    payloadSha256: "a".repeat(64),
   });
 });
 
@@ -83,6 +85,7 @@ test("receipt CLI JSON output includes the signed decision only after verificati
   const invalidOutput = renderReceiptVerificationJson({
     valid: false,
     filePath: "receipts/tampered.json",
+    payloadSha256: "b".repeat(64),
     receipt: {
       version: 1,
       algorithm: "Ed25519",

@@ -1,4 +1,4 @@
-import { sign, verify } from "node:crypto";
+import { createHash, sign, verify } from "node:crypto";
 import { mkdir, readFile, rename, unlink, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import type {
@@ -115,6 +115,10 @@ function canonicalize(value: unknown): string {
 
 export function serializeVerificationReceiptPayload(payload: VerificationReceiptPayload): string {
   return canonicalize(payload);
+}
+
+export function hashVerificationReceiptPayload(payload: VerificationReceiptPayload): string {
+  return createHash("sha256").update(serializeVerificationReceiptPayload(payload)).digest("hex");
 }
 
 function encodeBase64Url(bytes: Uint8Array): string {
