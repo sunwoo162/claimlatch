@@ -546,7 +546,7 @@ PASS is not proof of universal truth. Claim extraction, search, source selection
 
 ## Project status
 
-The unreleased provenance hardening rejects fully qualified localhost and `.local` hostnames with trailing root labels before hydration.
+`0.3.64` hardens literal local-host filtering to reject fully qualified localhost and `.local` hostnames with trailing root labels before hydration.
 
 `0.3.63` hardens provenance URL and DNS-result filtering to reject reserved, documentation, multicast, unspecified, and other non-routable IPv4/IPv6 targets before hydration or pinned DNS requests.
 
