@@ -513,16 +513,41 @@ function tokenize(value: string): string[] {
 }
 
 function withSearchSnippetProvenance(evidence: Evidence): Evidence {
-  if (evidence.provenance) return evidence;
+  const redactedUrl = redactUrlCredentials(evidence.url);
+  if (evidence.provenance) {
+    const redactedSourceUrl = redactUrlCredentials(evidence.provenance.sourceUrl);
+    if (redactedUrl === evidence.url && redactedSourceUrl === evidence.provenance.sourceUrl) return evidence;
+    return {
+      ...evidence,
+      url: redactedUrl,
+      provenance: {
+        ...evidence.provenance,
+        sourceUrl: redactedSourceUrl,
+      },
+    };
+  }
   return {
     ...evidence,
+    url: redactedUrl,
     provenance: {
       kind: "search-snippet",
-      sourceUrl: evidence.url,
+      sourceUrl: redactedUrl,
       retrievedAt: evidence.retrievedAt,
       quote: evidence.snippet,
     },
   };
+}
+
+function redactUrlCredentials(value: string): string {
+  try {
+    const parsed = new URL(value);
+    if (!parsed.username && !parsed.password) return value;
+    parsed.username = "";
+    parsed.password = "";
+    return parsed.toString();
+  } catch {
+    return value;
+  }
 }
 
 export function isSafePublicHttpUrl(url: URL): boolean {
