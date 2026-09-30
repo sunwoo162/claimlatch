@@ -471,7 +471,7 @@ Core invariants are checked again after custom providers return. Duplicate claim
 
 ## Independent-label benchmark
 
-`benchmarks/independent.jsonl` contains 74 cases across 37 paired topics, with one positive and one negative answer per topic. Each case records a public label-source URL, and labels were not generated from ClaimLatch output. The same frozen aggregate is partitioned into `benchmarks/train.jsonl` (46 cases), `benchmarks/dev.jsonl` (16 cases), and `benchmarks/test.jsonl` (12 cases), with balanced positive and negative labels in every split.
+`benchmarks/independent.jsonl` contains 76 cases across 38 paired topics, with one positive and one negative answer per topic. Each case records a public label-source URL, and labels were not generated from ClaimLatch output. The same frozen aggregate is partitioned into `benchmarks/train.jsonl` (48 cases), `benchmarks/dev.jsonl` (16 cases), and `benchmarks/test.jsonl` (12 cases), with balanced positive and negative labels in every split.
 
 The default `claimlatch-bench` command verifies `benchmarks/independent.jsonl` against `benchmarks/MANIFEST.json` before contacting any model or evidence provider. For a custom dataset, pass `--manifest <path>` to enable the same SHA-256 and case-count check; a mismatch fails closed before a benchmark report is produced.
 
@@ -497,7 +497,7 @@ claimlatch-bench --split dev
 claimlatch-bench --split test
 ```
 
-`--split` accepts `train`, `dev`, or `test` and cannot be combined with `--dataset`. The default is the 74-case `independent.jsonl` aggregate.
+`--split` accepts `train`, `dev`, or `test` and cannot be combined with `--dataset`. The default is the 76-case `independent.jsonl` aggregate.
 
 Use `claimlatch-bench --help` for the complete option list without configuring provider credentials.
 
@@ -555,6 +555,8 @@ It demonstrates plumbing, not factuality benchmark performance.
 PASS is not proof of universal truth. Claim extraction, search, source selection, document parsing, and entailment can all fail. Read [docs/TRUST_MODEL.md](docs/TRUST_MODEL.md) before using ClaimLatch in high-stakes decisions.
 
 ## Project status
+
+`0.3.77` expands the frozen independent benchmark to 76 balanced cases, adds production dependency auditing and npm caching to CI, and extends DNS/SSRF regression coverage.
 
 `0.3.76` adds a Remix route module example that maps `loader` and `action` to the Fetch-native guarded integration.
 

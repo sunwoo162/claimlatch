@@ -17,7 +17,7 @@
 - Literal private-target and redirect SSRF guards
 - Core invariant enforcement for custom extractors/verifiers
 - OpenAI-compatible non-streaming Chat Completions reverse proxy
-- 74-case frozen human-authored independent-label benchmark with train/dev/test splits
+- Frozen human-authored independent-label benchmark with train/dev/test splits
 - False-pass / false-block metrics
 - Ed25519-signed verification receipt API
 - Runnable guarded-application integration example
@@ -30,7 +30,7 @@
 - Signed receipt persistence, verification CLI, and key rotation support
 - Buffered multi-choice, streaming, structured-output, and multimodal proxy verification
 - Provider compatibility profiles for hosted OpenAI-compatible endpoints
-- Expanded 74-case independent benchmark with balanced train/dev/test splits
+- Expanded 76-case independent benchmark with balanced train/dev/test splits
 - Credential-free benchmark manifest validation in local scripts and CI
 - Next.js App Router Fetch-native route handler example with explicit Node.js runtime
 - Remix loader/action route module example using the Fetch-native guarded handler
