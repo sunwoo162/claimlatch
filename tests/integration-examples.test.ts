@@ -51,7 +51,7 @@ test("Cloudflare Worker example exports a Fetch-native worker", () => {
 
 test("Express example adapts parsed JSON requests to the guarded Fetch handler", async () => {
   let statusCode: number | undefined;
-  const responseHeaders = new Map<string, string>();
+  const responseHeaders = new Map<string, string | string[]>();
   let responseBody: string | undefined;
   const handler = createExpressGuardedAnswerHandler(async (request) => {
     assert.equal(request.method, "POST");
@@ -59,7 +59,12 @@ test("Express example adapts parsed JSON requests to the guarded Fetch handler",
     assert.deepEqual(await request.json(), { question: "question", draft: "draft" });
     return new Response(JSON.stringify({ answer: "verified" }), {
       status: 200,
-      headers: { "content-type": "application/json", "x-claimlatch-result": "pass" },
+      headers: [
+        ["content-type", "application/json"],
+        ["x-claimlatch-result", "pass"],
+        ["set-cookie", "session=abc; Path=/"],
+        ["set-cookie", "theme=dark; Path=/"],
+      ],
     });
   });
   const request: ExpressRequest = {
@@ -78,7 +83,7 @@ test("Express example adapts parsed JSON requests to the guarded Fetch handler",
       return this;
     },
     setHeader(name, value) {
-      responseHeaders.set(name.toLowerCase(), Array.isArray(value) ? value.join(", ") : value);
+      responseHeaders.set(name.toLowerCase(), value);
       return this;
     },
     send(body) {
@@ -92,12 +97,13 @@ test("Express example adapts parsed JSON requests to the guarded Fetch handler",
   assert.equal(statusCode, 200);
   assert.equal(responseHeaders.get("content-type"), "application/json");
   assert.equal(responseHeaders.get("x-claimlatch-result"), "pass");
+  assert.deepEqual(responseHeaders.get("set-cookie"), ["session=abc; Path=/", "theme=dark; Path=/"]);
   assert.equal(responseBody, JSON.stringify({ answer: "verified" }));
 });
 
 test("Fastify example adapts parsed JSON requests to the guarded Fetch handler", async () => {
   let statusCode: number | undefined;
-  const responseHeaders = new Map<string, string>();
+  const responseHeaders = new Map<string, string | string[]>();
   let responseBody: string | undefined;
   const handler = createFastifyGuardedAnswerHandler(async (request) => {
     assert.equal(request.method, "POST");
@@ -105,7 +111,12 @@ test("Fastify example adapts parsed JSON requests to the guarded Fetch handler",
     assert.deepEqual(await request.json(), { question: "question", draft: "draft" });
     return new Response(JSON.stringify({ answer: "verified" }), {
       status: 200,
-      headers: { "content-type": "application/json", "x-claimlatch-result": "pass" },
+      headers: [
+        ["content-type", "application/json"],
+        ["x-claimlatch-result", "pass"],
+        ["set-cookie", "session=abc; Path=/"],
+        ["set-cookie", "theme=dark; Path=/"],
+      ],
     });
   });
   const request: FastifyRequest = {
@@ -121,7 +132,7 @@ test("Fastify example adapts parsed JSON requests to the guarded Fetch handler",
       return this;
     },
     header(name, value) {
-      responseHeaders.set(name.toLowerCase(), Array.isArray(value) ? value.join(", ") : value);
+      responseHeaders.set(name.toLowerCase(), value);
       return this;
     },
     send(body) {
@@ -136,6 +147,7 @@ test("Fastify example adapts parsed JSON requests to the guarded Fetch handler",
   assert.equal(statusCode, 200);
   assert.equal(responseHeaders.get("content-type"), "application/json");
   assert.equal(responseHeaders.get("x-claimlatch-result"), "pass");
+  assert.deepEqual(responseHeaders.get("set-cookie"), ["session=abc; Path=/", "theme=dark; Path=/"]);
   assert.equal(responseBody, JSON.stringify({ answer: "verified" }));
 });
 

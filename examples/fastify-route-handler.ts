@@ -65,13 +65,26 @@ export function createFastifyGuardedAnswerHandler(
     }
 
     const upstreamResponse = await fetchHandler(new Request(new URL(path, `${protocol}://${host}`), init));
-    upstreamResponse.headers.forEach((value, name) => reply.header(name, value));
+    const responseCookies = getResponseCookies(upstreamResponse.headers);
+    upstreamResponse.headers.forEach((value, name) => {
+      if (name !== "set-cookie") reply.header(name, value);
+    });
+    if (responseCookies.length > 0) reply.header("set-cookie", responseCookies);
     return reply.code(upstreamResponse.status).send(await upstreamResponse.text());
   };
 }
 
 function getHeaderValue(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
+}
+
+function getResponseCookies(headers: Headers): string[] {
+  const headersWithGetSetCookie = headers as Headers & { getSetCookie?: () => string[] };
+  const cookies = headersWithGetSetCookie.getSetCookie?.() ?? [];
+  if (cookies.length > 0) return cookies;
+
+  const fallback = headers.get("set-cookie");
+  return fallback ? [fallback] : [];
 }
 
 // Copy this adapter into a Fastify route after enabling Fastify's JSON parser.
