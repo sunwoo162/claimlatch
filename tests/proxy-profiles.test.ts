@@ -19,6 +19,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
     "gemini",
     "groq",
     "huggingface",
+    "minimax",
     "mistral",
     "moonshot",
     "nebius",
@@ -36,7 +37,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
   ]);
   assert.equal(
     formatProxyProviderProfileNames(),
-    "azure, cerebras, cohere, dashscope, deepinfra, deepseek, fireworks, friendli, gemini, groq, huggingface, mistral, moonshot, nebius, nvidia, openai, openrouter, perplexity, qianfan, sambanova, siliconflow, together, volcengine, xai, or zai",
+    "azure, cerebras, cohere, dashscope, deepinfra, deepseek, fireworks, friendli, gemini, groq, huggingface, minimax, mistral, moonshot, nebius, nvidia, openai, openrouter, perplexity, qianfan, sambanova, siliconflow, together, volcengine, xai, or zai",
   );
 });
 
@@ -99,6 +100,14 @@ test("proxy profiles provide Gemini OpenAI-compatible Chat Completions defaults"
 test("proxy profiles provide Mistral-compatible Chat Completions defaults", () => {
   assert.deepEqual(resolveProxyProviderProfile("mistral"), {
     upstreamBaseUrl: "https://api.mistral.ai/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  });
+});
+
+test("proxy profiles provide MiniMax-compatible Chat Completions defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("minimax"), {
+    upstreamBaseUrl: "https://api.minimax.io/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
   });
