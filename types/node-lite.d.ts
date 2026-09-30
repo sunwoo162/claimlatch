@@ -6,6 +6,25 @@ declare const process: {
   stderr: { write(chunk: string): void };
 };
 
+declare module "node:child_process" {
+  interface ChildProcessStream {
+    on(event: "data", listener: (chunk: Uint8Array | string) => void): this;
+  }
+
+  interface ChildProcess {
+    stdout: ChildProcessStream;
+    stderr: ChildProcessStream;
+    on(event: "error", listener: (error: Error) => void): this;
+    on(event: "close", listener: (exitCode: number | null) => void): this;
+  }
+
+  export function spawn(
+    command: string,
+    args: string[],
+    options?: { windowsHide?: boolean },
+  ): ChildProcess;
+}
+
 declare module "node:crypto" {
   export interface Hash {
     update(data: string): Hash;
