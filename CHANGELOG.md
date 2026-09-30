@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added a Clarifai OpenAI-compatible proxy provider profile with documented `Authorization: Key` authentication, Chat Completions coverage, and fail-closed model-route handling.
 - Added a Baseten Model APIs OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions and model-list defaults and wire-contract coverage.
 - Added configurable upstream API key authentication prefixes for provider compatibility, while preserving Bearer as the Authorization default and raw values for custom credential headers.
 - Added a Xiaomi MiMo OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions and model-list coverage.

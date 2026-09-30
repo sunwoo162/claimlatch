@@ -15,6 +15,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
     "baseten",
     "cerebras",
     "chutes",
+    "clarifai",
     "cloudflare",
     "cohere",
     "dashscope",
@@ -58,7 +59,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
   ]);
   assert.equal(
     formatProxyProviderProfileNames(),
-    "ai21, aimlapi, azure, baichuan, baseten, cerebras, chutes, cloudflare, cohere, dashscope, deepinfra, deepseek, featherless, fireworks, friendli, gemini, groq, huggingface, hyperbolic, inferencenet, ionos, lamini, hunyuan, minimax, mimo, mistral, moonshot, nebius, novita, nvidia, openai, openrouter, ovhcloud, perplexity, poe, qianfan, requesty, sambanova, scaleway, siliconflow, stepfun, together, tokenhub, upstage, volcengine, xai, or zai",
+    "ai21, aimlapi, azure, baichuan, baseten, cerebras, chutes, clarifai, cloudflare, cohere, dashscope, deepinfra, deepseek, featherless, fireworks, friendli, gemini, groq, huggingface, hyperbolic, inferencenet, ionos, lamini, hunyuan, minimax, mimo, mistral, moonshot, nebius, novita, nvidia, openai, openrouter, ovhcloud, perplexity, poe, qianfan, requesty, sambanova, scaleway, siliconflow, stepfun, together, tokenhub, upstage, volcengine, xai, or zai",
   );
 });
 
@@ -85,6 +86,16 @@ test("proxy profiles provide Baseten Model APIs Chat Completions and model-list 
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
     upstreamModelsPath: "/models",
+  });
+});
+
+test("proxy profiles provide Clarifai OpenAI-compatible Chat Completions defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("clarifai"), {
+    upstreamBaseUrl: "https://api.clarifai.com/v2/ext/openai/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamApiKeyPrefix: "Key",
+    upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: null,
   });
 });
 
