@@ -6,6 +6,7 @@ import {
   evaluateCalibration,
   hashCalibrationDataset,
   parseCalibrationJsonl,
+  validateCalibrationDatasets,
 } from "../src/calibration.js";
 import type {
   CalibrationObservation,
@@ -99,6 +100,26 @@ test("calibration manifest canonicalizes CRLF", () => {
 
   assert.equal(hashCalibrationDataset(crlf), expected);
   assert.equal(hashCalibrationDataset(crlf), hashCalibrationDataset(lf));
+});
+
+test("calibration dataset validation returns hashes and counts without fitting", () => {
+  const result = validateCalibrationDatasets({
+    calibration: {
+      manifestSha256: "1".repeat(64),
+      observations: [observation("cal-1", "SUPPORTED", "SUPPORTED", 0.5)],
+    },
+    evaluation: {
+      manifestSha256: "2".repeat(64),
+      observations: [observation("eval-1", "SUPPORTED", "CONTRADICTED", 0.25)],
+    },
+  });
+
+  assert.deepEqual(result, {
+    calibrationManifestSha256: "1".repeat(64),
+    calibrationObservationCount: 1,
+    evaluationManifestSha256: "2".repeat(64),
+    evaluationObservationCount: 1,
+  });
 });
 
 test("profile fitting produces a monotonic step mapping", () => {

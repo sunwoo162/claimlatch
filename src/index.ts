@@ -50,6 +50,7 @@ export {
   evaluateCalibration,
   hashCalibrationDataset,
   parseCalibrationJsonl,
+  validateCalibrationDatasets,
 } from "./calibration.js";
 export { LlmClaimExtractor, LlmClaimVerifier, OpenAICompatibleClient } from "./providers/openai-compatible.js";
 export { StaticEvidenceProvider } from "./providers/static.js";

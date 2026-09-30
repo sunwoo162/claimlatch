@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawn } from "node:child_process";
 import test from "node:test";
+import { hashCalibrationDataset } from "../src/calibration.js";
 
 const cliPath = new URL("../src/calibration-cli.js", import.meta.url);
 const cliFilePath = decodeURIComponent(cliPath.pathname).replace(/^\/([A-Za-z]:)/u, "$1");
@@ -71,6 +72,41 @@ test("calibration CLI writes a profile and deterministic evaluation JSON without
     assert.equal(generated.id, "fixture-profile-v1");
     assert.equal(generated.target, "verification-status-correctness");
     assert.equal(generated.validation?.observationCount, 1);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+test("calibration CLI validates datasets without profile metadata or output", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "claimlatch-calibration-validate-"));
+  try {
+    const calibrationPath = join(directory, "calibration.jsonl");
+    const evaluationPath = join(directory, "evaluation.jsonl");
+    const calibrationContent = `${observation("calibration-1", "case-cal", "claim-cal")}\n`;
+    const evaluationContent = `${observation("evaluation-1", "case-eval", "claim-eval")}\n`;
+    await writeFile(calibrationPath, calibrationContent, "utf8");
+    await writeFile(evaluationPath, evaluationContent, "utf8");
+
+    const result = await runCli([
+      "--validate",
+      "--calibration", calibrationPath,
+      "--evaluation", evaluationPath,
+      "--json",
+    ]);
+
+    assert.equal(result.exitCode, 0);
+    assert.equal(result.stderr, "");
+    assert.deepEqual(JSON.parse(result.stdout), {
+      valid: true,
+      calibration: {
+        observationCount: 1,
+        manifestSha256: hashCalibrationDataset(calibrationContent),
+      },
+      evaluation: {
+        observationCount: 1,
+        manifestSha256: hashCalibrationDataset(evaluationContent),
+      },
+    });
   } finally {
     await rm(directory, { recursive: true, force: true });
   }

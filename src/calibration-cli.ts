@@ -4,6 +4,7 @@ import {
   createConfidenceCalibrationProfile,
   hashCalibrationDataset,
   parseCalibrationJsonl,
+  validateCalibrationDatasets,
 } from "./calibration.js";
 import {
   parseCalibrationCliArguments,
@@ -21,9 +22,7 @@ export async function runCalibrationCli(argv: readonly string[] = process.argv.s
   const evaluationContent = await readFile(options.evaluationPath, "utf8");
   const calibration = parseCalibrationJsonl(calibrationContent);
   const evaluation = parseCalibrationJsonl(evaluationContent);
-  const result = createConfidenceCalibrationProfile({
-    id: options.profileId,
-    scorerId: options.scorerId,
+  const datasets = {
     calibration: {
       manifestSha256: hashCalibrationDataset(calibrationContent),
       observations: calibration,
@@ -32,10 +31,33 @@ export async function runCalibrationCli(argv: readonly string[] = process.argv.s
       manifestSha256: hashCalibrationDataset(evaluationContent),
       observations: evaluation,
     },
-    createdAt: options.createdAt,
+  };
+
+  if (options.validate) {
+    const validation = validateCalibrationDatasets(datasets);
+    process.stdout.write(`${JSON.stringify({
+      valid: true,
+      calibration: {
+        manifestSha256: validation.calibrationManifestSha256,
+        observationCount: validation.calibrationObservationCount,
+      },
+      evaluation: {
+        manifestSha256: validation.evaluationManifestSha256,
+        observationCount: validation.evaluationObservationCount,
+      },
+    }, null, 2)}\n`);
+    return;
+  }
+
+  const result = createConfidenceCalibrationProfile({
+    id: options.profileId!,
+    scorerId: options.scorerId!,
+    calibration: datasets.calibration,
+    evaluation: datasets.evaluation,
+    createdAt: options.createdAt!,
   });
 
-  await writeFile(options.outputPath, `${JSON.stringify(result.profile, null, 2)}\n`, "utf8");
+  await writeFile(options.outputPath!, `${JSON.stringify(result.profile, null, 2)}\n`, "utf8");
   process.stdout.write(`${JSON.stringify(result.evaluation, null, 2)}\n`);
 }
 
