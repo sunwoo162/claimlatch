@@ -599,6 +599,8 @@ PASS is not proof of universal truth. Claim extraction, search, source selection
 
 ## Project status
 
+`0.3.85` adds opt-in calibrated verification-status confidence with offline isotonic fitting, evaluation metrics, CLI profile generation, signed receipt coverage, package-root exports, and fail-closed duplicate CLI/proxy header configuration validation.
+
 `0.3.84` adds deterministic `npm run bench:manifest` generation for frozen benchmark SHA-256 manifests and case counts.
 
 `0.3.83` expands the frozen independent benchmark to 84 balanced cases across 42 paired topics with an IETF RFC 9110-backed HTTP 202 Accepted pair.
