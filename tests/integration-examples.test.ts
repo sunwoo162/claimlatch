@@ -11,6 +11,10 @@ import {
   type FastifyReply,
   type FastifyRequest,
 } from "../examples/fastify-route-handler.js";
+import {
+  createHonoGuardedAnswerHandler,
+  type HonoContext,
+} from "../examples/hono-route-handler.js";
 import { GET, POST, runtime } from "../examples/next-route-handler.js";
 import { action, loader } from "../examples/remix-route-handler.js";
 import {
@@ -121,6 +125,35 @@ test("Fastify example adapts parsed JSON requests to the guarded Fetch handler",
   assert.equal(responseHeaders.get("content-type"), "application/json");
   assert.equal(responseHeaders.get("x-claimlatch-result"), "pass");
   assert.equal(responseBody, JSON.stringify({ answer: "verified" }));
+});
+
+test("Hono example adapts c.req.raw to the guarded Fetch handler", async () => {
+  const handler = createHonoGuardedAnswerHandler(async (request) => {
+    assert.equal(request.method, "POST");
+    assert.equal(request.url, "https://example.test/answer");
+    assert.deepEqual(await request.json(), { question: "question", draft: "draft" });
+    return new Response(JSON.stringify({ answer: "verified" }), {
+      status: 200,
+      headers: { "content-type": "application/json", "x-claimlatch-result": "pass" },
+    });
+  });
+
+  const context: HonoContext = {
+    req: {
+      raw: new Request("https://example.test/answer", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ question: "question", draft: "draft" }),
+      }),
+    },
+  };
+
+  const response = await handler(context);
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get("content-type"), "application/json");
+  assert.equal(response.headers.get("x-claimlatch-result"), "pass");
+  assert.deepEqual(await response.json(), { answer: "verified" });
 });
 
 test("receipt storage example renders the canonical payload hash", () => {

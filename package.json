@@ -26,6 +26,10 @@
     "./examples/fastify-route-handler.js": {
       "types": "./dist/examples/fastify-route-handler.d.ts",
       "import": "./dist/examples/fastify-route-handler.js"
+    },
+    "./examples/hono-route-handler.js": {
+      "types": "./dist/examples/hono-route-handler.d.ts",
+      "import": "./dist/examples/hono-route-handler.js"
     }
   },
   "files": [
