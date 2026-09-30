@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+No unreleased changes.
+
+## 0.3.70 - 2026-09-30
+
 - Rejects OpenRouter attribution URLs containing embedded username or password credentials.
 
 ## 0.3.69 - 2026-09-30
