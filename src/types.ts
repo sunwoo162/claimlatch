@@ -49,6 +49,73 @@ export interface ClaimVerification {
   supportingEvidenceIds?: string[];
   contradictingEvidenceIds?: string[];
   evidence: Evidence[];
+  confidence?: ClaimConfidence;
+}
+
+export interface ClaimConfidence {
+  value: number;
+  meaning: "verification-status-correctness";
+  scorerId: string;
+  calibrationProfileId: string;
+}
+
+export type ClaimVerificationForConfidence = Omit<ClaimVerification, "confidence">;
+
+export interface ClaimConfidenceScorer {
+  id: string;
+  score(input: {
+    claim: Claim;
+    verification: ClaimVerificationForConfidence;
+  }): number | Promise<number>;
+}
+
+export interface ConfidenceCalibrationProfile {
+  version: 1;
+  id: string;
+  target: "verification-status-correctness";
+  scorerId: string;
+  method: "isotonic";
+  datasetManifestSha256: string;
+  observationCount: number;
+  mapping: Array<{
+    maxRawScore: number;
+    calibratedProbability: number;
+  }>;
+  validation: {
+    datasetManifestSha256: string;
+    observationCount: number;
+    brierScore: number;
+    expectedCalibrationError: number;
+  };
+  createdAt: string;
+}
+
+export interface ConfidenceCalibrationOptions {
+  scorer: ClaimConfidenceScorer;
+  profile: ConfidenceCalibrationProfile;
+}
+
+export interface CalibrationObservation {
+  id: string;
+  predictedStatus: VerificationStatus;
+  expectedStatus: VerificationStatus;
+  rawScore: number;
+  sourceCaseId: string;
+  sourceClaimId: string;
+  labelSourceUrls: string[];
+}
+
+export interface CalibrationStatusEvaluation {
+  count: number;
+  brierScore?: number;
+  expectedCalibrationError?: number;
+}
+
+export interface CalibrationEvaluation {
+  observationCount: number;
+  brierScore: number;
+  expectedCalibrationError: number;
+  byStatus: Record<VerificationStatus, CalibrationStatusEvaluation>;
 }
 
 export interface GatePolicy {
