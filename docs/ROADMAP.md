@@ -22,7 +22,7 @@
 - Ed25519-signed verification receipt API
 - Runnable guarded-application integration example
 
-## V0.3 — hardened delivery and operations
+## V0.3 — hardened delivery and operations (implemented)
 
 - DNS resolution and public-IP pinning before outbound document requests
 - Cross-source contradiction detection
@@ -36,6 +36,7 @@
 - Signed receipt validation and package-root exports for confidence/calibration provenance
 - Next.js App Router Fetch-native route handler example with explicit Node.js runtime
 - Remix loader/action route module example using the Fetch-native guarded handler
+- Cloudflare Worker Fetch-native integration example
 
 ## Next
 
