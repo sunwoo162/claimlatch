@@ -5,6 +5,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "deepinfra",
   "deepseek",
   "fireworks",
+  "gemini",
   "groq",
   "huggingface",
   "mistral",
@@ -65,6 +66,11 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
   },
   fireworks: {
     upstreamBaseUrl: "https://api.fireworks.ai/inference/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  },
+  gemini: {
+    upstreamBaseUrl: "https://generativelanguage.googleapis.com/v1beta/openai",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
   },
