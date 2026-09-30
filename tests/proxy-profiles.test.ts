@@ -9,6 +9,7 @@ import {
 test("proxy profile names are centralized for CLI and SDK consumers", () => {
   assert.deepEqual(PROXY_PROVIDER_PROFILE_NAMES, [
     "ai21",
+    "aimlapi",
     "azure",
   "cerebras",
     "chutes",
@@ -49,7 +50,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
   ]);
   assert.equal(
     formatProxyProviderProfileNames(),
-    "ai21, azure, cerebras, chutes, cohere, dashscope, deepinfra, deepseek, featherless, fireworks, friendli, gemini, groq, huggingface, hyperbolic, ionos, hunyuan, minimax, mistral, moonshot, nebius, novita, nvidia, openai, openrouter, perplexity, poe, qianfan, requesty, sambanova, siliconflow, stepfun, together, tokenhub, upstage, volcengine, xai, or zai",
+    "ai21, aimlapi, azure, cerebras, chutes, cohere, dashscope, deepinfra, deepseek, featherless, fireworks, friendli, gemini, groq, huggingface, hyperbolic, ionos, hunyuan, minimax, mistral, moonshot, nebius, novita, nvidia, openai, openrouter, perplexity, poe, qianfan, requesty, sambanova, siliconflow, stepfun, together, tokenhub, upstage, volcengine, xai, or zai",
   );
 });
 
@@ -58,6 +59,15 @@ test("proxy profiles provide Azure-compatible defaults", () => {
     upstreamApiKeyHeader: "api-key",
     upstreamChatCompletionsPath: "/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-10-21",
     upstreamModelsPath: "/openai/models?api-version=2024-10-21",
+  });
+});
+
+test("proxy profiles provide AI/ML API Chat Completions and model-list defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("aimlapi"), {
+    upstreamBaseUrl: "https://api.aimlapi.com",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/v1/chat/completions",
+    upstreamModelsPath: "/models",
   });
 });
 
@@ -379,7 +389,7 @@ test("every hosted proxy profile resolves a complete HTTPS Chat Completions cont
     const resolved = resolveProxyProviderProfile(profile);
     assert.match(resolved.upstreamBaseUrl ?? "", /^https:\/\//);
     assert.equal(resolved.upstreamApiKeyHeader, "authorization");
-    assert.equal(resolved.upstreamChatCompletionsPath, "/chat/completions");
+    assert.match(resolved.upstreamChatCompletionsPath, /\/chat\/completions$/);
   }
 });
 

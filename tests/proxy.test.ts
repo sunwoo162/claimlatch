@@ -10,6 +10,7 @@ import type { ProxyProviderProfileName } from "../src/proxy-profiles.js";
 
 const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "azure" | "openrouter">, string> = {
   ai21: "https://api.ai21.com/studio/v1",
+  aimlapi: "https://api.aimlapi.com",
   cerebras: "https://api.cerebras.ai/v1",
   chutes: "https://llm.chutes.ai/v1",
   cohere: "https://api.cohere.ai/compatibility/v1",
@@ -1549,6 +1550,53 @@ test("IONOS provider profile sends its model-list path and bearer header", async
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
+test("AI/ML API provider profile sends its distinct completion and model-list paths", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "aimlapi",
+  });
+  const capturedRequests: Array<{ url: string; headers: Headers }> = [];
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "aimlapi-key",
+    fetchImpl: (async (input, init) => {
+      capturedRequests.push({ url: String(input), headers: new Headers(init?.headers) });
+      if (String(input).endsWith("/models")) {
+        return new Response(JSON.stringify([{ id: "openai/gpt-5-chat-latest", type: "chat-completion" }]), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
+      }
+      return new Response(JSON.stringify({
+        id: "chatcmpl_aimlapi_profile",
+        object: "chat.completion",
+        choices: [{ message: { role: "assistant", content: "AI/ML API-compatible answer." } }],
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    }) as typeof fetch,
+  }, async (url) => {
+    const modelsResponse = await fetch(`${url}/v1/models`);
+    assert.equal(modelsResponse.status, 200);
+    assert.deepEqual(await modelsResponse.json(), [{ id: "openai/gpt-5-chat-latest", type: "chat-completion" }]);
+
+    const completionResponse = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ model: "openai/gpt-5-chat-latest", messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(completionResponse.status, 200);
+  });
+
+  assert.deepEqual(capturedRequests.map(({ url }) => url), [
+    "https://api.aimlapi.com/models",
+    "https://api.aimlapi.com/v1/chat/completions",
+  ]);
+  assert.equal(capturedRequests[0]?.headers.get("authorization"), "Bearer aimlapi-key");
+  assert.equal(capturedRequests[1]?.headers.get("authorization"), "Bearer aimlapi-key");
+  assert.equal(capturedRequests[0]?.headers.get("api-key"), null);
+  assert.equal(capturedRequests[1]?.headers.get("api-key"), null);
+});
+
 test("Hyperbolic provider profile sends the OpenAI-compatible bearer contract", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "hyperbolic",
@@ -1893,7 +1941,10 @@ test("hosted provider profiles preserve their resolver contracts through the pro
       assert.equal(response.status, 200);
     });
 
-    assert.equal(capturedUrl, `${expectedBaseUrl}/chat/completions`);
+    const expectedChatCompletionsPath = profileName === "aimlapi"
+      ? "/v1/chat/completions"
+      : "/chat/completions";
+    assert.equal(capturedUrl, `${expectedBaseUrl}${expectedChatCompletionsPath}`);
     assert.equal(capturedHeaders?.get("authorization"), `Bearer ${profileName}-key`);
     assert.equal(capturedHeaders?.get("api-key"), null);
   }

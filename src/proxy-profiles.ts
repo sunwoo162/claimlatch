@@ -1,5 +1,6 @@
 export const PROXY_PROVIDER_PROFILE_NAMES = [
   "ai21",
+  "aimlapi",
   "azure",
   "cerebras",
   "chutes",
@@ -66,6 +67,12 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamBaseUrl: "https://api.ai21.com/studio/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+  },
+  aimlapi: {
+    upstreamBaseUrl: "https://api.aimlapi.com",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/v1/chat/completions",
+    upstreamModelsPath: "/models",
   },
   azure: {
     upstreamApiKeyHeader: "api-key",
