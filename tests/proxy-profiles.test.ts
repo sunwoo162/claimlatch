@@ -14,6 +14,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
     "deepinfra",
     "deepseek",
     "fireworks",
+    "friendli",
     "gemini",
     "groq",
     "huggingface",
@@ -31,7 +32,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
   ]);
   assert.equal(
     formatProxyProviderProfileNames(),
-    "azure, cerebras, cohere, deepinfra, deepseek, fireworks, gemini, groq, huggingface, mistral, moonshot, nebius, nvidia, openai, openrouter, perplexity, sambanova, siliconflow, together, or xai",
+    "azure, cerebras, cohere, deepinfra, deepseek, fireworks, friendli, gemini, groq, huggingface, mistral, moonshot, nebius, nvidia, openai, openrouter, perplexity, sambanova, siliconflow, together, or xai",
   );
 });
 
@@ -157,6 +158,14 @@ test("proxy profiles provide DeepInfra-compatible Chat Completions defaults", ()
 test("proxy profiles provide Fireworks-compatible Chat Completions defaults", () => {
   assert.deepEqual(resolveProxyProviderProfile("fireworks"), {
     upstreamBaseUrl: "https://api.fireworks.ai/inference/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  });
+});
+
+test("proxy profiles provide FriendliAI-compatible Chat Completions defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("friendli"), {
+    upstreamBaseUrl: "https://api.friendli.ai/serverless/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
   });

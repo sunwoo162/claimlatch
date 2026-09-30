@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added a FriendliAI serverless OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions defaults and profile coverage.
 - Added a Nebius Token Factory OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions defaults and profile coverage.
 - Added a SiliconFlow OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions defaults and profile coverage.
 - Preserved Azure's documented `apim-request-id` response header through the compatible proxy with regression coverage.
