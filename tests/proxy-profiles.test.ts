@@ -31,10 +31,11 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
     "siliconflow",
     "together",
     "xai",
+    "zai",
   ]);
   assert.equal(
     formatProxyProviderProfileNames(),
-    "azure, cerebras, cohere, dashscope, deepinfra, deepseek, fireworks, friendli, gemini, groq, huggingface, mistral, moonshot, nebius, nvidia, openai, openrouter, perplexity, qianfan, sambanova, siliconflow, together, or xai",
+    "azure, cerebras, cohere, dashscope, deepinfra, deepseek, fireworks, friendli, gemini, groq, huggingface, mistral, moonshot, nebius, nvidia, openai, openrouter, perplexity, qianfan, sambanova, siliconflow, together, xai, or zai",
   );
 });
 
@@ -193,6 +194,14 @@ test("proxy profiles provide Together-compatible Chat Completions defaults", () 
 test("proxy profiles provide xAI-compatible Chat Completions defaults", () => {
   assert.deepEqual(resolveProxyProviderProfile("xai"), {
     upstreamBaseUrl: "https://api.x.ai/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  });
+});
+
+test("proxy profiles provide Z.AI-compatible Chat Completions defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("zai"), {
+    upstreamBaseUrl: "https://api.z.ai/api/paas/v4",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
   });
