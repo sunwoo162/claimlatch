@@ -22,3 +22,5 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: npm pack --dry-run
+      - run: npm audit --omit=dev
+        if: matrix.node-version == 20
