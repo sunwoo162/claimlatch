@@ -129,6 +129,13 @@ test("file receipt store rejects malformed receipt key metadata", async () => {
       }),
       /Invalid signed verification receipt/,
     );
+    await assert.rejects(
+      store.save("empty-key-id", {
+        ...receipt,
+        payload: { ...receipt.payload, keyId: "   " },
+      }),
+      /Invalid signed verification receipt/,
+    );
   } finally {
     await rm(directory, { recursive: true, force: true });
   }
