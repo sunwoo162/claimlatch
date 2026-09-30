@@ -8,7 +8,7 @@ import type { ClaimExtractor, ClaimVerifier, EvidenceProvider } from "../src/typ
 import type { OpenAIProxyOptions } from "../src/proxy.js";
 import type { ProxyProviderProfileName } from "../src/proxy-profiles.js";
 
-const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "azure" | "cerebrium" | "cloudflare" | "litellm" | "llamacpp" | "modal" | "ollama" | "openrouter" | "vllm">, string> = {
+const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "azure" | "cerebrium" | "cloudflare" | "litellm" | "llamacpp" | "lmstudio" | "modal" | "ollama" | "openrouter" | "vllm">, string> = {
   ai21: "https://api.ai21.com/studio/v1",
   aimlapi: "https://api.aimlapi.com",
   baichuan: "https://api.baichuan-ai.com/v1",
@@ -2752,6 +2752,75 @@ test("vLLM provider profile sends its versioned model-list path and bearer heade
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
+test("LM Studio provider profile sends its versioned Chat Completions contract", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "lmstudio",
+    CLAIMLATCH_PROXY_UPSTREAM_BASE_URL: "http://localhost:1234",
+  });
+  let capturedUrl: string | undefined;
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "lm-studio",
+    fetchImpl: (async (input, init) => {
+      capturedUrl = String(input);
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({
+        id: "chatcmpl_lmstudio_profile",
+        object: "chat.completion",
+        choices: [{ message: { role: "assistant", content: "LM Studio-compatible answer." } }],
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ model: "model-identifier", messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 200);
+  });
+
+  assert.equal(capturedUrl, "http://localhost:1234/v1/chat/completions");
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer lm-studio");
+  assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
+test("LM Studio provider profile sends its versioned model-list path and bearer header", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "lmstudio",
+    CLAIMLATCH_PROXY_UPSTREAM_BASE_URL: "http://localhost:1234",
+  });
+  let capturedUrl: string | undefined;
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "lm-studio",
+    fetchImpl: (async (input, init) => {
+      capturedUrl = String(input);
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({ object: "list", data: [{ id: "model-identifier", object: "model" }] }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/models?limit=1`);
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), {
+      object: "list",
+      data: [{ id: "model-identifier", object: "model" }],
+    });
+  });
+
+  assert.equal(capturedUrl, "http://localhost:1234/v1/models?limit=1");
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer lm-studio");
+  assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
 test("Cloudflare Workers AI provider profile sends the account-scoped bearer contract", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "cloudflare",
@@ -2919,7 +2988,7 @@ test("OVHcloud provider profile fails closed for unsupported model routes", asyn
 
 test("hosted provider profiles preserve their resolver contracts through the proxy", async () => {
   const expectedHostedProfiles = PROXY_PROVIDER_PROFILE_NAMES.filter(
-    (profileName) => profileName !== "azure" && profileName !== "cerebrium" && profileName !== "cloudflare" && profileName !== "litellm" && profileName !== "llamacpp" && profileName !== "modal" && profileName !== "ollama" && profileName !== "openrouter" && profileName !== "vllm",
+    (profileName) => profileName !== "azure" && profileName !== "cerebrium" && profileName !== "cloudflare" && profileName !== "litellm" && profileName !== "llamacpp" && profileName !== "lmstudio" && profileName !== "modal" && profileName !== "ollama" && profileName !== "openrouter" && profileName !== "vllm",
   );
   assert.deepEqual(Object.keys(HOSTED_PROFILE_BASE_URLS).sort(), [...expectedHostedProfiles].sort());
 
