@@ -3,6 +3,7 @@ import {
   createGuardedAnswerFetchHandler,
   type GuardedAnswerFetchHandler,
 } from "../src/index.js";
+import { getResponseCookies } from "./response-cookies.js";
 
 export interface ExpressRequest {
   method?: string;
@@ -69,15 +70,6 @@ export function createExpressGuardedAnswerHandler(
     if (responseCookies.length > 0) response.setHeader("set-cookie", responseCookies);
     response.status(upstreamResponse.status).send(await upstreamResponse.text());
   };
-}
-
-function getResponseCookies(headers: Headers): string[] {
-  const headersWithGetSetCookie = headers as Headers & { getSetCookie?: () => string[] };
-  const cookies = headersWithGetSetCookie.getSetCookie?.() ?? [];
-  if (cookies.length > 0) return cookies;
-
-  const fallback = headers.get("set-cookie");
-  return fallback ? [fallback] : [];
 }
 
 // Copy this adapter into an Express route after installing `express.json()`.

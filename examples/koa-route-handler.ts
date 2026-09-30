@@ -3,6 +3,7 @@ import {
   createGuardedAnswerFetchHandler,
   type GuardedAnswerFetchHandler,
 } from "../src/index.js";
+import { getResponseCookies } from "./response-cookies.js";
 
 export interface KoaRequest {
   method?: string;
@@ -79,15 +80,6 @@ export function createKoaGuardedAnswerHandler(
     context.response.body = await upstreamResponse.text();
     context.response.status = upstreamResponse.status;
   };
-}
-
-function getResponseCookies(headers: Headers): string[] {
-  const headersWithGetSetCookie = headers as Headers & { getSetCookie?: () => string[] };
-  const cookies = headersWithGetSetCookie.getSetCookie?.() ?? [];
-  if (cookies.length > 0) return cookies;
-
-  const fallback = headers.get("set-cookie");
-  return fallback ? [fallback] : [];
 }
 
 // Copy this adapter into a Koa route after enabling a JSON body parser.
