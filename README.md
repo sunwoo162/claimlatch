@@ -546,7 +546,7 @@ PASS is not proof of universal truth. Claim extraction, search, source selection
 
 ## Project status
 
-The unreleased receipt CLI now exposes the canonical signed payload SHA-256 after successful verification.
+`0.3.68` exposes the canonical signed payload SHA-256 after successful receipt verification in the receipt CLI JSON output.
 
 `0.3.67` rejects empty receipt key IDs during creation as well as verification.
 
