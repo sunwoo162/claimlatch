@@ -247,7 +247,8 @@ function isClaimVerification(value: unknown): boolean {
     && isStringArray(record.evidenceIds)
     && isObjectArray(record.evidence)
     && isOptionalStringArray(record.supportingEvidenceIds)
-    && isOptionalStringArray(record.contradictingEvidenceIds);
+    && isOptionalStringArray(record.contradictingEvidenceIds)
+    && isOptionalClaimConfidence(record.confidence);
 }
 
 function isPolicyViolation(value: unknown): boolean {
@@ -278,6 +279,23 @@ function isStringArray(value: unknown): value is string[] {
 
 function isOptionalStringArray(value: unknown): boolean {
   return value === undefined || isStringArray(value);
+}
+
+function isOptionalClaimConfidence(value: unknown): boolean {
+  if (value === undefined) return true;
+  const confidence = asRecord(value);
+  return isProbability(confidence?.value)
+    && confidence?.meaning === "verification-status-correctness"
+    && isNonEmptyString(confidence?.scorerId)
+    && isNonEmptyString(confidence?.calibrationProfileId);
+}
+
+function isProbability(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 1;
+}
+
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0;
 }
 
 function isObjectArray(value: unknown): boolean {
