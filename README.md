@@ -546,7 +546,7 @@ PASS is not proof of universal truth. Claim extraction, search, source selection
 
 ## Project status
 
-The unreleased receipt API rejects empty key IDs during receipt creation as well as verification.
+`0.3.67` rejects empty receipt key IDs during creation as well as verification.
 
 `0.3.66` hardens signed receipt validation so present key IDs cannot be empty or whitespace-only.
 
