@@ -30,6 +30,7 @@ const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "azure"
   nvidia: "https://integrate.api.nvidia.com/v1",
   openai: "https://api.openai.com/v1",
   perplexity: "https://api.perplexity.ai/router/v1",
+  poe: "https://api.poe.com/v1",
   qianfan: "https://qianfan.baidubce.com/v2",
   sambanova: "https://api.sambanova.ai/v1",
   siliconflow: "https://api.siliconflow.cn/v1",
@@ -1374,6 +1375,39 @@ test("Chutes provider profile sends its model-list path and bearer header", asyn
 
   assert.equal(capturedUrl, "https://llm.chutes.ai/v1/models");
   assert.equal(capturedHeaders?.get("authorization"), "Bearer chutes-key");
+  assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
+test("Poe provider profile sends its model-list path and bearer header", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "poe",
+  });
+  let capturedUrl: string | undefined;
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "poe-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrl = String(input);
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({ object: "list", data: [{ id: "Claude-Sonnet-4.6", object: "model" }] }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/models`);
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), {
+      object: "list",
+      data: [{ id: "Claude-Sonnet-4.6", object: "model" }],
+    });
+  });
+
+  assert.equal(capturedUrl, "https://api.poe.com/v1/models");
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer poe-key");
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 

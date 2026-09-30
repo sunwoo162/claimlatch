@@ -23,7 +23,7 @@ test("proxy CLI help documents credentials, routes, and fail-closed behavior", (
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS/);
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_MODELS_PATH.*profile supplies one/);
   assert.match(help, /CLAIMLATCH_PROXY_PROVIDER_PROFILE/);
-  assert.match(help, /ai21, azure, cerebras, chutes, cohere, dashscope, deepinfra, deepseek, fireworks, friendli, gemini, groq, huggingface, hunyuan, minimax, mistral, moonshot, nebius, novita, nvidia, openai, openrouter, perplexity, qianfan, sambanova, siliconflow, stepfun, together, tokenhub, volcengine, xai, or zai/);
+  assert.match(help, /ai21, azure, cerebras, chutes, cohere, dashscope, deepinfra, deepseek, fireworks, friendli, gemini, groq, huggingface, hunyuan, minimax, mistral, moonshot, nebius, novita, nvidia, openai, openrouter, perplexity, poe, qianfan, sambanova, siliconflow, stepfun, together, tokenhub, volcengine, xai, or zai/);
   assert.match(help, /PASS.*BLOCK/s);
   assert.match(help, /credential-free/);
 });
@@ -127,6 +127,7 @@ test("proxy CLI resolves every hosted built-in profile without an explicit base 
     nvidia: "https://integrate.api.nvidia.com/v1",
     openai: "https://api.openai.com/v1",
     perplexity: "https://api.perplexity.ai/router/v1",
+    poe: "https://api.poe.com/v1",
     qianfan: "https://qianfan.baidubce.com/v2",
     sambanova: "https://api.sambanova.ai/v1",
     siliconflow: "https://api.siliconflow.cn/v1",
