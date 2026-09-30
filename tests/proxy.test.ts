@@ -1036,6 +1036,38 @@ test("proxy supports provider-specific upstream API key headers", async () => {
   assert.equal(capturedHeaders?.get("authorization"), null);
 });
 
+test("proxy forwards OpenRouter attribution headers to the upstream request", async () => {
+  let capturedHeaders: Headers | undefined;
+  await withProxyOptions({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://openrouter.ai/api/v1",
+    upstreamApiKey: "openrouter-key",
+    upstreamRequestHeaders: {
+      "HTTP-Referer": "https://claimlatch.example",
+      "X-Title": "ClaimLatch",
+    },
+    fetchImpl: (async (_input, init) => {
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({
+        id: "chatcmpl_openrouter_attribution",
+        object: "chat.completion",
+        choices: [{ message: { role: "assistant", content: "OpenRouter-compatible answer." } }],
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 200);
+  });
+
+  assert.equal(capturedHeaders?.get("http-referer"), "https://claimlatch.example");
+  assert.equal(capturedHeaders?.get("x-title"), "ClaimLatch");
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer openrouter-key");
+});
+
 test("proxy supports provider-specific upstream chat completions paths and query parameters", async () => {
   let capturedUrl: string | undefined;
   await withProxyOptions({
