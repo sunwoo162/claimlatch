@@ -39,6 +39,7 @@ const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "azure"
   qianfan: "https://qianfan.baidubce.com/v2",
   requesty: "https://router.requesty.ai/v1",
   sambanova: "https://api.sambanova.ai/v1",
+  scaleway: "https://api.scaleway.ai/v1",
   siliconflow: "https://api.siliconflow.cn/v1",
   stepfun: "https://api.stepfun.ai/v1",
   together: "https://api.together.xyz/v1",
@@ -1581,6 +1582,39 @@ test("Inference.net provider profile sends its model-list path and bearer header
 
   assert.equal(capturedUrl, "https://api.inference.net/v1/models");
   assert.equal(capturedHeaders?.get("authorization"), "Bearer inferencenet-key");
+  assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
+test("Scaleway provider profile sends its model-list path and bearer header", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "scaleway",
+  });
+  let capturedUrl: string | undefined;
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "scaleway-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrl = String(input);
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({ object: "list", data: [{ id: "llama-3.3-70b-instruct", object: "model" }] }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/models`);
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), {
+      object: "list",
+      data: [{ id: "llama-3.3-70b-instruct", object: "model" }],
+    });
+  });
+
+  assert.equal(capturedUrl, "https://api.scaleway.ai/v1/models");
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer scaleway-key");
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 

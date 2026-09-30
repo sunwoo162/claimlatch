@@ -31,6 +31,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "qianfan",
   "requesty",
   "sambanova",
+  "scaleway",
   "siliconflow",
   "stepfun",
   "together",
@@ -228,6 +229,12 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamBaseUrl: "https://api.sambanova.ai/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+  },
+  scaleway: {
+    upstreamBaseUrl: "https://api.scaleway.ai/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
   },
   siliconflow: {
     upstreamBaseUrl: "https://api.siliconflow.cn/v1",

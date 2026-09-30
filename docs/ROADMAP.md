@@ -66,6 +66,7 @@
 - Hyperbolic OpenAI-compatible proxy provider profile with Chat Completions contract coverage
 - AI/ML API OpenAI-compatible proxy provider profile with Chat Completions and model-list contract coverage
 - Inference.net OpenAI-compatible proxy provider profile with Chat Completions and model-list contract coverage
+- Scaleway Generative APIs OpenAI-compatible proxy provider profile with Chat Completions and model-list contract coverage
 
 ## Next
 

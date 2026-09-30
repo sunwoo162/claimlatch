@@ -226,6 +226,8 @@ For Baidu Qianfan's v2 OpenAI-compatible API, set `CLAIMLATCH_PROXY_PROVIDER_PRO
 
 For SambaNova's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="sambanova"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.sambanova.ai/v1`, bearer authentication, and `/chat/completions`.
 
+For Scaleway Generative APIs' OpenAI-compatible API, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="scaleway"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.scaleway.ai/v1`, bearer authentication, `/chat/completions`, and `/models`; see [Scaleway's OpenAI compatibility documentation](https://www.scaleway.com/en/developers/api/generative-apis) and [authentication guide](https://www.scaleway.com/en/docs/generative-apis/api-cli/using-generative-apis/).
+
 For SiliconFlow's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="siliconflow"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.siliconflow.cn/v1`, bearer authentication, and `/chat/completions`; see [SiliconFlow's Chat Completions documentation](https://docs.siliconflow.cn/docs/api/chat-completions-post).
 
 For StepFun's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="stepfun"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.stepfun.ai/v1`, bearer authentication, and `/chat/completions`; use `CLAIMLATCH_PROXY_UPSTREAM_BASE_URL="https://api.stepfun.com/v1"` for the documented China platform endpoint. See [StepFun's official platform](https://platform.stepfun.ai/).
