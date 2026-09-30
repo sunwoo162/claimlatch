@@ -57,6 +57,7 @@
 - StepFun OpenAI-compatible proxy provider profile with Chat Completions contract coverage
 - AI21 OpenAI-compatible proxy provider profile with Chat Completions contract coverage
 - Novita AI OpenAI-compatible proxy provider profile with Chat Completions and model-list contract coverage
+- Chutes OpenAI-compatible proxy provider profile with Chat Completions and model-list contract coverage
 
 ## Next
 
