@@ -114,6 +114,25 @@ test("provider-compatible proxy example preserves the configured model route", (
   assert.equal(configuration.upstreamModelsPath, "/v1/custom-models");
 });
 
+test("provider-compatible proxy example preserves OpenRouter attribution headers", () => {
+  const configuration = resolveProviderCompatibleProxyConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "openrouter",
+    CLAIMLATCH_PROXY_OPENROUTER_SITE_URL: "https://claimlatch.example",
+    CLAIMLATCH_PROXY_OPENROUTER_APP_NAME: "ClaimLatch",
+  });
+
+  assert.deepEqual(configuration, {
+    upstreamBaseUrl: "https://openrouter.ai/api/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
+    upstreamRequestHeaders: {
+      "HTTP-Referer": "https://claimlatch.example",
+      "X-Title": "ClaimLatch",
+    },
+  });
+});
+
 test("provider-compatible proxy example main guard normalizes POSIX and Windows paths", () => {
   assert.equal(
     isProviderCompatibleProxyMainModule(
