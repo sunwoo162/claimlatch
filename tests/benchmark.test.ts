@@ -112,7 +112,7 @@ test("benchmark CLI help documents datasets, splits, manifests, and formats", ()
   assert.match(help, /--split <train\|dev\|test>/);
   assert.match(help, /--manifest <path>/);
   assert.match(help, /--format <text\|json\|junit\|sarif>/);
-  assert.match(help, /default is the 76-case independent\.jsonl aggregate/);
+  assert.match(help, /default is the 78-case independent\.jsonl aggregate/);
 });
 
 test("benchmark validation output is credential-free and deterministic", () => {

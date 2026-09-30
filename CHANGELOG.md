@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.78 - 2026-09-30
+
+- Expanded the frozen independent benchmark to 78 balanced cases with an IETF RFC 9110-backed HTTP 201 Created pair.
+
 ## 0.3.77 - 2026-09-30
 
 - Expanded the frozen independent benchmark to 76 balanced cases with an NIST-backed SI candela/lumen pair.
