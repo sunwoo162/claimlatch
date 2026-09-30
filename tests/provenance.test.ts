@@ -215,6 +215,14 @@ test("public URL filter rejects common private and local targets", () => {
   assert.equal(isSafePublicHttpUrl(new URL("http://10.0.0.1/test")), false);
   assert.equal(isSafePublicHttpUrl(new URL("http://192.168.1.1/test")), false);
   assert.equal(isSafePublicHttpUrl(new URL("http://169.254.169.254/latest/meta-data")), false);
+  for (const value of [
+    "http://2130706433/test",
+    "http://0177.0.0.1/test",
+    "http://0x7f000001/test",
+    "http://127.1/test",
+  ]) {
+    assert.equal(isSafePublicHttpUrl(new URL(value)), false);
+  }
   assert.equal(isSafePublicHttpUrl(new URL("https://user:password@example.com/test")), false);
   assert.equal(isSafePublicHttpUrl(new URL("https://example.com/test")), true);
 });
