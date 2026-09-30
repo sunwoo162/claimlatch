@@ -15,6 +15,8 @@ test("calibration CLI help documents status-correctness semantics", () => {
   assert.match(help, /--profile-id <id>/);
   assert.match(help, /--scorer-id <id>/);
   assert.match(help, /--created-at <ISO-8601>/);
+  assert.match(help, /--json.*compatibility/);
+  assert.match(help, /always prints deterministic evaluation JSON/);
   assert.match(help, /not factual truth probability/);
 });
 
