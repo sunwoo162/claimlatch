@@ -4,6 +4,12 @@
 
 No unreleased changes.
 
+## 0.3.77 - 2026-09-30
+
+- Expanded the frozen independent benchmark to 76 balanced cases with an NIST-backed SI candela/lumen pair.
+- Added lockfile-pinned CI installation, npm dependency caching, and production dependency auditing.
+- Added IPv6 DNS pinning and noncanonical private-IP regression coverage for provenance SSRF protections.
+
 ## 0.3.76 - 2026-09-30
 
 - Added a dependency-light Remix route module example using `loader` and `action` with the Fetch-native guarded handler.
