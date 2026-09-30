@@ -59,6 +59,21 @@ test("calibration CLI parser rejects missing or unknown arguments", () => {
   );
 });
 
+test("calibration CLI rejects duplicate value options", () => {
+  assert.throws(
+    () => parseCalibrationCliArguments([
+      "--calibration", "first.jsonl",
+      "--calibration", "second.jsonl",
+      "--evaluation", "evaluation.jsonl",
+      "--output", "profile.json",
+      "--profile-id", "profile-v1",
+      "--scorer-id", "scorer-v1",
+      "--created-at", "2026-09-30T00:00:00.000Z",
+    ]),
+    /--calibration may only be specified once/,
+  );
+});
+
 test("calibration CLI rejects non-ISO created-at values", () => {
   const createArguments = (createdAt: string): string[] => [
       "--calibration", "calibration.jsonl",
