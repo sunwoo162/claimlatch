@@ -168,6 +168,8 @@ For Hugging Face Inference Providers' OpenAI-compatible Chat Completions endpoin
 
 For Hyperbolic's OpenAI-compatible inference API, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="hyperbolic"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.hyperbolic.xyz/v1`, bearer authentication, and `/chat/completions`; see [Hyperbolic's model API example](https://app.hyperbolic.xyz/models/qwen3-235b-a22b) and [inference overview](https://www.hyperbolic.ai/blog/deep-dive-into-hyperbolic-inference).
 
+For Inference.net's OpenAI-compatible API, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="inferencenet"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.inference.net/v1`, bearer authentication, `/chat/completions`, and `/models`; see [Inference.net's API Quickstart](https://docs.inference.net/api/api-quickstart).
+
 For IONOS Cloud AI Model Hub's OpenAI-compatible API, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="ionos"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://openai.inference.de-txl.ionos.com/v1`, bearer authentication, `/chat/completions`, and `/models`; see [IONOS text generation documentation](https://docs.ionos.com/cloud/ai/ai-model-hub/how-tos/text-generation) and [OpenAI compatibility migration guide](https://docs.ionos.com/cloud/ai/ai-model-hub/how-tos/migration-guide).
 
 For Tencent Hunyuan's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="hunyuan"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.hunyuan.cloud.tencent.com/v1`, bearer authentication, and `/chat/completions`; see [Tencent Cloud's Hunyuan OpenAI compatibility examples](https://cloud.tencent.com/document/product/1729/111007).

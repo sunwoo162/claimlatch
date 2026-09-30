@@ -24,6 +24,7 @@ const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "azure"
   groq: "https://api.groq.com/openai/v1",
   huggingface: "https://router.huggingface.co/v1",
   hyperbolic: "https://api.hyperbolic.xyz/v1",
+  inferencenet: "https://api.inference.net/v1",
   ionos: "https://openai.inference.de-txl.ionos.com/v1",
   hunyuan: "https://api.hunyuan.cloud.tencent.com/v1",
   minimax: "https://api.minimax.io/v1",
@@ -1547,6 +1548,39 @@ test("IONOS provider profile sends its model-list path and bearer header", async
 
   assert.equal(capturedUrl, "https://openai.inference.de-txl.ionos.com/v1/models");
   assert.equal(capturedHeaders?.get("authorization"), "Bearer ionos-key");
+  assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
+test("Inference.net provider profile sends its model-list path and bearer header", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "inferencenet",
+  });
+  let capturedUrl: string | undefined;
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "inferencenet-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrl = String(input);
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({ object: "list", data: [{ id: "glm-5.2", object: "model" }] }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/models`);
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), {
+      object: "list",
+      data: [{ id: "glm-5.2", object: "model" }],
+    });
+  });
+
+  assert.equal(capturedUrl, "https://api.inference.net/v1/models");
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer inferencenet-key");
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
