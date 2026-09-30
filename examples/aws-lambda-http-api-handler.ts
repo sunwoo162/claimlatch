@@ -22,6 +22,7 @@ export interface AwsLambdaHttpApiV2Event {
 export interface AwsLambdaHttpApiV2Response {
   statusCode: number;
   headers: Record<string, string>;
+  cookies?: string[];
   body: string;
   isBase64Encoded: true;
 }
@@ -72,7 +73,14 @@ export function createAwsLambdaHttpApiV2Handler(
       method: event.requestContext.http.method,
       headers,
     };
-    if (event.body !== undefined && event.body !== null && event.body.length > 0) {
+    const method = event.requestContext.http.method.toUpperCase();
+    if (
+      event.body !== undefined &&
+      event.body !== null &&
+      event.body.length > 0 &&
+      method !== "GET" &&
+      method !== "HEAD"
+    ) {
       requestInit.body = event.isBase64Encoded
         ? new Blob([decodeBase64(event.body)])
         : event.body;
@@ -80,17 +88,28 @@ export function createAwsLambdaHttpApiV2Handler(
 
     const response = await fetchHandler(new Request(`https://lambda.invalid${path}${query}`, requestInit));
     const responseHeaders: Record<string, string> = {};
+    const responseCookies = getResponseCookies(response.headers);
     response.headers.forEach((value, name) => {
-      responseHeaders[name] = value;
+      if (name !== "set-cookie") responseHeaders[name] = value;
     });
 
     return {
       statusCode: response.status,
       headers: responseHeaders,
+      ...(responseCookies.length > 0 ? { cookies: responseCookies } : {}),
       body: encodeBase64(new Uint8Array(await response.arrayBuffer())),
       isBase64Encoded: true,
     };
   };
+}
+
+function getResponseCookies(headers: Headers): string[] {
+  const headersWithGetSetCookie = headers as Headers & { getSetCookie?: () => string[] };
+  const cookies = headersWithGetSetCookie.getSetCookie?.() ?? [];
+  if (cookies.length > 0) return cookies;
+
+  const fallback = headers.get("set-cookie");
+  return fallback ? [fallback] : [];
 }
 
 function decodeBase64(value: string): ArrayBuffer {

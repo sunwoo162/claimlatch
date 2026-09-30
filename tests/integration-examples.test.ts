@@ -200,7 +200,12 @@ test("AWS Lambda HTTP API example adapts payload v2 events and responses", async
     assert.deepEqual(await request.json(), { question: "question", draft: "draft" });
     return new Response(JSON.stringify({ answer: "verified" }), {
       status: 200,
-      headers: { "content-type": "application/json", "x-claimlatch-result": "pass" },
+      headers: [
+        ["content-type", "application/json"],
+        ["x-claimlatch-result", "pass"],
+        ["set-cookie", "session=abc; Path=/"],
+        ["set-cookie", "theme=dark; Path=/"],
+      ],
     });
   });
 
@@ -221,7 +226,28 @@ test("AWS Lambda HTTP API example adapts payload v2 events and responses", async
   assert.equal(response.isBase64Encoded, true);
   assert.equal(response.headers["content-type"], "application/json");
   assert.equal(response.headers["x-claimlatch-result"], "pass");
+  assert.deepEqual(response.cookies, ["session=abc; Path=/", "theme=dark; Path=/"]);
   assert.deepEqual(JSON.parse(atob(response.body)), { answer: "verified" });
+});
+
+test("AWS Lambda HTTP API example omits bodies for GET and HEAD requests", async () => {
+  const handler = createAwsLambdaHttpApiV2Handler(async (request) => {
+    assert.equal(request.body, null);
+    return new Response(null, { status: 204 });
+  });
+
+  for (const method of ["GET", "HEAD"] as const) {
+    const response = await handler({
+      version: "2.0",
+      rawPath: "/answer",
+      rawQueryString: "",
+      requestContext: { http: { method } },
+      body: btoa("ignored"),
+      isBase64Encoded: false,
+    });
+
+    assert.equal(response.statusCode, 204);
+  }
 });
 
 test("receipt storage example renders the canonical payload hash", () => {
