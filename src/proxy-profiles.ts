@@ -30,6 +30,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "modal",
   "moonshot",
   "nebius",
+  "nscale",
   "novita",
   "nvidia",
   "openai",
@@ -241,6 +242,12 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamBaseUrl: "https://api.tokenfactory.nebius.com/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+  },
+  nscale: {
+    upstreamBaseUrl: "https://inference.api.nscale.com/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
   },
   novita: {
     upstreamBaseUrl: "https://api.novita.ai/openai/v1",
