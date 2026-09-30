@@ -24,6 +24,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "perplexity",
   "poe",
   "qianfan",
+  "requesty",
   "sambanova",
   "siliconflow",
   "stepfun",
@@ -179,6 +180,12 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
   },
   qianfan: {
     upstreamBaseUrl: "https://qianfan.baidubce.com/v2",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
+  },
+  requesty: {
+    upstreamBaseUrl: "https://router.requesty.ai/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
     upstreamModelsPath: "/models",
