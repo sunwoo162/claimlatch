@@ -78,6 +78,7 @@
 - Modal Endpoints OpenAI-compatible proxy provider profile with explicit endpoint URL configuration and fail-closed model-route handling
 - Cerebrium deployment endpoint OpenAI-compatible proxy provider profile with explicit endpoint URL configuration and fail-closed model-route handling
 - Nscale Serverless Inference OpenAI-compatible proxy provider profile with Chat Completions and model-list contract coverage
+- LiteLLM self-hosted gateway OpenAI-compatible proxy provider profile with explicit base URL configuration and versioned Chat Completions/model-list contract coverage
 
 ## Next
 

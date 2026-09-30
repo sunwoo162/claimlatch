@@ -24,7 +24,7 @@ test("proxy CLI help documents credentials, routes, and fail-closed behavior", (
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_API_KEY_PREFIX.*default Bearer/);
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_MODELS_PATH.*profile supplies one/);
   assert.match(help, /CLAIMLATCH_PROXY_PROVIDER_PROFILE/);
-  assert.match(help, /ai21, aimlapi, azure, baichuan, baseten, cerebras, cerebrium, chutes, clarifai, cloudflare, cohere, dashscope, deepinfra, deepseek, featherless, fireworks, friendli, gemini, groq, huggingface, hyperbolic, inferencenet, ionos, lamini, hunyuan, minimax, mimo, mistral, modal, moonshot, nebius, nscale, novita, nvidia, openai, openrouter, ovhcloud, perplexity, poe, qianfan, requesty, sambanova, scaleway, siliconflow, stepfun, together, tokenhub, upstage, volcengine, xai, or zai/);
+  assert.match(help, /ai21, aimlapi, azure, baichuan, baseten, cerebras, cerebrium, chutes, clarifai, cloudflare, cohere, dashscope, deepinfra, deepseek, featherless, fireworks, friendli, gemini, groq, huggingface, hyperbolic, inferencenet, ionos, lamini, litellm, hunyuan, minimax, mimo, mistral, modal, moonshot, nebius, nscale, novita, nvidia, openai, openrouter, ovhcloud, perplexity, poe, qianfan, requesty, sambanova, scaleway, siliconflow, stepfun, together, tokenhub, upstage, volcengine, xai, or zai/);
   assert.match(help, /PASS.*BLOCK/s);
   assert.match(help, /credential-free/);
 });
@@ -182,6 +182,24 @@ test("proxy CLI resolves every hosted built-in profile without an explicit base 
       upstreamModelsPath: profile === "baichuan" || profile === "clarifai" || profile === "ovhcloud" ? null : "/models",
     });
   }
+});
+
+test("proxy CLI requires an explicit base URL for LiteLLM", () => {
+  assert.throws(
+    () => resolveProxyProviderConfiguration({
+      CLAIMLATCH_PROXY_PROVIDER_PROFILE: "litellm",
+    }),
+    /Set CLAIMLATCH_PROXY_UPSTREAM_BASE_URL/,
+  );
+  assert.deepEqual(resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "litellm",
+    CLAIMLATCH_PROXY_UPSTREAM_BASE_URL: "http://localhost:4000",
+  }), {
+    upstreamBaseUrl: "http://localhost:4000",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/v1/chat/completions",
+    upstreamModelsPath: "/v1/models",
+  });
 });
 
 test("proxy CLI requires an explicit account-scoped base URL for Cloudflare Workers AI", () => {
