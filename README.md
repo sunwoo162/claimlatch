@@ -141,6 +141,8 @@ The example defaults to `api-key`, `/openai/deployments/gpt-4o-mini/chat/complet
 
 For Cerebras' OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="cerebras"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.cerebras.ai/v1`, bearer authentication, and `/chat/completions`.
 
+For Cloudflare Workers AI's OpenAI-compatible API, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="cloudflare"`, provide an account-scoped `CLAIMLATCH_PROXY_UPSTREAM_BASE_URL` such as `https://api.cloudflare.com/client/v4/accounts/<account_id>/ai/v1`, and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses bearer authentication and `/chat/completions`; its model-list and model-retrieval routes return a local 404 unless `CLAIMLATCH_PROXY_UPSTREAM_MODELS_PATH` is explicitly configured because the official compatibility contract documents Chat Completions but not a model-list route. See [Cloudflare's OpenAI-compatible Workers AI documentation](https://developers.cloudflare.com/workers-ai/configuration/open-ai-compatibility/).
+
 The same example includes an OpenRouter profile. Set the required attribution metadata; the profile supplies the OpenRouter base URL, bearer authentication, and attribution headers:
 
 ```bash

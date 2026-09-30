@@ -5,6 +5,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "baichuan",
   "cerebras",
   "chutes",
+  "cloudflare",
   "cohere",
   "dashscope",
   "deepinfra",
@@ -101,6 +102,11 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
     upstreamModelsPath: "/models",
+  },
+  cloudflare: {
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: null,
   },
   cohere: {
     upstreamBaseUrl: "https://api.cohere.ai/compatibility/v1",

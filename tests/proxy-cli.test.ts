@@ -23,7 +23,7 @@ test("proxy CLI help documents credentials, routes, and fail-closed behavior", (
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS/);
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_MODELS_PATH.*profile supplies one/);
   assert.match(help, /CLAIMLATCH_PROXY_PROVIDER_PROFILE/);
-  assert.match(help, /ai21, aimlapi, azure, baichuan, cerebras, chutes, cohere, dashscope, deepinfra, deepseek, featherless, fireworks, friendli, gemini, groq, huggingface, hyperbolic, inferencenet, ionos, lamini, hunyuan, minimax, mimo, mistral, moonshot, nebius, novita, nvidia, openai, openrouter, ovhcloud, perplexity, poe, qianfan, requesty, sambanova, scaleway, siliconflow, stepfun, together, tokenhub, upstage, volcengine, xai, or zai/);
+  assert.match(help, /ai21, aimlapi, azure, baichuan, cerebras, chutes, cloudflare, cohere, dashscope, deepinfra, deepseek, featherless, fireworks, friendli, gemini, groq, huggingface, hyperbolic, inferencenet, ionos, lamini, hunyuan, minimax, mimo, mistral, moonshot, nebius, novita, nvidia, openai, openrouter, ovhcloud, perplexity, poe, qianfan, requesty, sambanova, scaleway, siliconflow, stepfun, together, tokenhub, upstage, volcengine, xai, or zai/);
   assert.match(help, /PASS.*BLOCK/s);
   assert.match(help, /credential-free/);
 });
@@ -164,6 +164,24 @@ test("proxy CLI resolves every hosted built-in profile without an explicit base 
       upstreamModelsPath: profile === "baichuan" || profile === "ovhcloud" ? null : "/models",
     });
   }
+});
+
+test("proxy CLI requires an explicit account-scoped base URL for Cloudflare Workers AI", () => {
+  assert.throws(
+    () => resolveProxyProviderConfiguration({
+      CLAIMLATCH_PROXY_PROVIDER_PROFILE: "cloudflare",
+    }),
+    /Set CLAIMLATCH_PROXY_UPSTREAM_BASE_URL/,
+  );
+  assert.deepEqual(resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "cloudflare",
+    CLAIMLATCH_PROXY_UPSTREAM_BASE_URL: "https://api.cloudflare.com/client/v4/accounts/account-123/ai/v1",
+  }), {
+    upstreamBaseUrl: "https://api.cloudflare.com/client/v4/accounts/account-123/ai/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: null,
+  });
 });
 
 test("proxy CLI allows an explicit OVHcloud model route override", () => {
