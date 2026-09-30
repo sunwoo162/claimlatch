@@ -5,6 +5,7 @@
 - Added an Nscale Serverless Inference OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions and model-list coverage and wire-contract tests.
 - Added a LiteLLM self-hosted gateway OpenAI-compatible proxy provider profile with explicit base URL configuration, bearer-authenticated versioned Chat Completions, model-list coverage, and wire-contract tests.
 - Added an Ollama OpenAI-compatible proxy provider profile with explicit local/cloud base URL configuration, versioned Chat Completions, model-list coverage, and wire-contract tests.
+- Added a llama.cpp server OpenAI-compatible proxy provider profile with explicit base URL configuration, versioned Chat Completions, model-list coverage, and wire-contract tests.
 - Added a Cerebrium deployment endpoint OpenAI-compatible proxy provider profile with explicit endpoint URL configuration, bearer-authenticated Chat Completions coverage, and fail-closed model-route handling.
 - Added a Modal Endpoints OpenAI-compatible proxy provider profile with explicit endpoint URL configuration, bearer-authenticated Chat Completions coverage, and fail-closed model-route handling.
 - Added a Clarifai OpenAI-compatible proxy provider profile with documented `Authorization: Key` authentication, Chat Completions coverage, and fail-closed model-route handling.

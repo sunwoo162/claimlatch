@@ -24,6 +24,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "ionos",
   "lamini",
   "litellm",
+  "llamacpp",
   "hunyuan",
   "minimax",
   "mimo",
@@ -210,6 +211,11 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamModelsPath: "/models",
   },
   litellm: {
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/v1/chat/completions",
+    upstreamModelsPath: "/v1/models",
+  },
+  llamacpp: {
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/v1/chat/completions",
     upstreamModelsPath: "/v1/models",
