@@ -1174,6 +1174,43 @@ test("hosted Gemini provider profile sends the OpenAI-compatible bearer contract
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
+test("OpenRouter provider profile forwards attribution headers with bearer auth", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "openrouter",
+    CLAIMLATCH_PROXY_OPENROUTER_SITE_URL: "https://claimlatch.example",
+    CLAIMLATCH_PROXY_OPENROUTER_APP_NAME: "ClaimLatch",
+  });
+  let capturedUrl: string | undefined;
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "openrouter-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrl = String(input);
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({
+        id: "chatcmpl_openrouter_profile",
+        object: "chat.completion",
+        choices: [{ message: { role: "assistant", content: "OpenRouter-compatible answer." } }],
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ model: "openai/gpt-4o-mini", messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 200);
+  });
+
+  assert.equal(capturedUrl, "https://openrouter.ai/api/v1/chat/completions");
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer openrouter-key");
+  assert.equal(capturedHeaders?.get("http-referer"), "https://claimlatch.example");
+  assert.equal(capturedHeaders?.get("x-title"), "ClaimLatch");
+});
+
 test("proxy supports a custom provider compatibility profile", async () => {
   let capturedUrl: string | undefined;
   let capturedHeaders: Headers | undefined;

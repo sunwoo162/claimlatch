@@ -36,7 +36,7 @@
 - Credential-free calibration and evaluation dataset validation before profile fitting
 - Signed receipt validation and package-root exports for confidence/calibration provenance
 - Independently labelled confidence calibration fixture with committed generated evaluation metrics
-- Credential-free Azure-style and hosted Gemini proxy wire-contract tests
+- Credential-free Azure-style, hosted Gemini, and OpenRouter proxy wire-contract tests
 - Next.js App Router Fetch-native route handler example with explicit Node.js runtime
 - Remix loader/action route module example using the Fetch-native guarded handler
 - Cloudflare Worker Fetch-native integration example
