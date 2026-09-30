@@ -172,6 +172,8 @@ For NVIDIA NIM's hosted OpenAI-compatible Chat Completions endpoint, set `CLAIML
 
 For Cohere's Compatibility API, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="cohere"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.cohere.ai/compatibility/v1`, bearer authentication, and `/chat/completions`.
 
+For Alibaba Cloud Model Studio's DashScope OpenAI-compatible API, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="dashscope"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://dashscope.aliyuncs.com/compatible-mode/v1`, bearer authentication, `/chat/completions`, and `/models`; see [Alibaba Cloud's base URL overview](https://www.alibabacloud.com/help/en/model-studio/base-url) and [OpenAI-compatible Chat documentation](https://docs.modelstudio.console.alibabacloud.com/en/model-studio/compatibility-of-openai-with-dashscope).
+
 For DeepInfra's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="deepinfra"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.deepinfra.com/v1/openai`, bearer authentication, and `/chat/completions`.
 
 For DeepSeek's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="deepseek"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.deepseek.com`, bearer authentication, and `/chat/completions`.
