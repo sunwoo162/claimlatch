@@ -22,7 +22,7 @@ export function renderBenchmarkHelp(): string {
     "  --json                            Legacy alias for --format json",
     "  -h, --help                       Show this help",
     "",
-    "The default is the 172-case independent.jsonl aggregate with manifest verification.",
+    "The default is the 176-case independent.jsonl aggregate with manifest verification.",
     "--split cannot be combined with --dataset.",
     "",
   ].join("\n");
