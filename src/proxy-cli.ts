@@ -46,6 +46,9 @@ async function main(): Promise<void> {
       : {}),
     upstreamChatCompletionsPath: providerConfiguration.upstreamChatCompletionsPath,
     upstreamModelsPath: providerConfiguration.upstreamModelsPath,
+    ...(providerConfiguration.upstreamModelRetrievalPath !== undefined
+      ? { upstreamModelRetrievalPath: providerConfiguration.upstreamModelRetrievalPath }
+      : {}),
     ...(providerConfiguration.upstreamRequestHeaders
       ? { upstreamRequestHeaders: providerConfiguration.upstreamRequestHeaders }
       : {}),

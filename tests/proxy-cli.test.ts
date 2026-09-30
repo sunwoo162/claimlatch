@@ -476,6 +476,16 @@ test("provider-compatible proxy example preserves the configured model route", (
   assert.equal(configuration.upstreamModelsPath, "/v1/custom-models");
 });
 
+test("provider-compatible proxy example preserves the configured model-retrieval route", () => {
+  const configuration = resolveProviderCompatibleProxyConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "fastchat",
+    CLAIMLATCH_PROXY_UPSTREAM_BASE_URL: "http://localhost:8000",
+  });
+
+  assert.equal(configuration.upstreamModelsPath, "/v1/models");
+  assert.equal(configuration.upstreamModelRetrievalPath, null);
+});
+
 test("provider-compatible proxy example preserves OpenRouter attribution headers", () => {
   const configuration = resolveProviderCompatibleProxyConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "openrouter",
