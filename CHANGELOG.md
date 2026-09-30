@@ -11,6 +11,7 @@
 - Expanded the frozen independent benchmark to 96 balanced cases across 48 paired topics with an IETF RFC 9110-backed HTTP 303 See Other pair.
 - Expanded the frozen independent benchmark to 98 balanced cases across 49 paired topics with an IETF RFC 9110-backed HTTP 307 Temporary Redirect pair.
 - Expanded the frozen independent benchmark to 100 balanced cases across 50 paired topics with an IETF RFC 9110-backed HTTP 308 Permanent Redirect pair.
+- Expanded the frozen independent benchmark to 102 balanced cases across 51 paired topics with an IETF RFC 9110-backed HTTP 302 Found pair.
 - Added a dependency-light Fastify route adapter example using the Fetch-native guarded answer handler.
 - Synced the roadmap with the implemented credential-free calibration dataset validation mode.
 
