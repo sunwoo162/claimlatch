@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-No unreleased changes.
+- Redacts embedded username and password credentials from evidence URL metadata in fallback provenance.
 
 ## 0.3.72 - 2026-09-30
 

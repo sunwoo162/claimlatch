@@ -60,6 +60,31 @@ test("private network evidence URLs are never fetched", async () => {
   assert.equal(result[0]?.provenance?.kind, "search-snippet");
 });
 
+test("credentialed evidence URLs are redacted in fallback provenance", async () => {
+  let called = false;
+  const provider = new ProvenanceEvidenceProvider({
+    provider: new StaticEvidenceProvider(() => [{
+      id: "e1",
+      claimId: "claim_1",
+      title: "Credentialed source",
+      url: "https://user:password@example.test/mars",
+      snippet: "fallback",
+      sourceType: "unknown",
+      retrievedAt: "2026-09-28T00:00:00.000Z",
+      provider: "fixture",
+    }]),
+    fetchImpl: (async () => {
+      called = true;
+      throw new Error("must not be called");
+    }) as typeof fetch,
+  });
+
+  const result = await provider.search(claim);
+  assert.equal(called, false);
+  assert.equal(result[0]?.url, "https://example.test/mars");
+  assert.equal(result[0]?.provenance?.sourceUrl, "https://example.test/mars");
+});
+
 test("outbound host allowlist blocks a non-matching evidence URL before fetch", async () => {
   let called = false;
   const provider = new ProvenanceEvidenceProvider({
