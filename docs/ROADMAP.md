@@ -32,12 +32,13 @@
 - Provider compatibility profiles for hosted OpenAI-compatible endpoints
 - Expanded 74-case independent benchmark with balanced train/dev/test splits
 - Credential-free benchmark manifest validation in local scripts and CI
+- Next.js App Router Fetch-native route handler example with explicit Node.js runtime
 
 ## Next
 
 - Calibration experiments only after the independent labels and confidence semantics are defined well enough to interpret them
 - Add provider-specific proxy compatibility tests and examples as upstream contracts are verified (Azure-style and hosted profiles are available)
-- Add framework-oriented integration examples while keeping the core package dependency-light
+- Continue adding framework-oriented integration examples while keeping the core package dependency-light
 - Expand the benchmark only with independently sourced labels, provenance, and manifest updates
 
 ## Explicitly not promised
