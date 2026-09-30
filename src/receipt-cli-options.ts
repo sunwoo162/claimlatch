@@ -20,8 +20,13 @@ export function parseReceiptCliArguments(argv: string[]): ReceiptCliArguments {
     if (argument === "--file" || argument === "--public-key-file") {
       const value = argv[index + 1];
       if (!value || value.startsWith("-")) throw new Error(`${argument} requires a value.`);
-      if (argument === "--file") filePath = value;
-      else publicKeyPath = value;
+      if (argument === "--file") {
+        if (filePath !== undefined) throw new Error("--file may only be specified once.");
+        filePath = value;
+      } else {
+        if (publicKeyPath !== undefined) throw new Error("--public-key-file may only be specified once.");
+        publicKeyPath = value;
+      }
       index += 1;
       continue;
     }
