@@ -558,6 +558,8 @@ PASS is not proof of universal truth. Claim extraction, search, source selection
 
 `0.3.70` rejects OpenRouter attribution URLs containing embedded username or password credentials before they become upstream headers.
 
+`0.3.69` rejects HTTP(S) evidence URLs containing embedded username or password credentials before provenance hydration.
+
 `0.3.68` exposes the canonical signed payload SHA-256 after successful receipt verification in the receipt CLI JSON output.
 
 `0.3.67` rejects empty receipt key IDs during creation as well as verification.
