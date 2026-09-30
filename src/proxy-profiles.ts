@@ -2,6 +2,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "ai21",
   "azure",
   "cerebras",
+  "chutes",
   "cohere",
   "dashscope",
   "deepinfra",
@@ -69,6 +70,12 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamBaseUrl: "https://api.cerebras.ai/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+  },
+  chutes: {
+    upstreamBaseUrl: "https://llm.chutes.ai/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
   },
   cohere: {
     upstreamBaseUrl: "https://api.cohere.ai/compatibility/v1",

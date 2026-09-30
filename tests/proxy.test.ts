@@ -11,6 +11,7 @@ import type { ProxyProviderProfileName } from "../src/proxy-profiles.js";
 const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "azure" | "openrouter">, string> = {
   ai21: "https://api.ai21.com/studio/v1",
   cerebras: "https://api.cerebras.ai/v1",
+  chutes: "https://llm.chutes.ai/v1",
   cohere: "https://api.cohere.ai/compatibility/v1",
   dashscope: "https://dashscope.aliyuncs.com/compatible-mode/v1",
   deepinfra: "https://api.deepinfra.com/v1/openai",
@@ -1340,6 +1341,39 @@ test("Novita provider profile sends its model-list path and bearer header", asyn
 
   assert.equal(capturedUrl, "https://api.novita.ai/openai/v1/models?limit=1");
   assert.equal(capturedHeaders?.get("authorization"), "Bearer novita-key");
+  assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
+test("Chutes provider profile sends its model-list path and bearer header", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "chutes",
+  });
+  let capturedUrl: string | undefined;
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "chutes-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrl = String(input);
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({ object: "list", data: [{ id: "google/gemma-4-31B-turbo-TEE", object: "model" }] }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/models`);
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), {
+      object: "list",
+      data: [{ id: "google/gemma-4-31B-turbo-TEE", object: "model" }],
+    });
+  });
+
+  assert.equal(capturedUrl, "https://llm.chutes.ai/v1/models");
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer chutes-key");
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
