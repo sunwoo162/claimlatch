@@ -55,6 +55,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "siliconflow",
   "stepfun",
   "tgi",
+  "tensorrtllm",
   "together",
   "tokenhub",
   "upstage",
@@ -374,6 +375,12 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/v1/chat/completions",
     upstreamModelsPath: null,
+  },
+  tensorrtllm: {
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/v1/chat/completions",
+    upstreamModelsPath: "/v1/models",
+    upstreamModelRetrievalPath: null,
   },
   siliconflow: {
     upstreamBaseUrl: "https://api.siliconflow.cn/v1",
