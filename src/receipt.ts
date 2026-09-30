@@ -195,7 +195,8 @@ function isSignedVerificationReceipt(value: unknown): value is SignedVerificatio
     && typeof (payload as { publicKeyPem?: unknown }).publicKeyPem === "string"
     && (payload as { publicKeyPem: string }).publicKeyPem.trim().length > 0
     && ((payload as { keyId?: unknown }).keyId === undefined
-      || typeof (payload as { keyId?: unknown }).keyId === "string")
+      || (typeof (payload as { keyId?: unknown }).keyId === "string"
+        && (payload as { keyId: string }).keyId.trim().length > 0))
     && isVerificationReport((payload as { report?: unknown }).report);
 }
 

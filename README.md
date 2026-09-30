@@ -386,7 +386,7 @@ const stored = await store.load("answer-2026-09-29-001");
 const authentic = stored !== undefined && verifySignedVerificationReceipt(stored);
 ```
 
-For key rotation, issue a unique `keyId` for each signing key and keep old public keys available for the receipt retention period. Resolve the key by `keyId` when verifying; removing a retired key intentionally makes receipts signed by it fail closed.
+For key rotation, issue a unique non-empty `keyId` for each signing key and keep old public keys available for the receipt retention period. Resolve the key by `keyId` when verifying; removing a retired key intentionally makes receipts signed by it fail closed.
 
 ```ts
 const publicKeys: Record<string, string> = {
@@ -545,6 +545,8 @@ It demonstrates plumbing, not factuality benchmark performance.
 PASS is not proof of universal truth. Claim extraction, search, source selection, document parsing, and entailment can all fail. Read [docs/TRUST_MODEL.md](docs/TRUST_MODEL.md) before using ClaimLatch in high-stakes decisions.
 
 ## Project status
+
+The unreleased receipt hardening rejects present key IDs that are empty or whitespace-only.
 
 `0.3.65` applies the document request timeout to provenance DNS lookup and fails closed when a resolver hangs.
 
