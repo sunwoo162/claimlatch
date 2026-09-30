@@ -1,5 +1,8 @@
 import { createDefaultClaimLatch, createOpenAIProxy } from "../src/index.js";
-import { resolveProxyProviderConfiguration } from "../src/proxy-cli-options.js";
+import {
+  parseProxyHeaderList,
+  resolveProxyProviderConfiguration,
+} from "../src/proxy-cli-options.js";
 
 export function resolveProviderCompatibleProxyConfiguration(
   env: Readonly<Record<string, string | undefined>> = process.env,
@@ -59,10 +62,10 @@ async function main(): Promise<void> {
       : {}),
     ...(upstreamRequestHeaders ? { upstreamRequestHeaders } : {}),
     ...(upstreamResponseHeaderNames !== undefined
-      ? { upstreamResponseHeaderNames: parseHeaderList(upstreamResponseHeaderNames) }
+      ? { upstreamResponseHeaderNames: parseProxyHeaderList(upstreamResponseHeaderNames, "CLAIMLATCH_PROXY_UPSTREAM_RESPONSE_HEADER_NAMES") }
       : {}),
     ...(upstreamResponseHeaderPrefixes !== undefined
-      ? { upstreamResponseHeaderPrefixes: parseHeaderList(upstreamResponseHeaderPrefixes) }
+      ? { upstreamResponseHeaderPrefixes: parseProxyHeaderList(upstreamResponseHeaderPrefixes, "CLAIMLATCH_PROXY_UPSTREAM_RESPONSE_HEADER_PREFIXES") }
       : {}),
   });
 
@@ -86,10 +89,6 @@ function parseTimeout(value: string): number {
     throw new Error("CLAIMLATCH_PROXY_UPSTREAM_TIMEOUT_MS must be a finite non-negative number.");
   }
   return parsed;
-}
-
-function parseHeaderList(value: string): string[] {
-  return value.split(",").map((header) => header.trim()).filter(Boolean);
 }
 
 if (isProviderCompatibleProxyMainModule(import.meta.url, process.argv[1])) {
