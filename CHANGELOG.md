@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Added a release metadata consistency test covering package versions and current documentation headings.
+- Added credential-free `claimlatch-calibrate --validate` dataset checks for hashes, observation counts, and disjoint source case/claim pairs.
 
 ## 0.3.85 - 2026-09-30
 

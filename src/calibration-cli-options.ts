@@ -3,10 +3,11 @@ import { isIso8601Timestamp } from "./iso8601.js";
 export interface CalibrationCliArguments {
   calibrationPath: string;
   evaluationPath: string;
-  outputPath: string;
-  profileId: string;
-  scorerId: string;
-  createdAt: string;
+  outputPath?: string;
+  profileId?: string;
+  scorerId?: string;
+  createdAt?: string;
+  validate: boolean;
   json: boolean;
 }
 
@@ -21,6 +22,7 @@ const VALUE_OPTIONS = new Set([
 
 export function parseCalibrationCliArguments(argv: readonly string[]): CalibrationCliArguments {
   const values = new Map<string, string>();
+  const validate = argv.includes("--validate");
   let json = false;
   for (let index = 0; index < argv.length; index += 1) {
     const option = argv[index];
@@ -28,6 +30,7 @@ export function parseCalibrationCliArguments(argv: readonly string[]): Calibrati
       json = true;
       continue;
     }
+    if (option === "--validate") continue;
     if (!VALUE_OPTIONS.has(option ?? "")) {
       throw new Error(`Unknown calibration CLI option: ${option ?? ""}`);
     }
@@ -36,6 +39,17 @@ export function parseCalibrationCliArguments(argv: readonly string[]): Calibrati
     if (values.has(option!)) throw new Error(`${option} may only be specified once.`);
     values.set(option!, value);
     index += 1;
+  }
+
+  if (validate) {
+    for (const option of ["--output", "--profile-id", "--scorer-id", "--created-at"]) {
+      if (values.has(option)) throw new Error(`--validate cannot be combined with ${option}.`);
+    }
+    const calibrationPath = values.get("--calibration");
+    const evaluationPath = values.get("--evaluation");
+    if (!calibrationPath) throw new Error("--calibration is required.");
+    if (!evaluationPath) throw new Error("--evaluation is required.");
+    return { calibrationPath, evaluationPath, validate, json };
   }
 
   for (const option of VALUE_OPTIONS) {
@@ -54,6 +68,7 @@ export function parseCalibrationCliArguments(argv: readonly string[]): Calibrati
     profileId: values.get("--profile-id")!,
     scorerId: values.get("--scorer-id")!,
     createdAt,
+    validate,
     json,
   };
 }
@@ -72,6 +87,7 @@ export function renderCalibrationHelp(): string {
     "  --profile-id <id>               Calibration profile identifier",
     "  --scorer-id <id>                Raw score provider identifier",
     "  --created-at <ISO-8601>         Reproducible profile creation timestamp",
+    "  --validate                      Validate both datasets without fitting or writing a profile",
     "  --json                          Accepted for compatibility; output is always JSON",
     "  -h, --help                      Show this help",
     "",

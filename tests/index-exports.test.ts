@@ -7,6 +7,7 @@ import {
   evaluateCalibration,
   hashCalibrationDataset,
   parseCalibrationJsonl,
+  validateCalibrationDatasets,
   validateConfidenceCalibrationProfile,
 } from "../src/index.js";
 import type {
@@ -30,6 +31,7 @@ test("package exports confidence and calibration helpers", () => {
   assert.equal(typeof evaluateCalibration, "function");
   assert.equal(typeof hashCalibrationDataset, "function");
   assert.equal(typeof parseCalibrationJsonl, "function");
+  assert.equal(typeof validateCalibrationDatasets, "function");
   assert.equal(typeof validateConfidenceCalibrationProfile, "function");
   assert.equal(exportedTypes.length, 4);
 });

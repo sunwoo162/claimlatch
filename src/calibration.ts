@@ -51,6 +51,46 @@ export function hashCalibrationDataset(input: string): string {
   return createHash("sha256").update(input.replace(/\r\n?/gu, "\n")).digest("hex");
 }
 
+export interface CalibrationDatasetValidation {
+  calibrationManifestSha256: string;
+  calibrationObservationCount: number;
+  evaluationManifestSha256: string;
+  evaluationObservationCount: number;
+}
+
+export function validateCalibrationDatasets(input: {
+  calibration: {
+    manifestSha256: string;
+    observations: CalibrationObservation[];
+  };
+  evaluation: {
+    manifestSha256: string;
+    observations: CalibrationObservation[];
+  };
+}): CalibrationDatasetValidation {
+  validateManifestHash(input.calibration.manifestSha256, "calibration");
+  validateManifestHash(input.evaluation.manifestSha256, "evaluation");
+  if (input.calibration.manifestSha256 === input.evaluation.manifestSha256) {
+    throw new Error("Calibration and evaluation manifests must be distinct.");
+  }
+
+  validateObservations(input.calibration.observations, "calibration");
+  validateObservations(input.evaluation.observations, "evaluation");
+  const calibrationPairs = new Set(input.calibration.observations.map(sourcePair));
+  for (const observation of input.evaluation.observations) {
+    if (calibrationPairs.has(sourcePair(observation))) {
+      throw new Error("Calibration and evaluation datasets must not share a source case/claim pair.");
+    }
+  }
+
+  return {
+    calibrationManifestSha256: input.calibration.manifestSha256,
+    calibrationObservationCount: input.calibration.observations.length,
+    evaluationManifestSha256: input.evaluation.manifestSha256,
+    evaluationObservationCount: input.evaluation.observations.length,
+  };
+}
+
 export function createConfidenceCalibrationProfile(input: {
   id: string;
   scorerId: string;
@@ -67,20 +107,7 @@ export function createConfidenceCalibrationProfile(input: {
   if (!input.id.trim()) throw new Error("Calibration profile id is required.");
   if (!input.scorerId.trim()) throw new Error("Calibration scorer id is required.");
   if (!input.createdAt.trim()) throw new Error("Calibration profile createdAt is required.");
-  validateManifestHash(input.calibration.manifestSha256, "calibration");
-  validateManifestHash(input.evaluation.manifestSha256, "evaluation");
-  if (input.calibration.manifestSha256 === input.evaluation.manifestSha256) {
-    throw new Error("Calibration and evaluation manifests must be distinct.");
-  }
-
-  validateObservations(input.calibration.observations, "calibration");
-  validateObservations(input.evaluation.observations, "evaluation");
-  const calibrationPairs = new Set(input.calibration.observations.map(sourcePair));
-  for (const observation of input.evaluation.observations) {
-    if (calibrationPairs.has(sourcePair(observation))) {
-      throw new Error("Calibration and evaluation datasets must not share a source case/claim pair.");
-    }
-  }
+  validateCalibrationDatasets(input);
 
   const mapping = fitIsotonicMapping(input.calibration.observations);
   const provisionalProfile: ConfidenceCalibrationProfile = {

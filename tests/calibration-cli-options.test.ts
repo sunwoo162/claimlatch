@@ -15,6 +15,7 @@ test("calibration CLI help documents status-correctness semantics", () => {
   assert.match(help, /--profile-id <id>/);
   assert.match(help, /--scorer-id <id>/);
   assert.match(help, /--created-at <ISO-8601>/);
+  assert.match(help, /--validate/);
   assert.match(help, /--json.*compatibility/);
   assert.match(help, /always prints deterministic evaluation JSON/);
   assert.match(help, /not factual truth probability/);
@@ -36,8 +37,32 @@ test("calibration CLI parser preserves required arguments", () => {
     profileId: "profile-v1",
     scorerId: "scorer-v1",
     createdAt: "2026-09-30T00:00:00.000Z",
+    validate: false,
     json: true,
   });
+});
+
+test("calibration CLI parser supports credential-free dataset validation", () => {
+  assert.deepEqual(parseCalibrationCliArguments([
+    "--validate",
+    "--calibration", "calibration.jsonl",
+    "--evaluation", "evaluation.jsonl",
+  ]), {
+    calibrationPath: "calibration.jsonl",
+    evaluationPath: "evaluation.jsonl",
+    validate: true,
+    json: false,
+  });
+
+  assert.throws(
+    () => parseCalibrationCliArguments([
+      "--validate",
+      "--calibration", "calibration.jsonl",
+      "--evaluation", "evaluation.jsonl",
+      "--output", "profile.json",
+    ]),
+    /--validate cannot be combined with --output/,
+  );
 });
 
 test("calibration CLI parser rejects missing or unknown arguments", () => {

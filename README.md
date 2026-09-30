@@ -583,6 +583,18 @@ claimlatch-calibrate \
 
 The command writes the validated profile only after checking dataset hashes, independent source case/claim pairs, monotonic mapping constraints, and evaluation metrics. It prints deterministic evaluation JSON to stdout and requires no provider credentials. Do not call calibration experiments complete until the independently labelled fixture and generated metrics are committed and reviewed.
 
+Validate calibration and evaluation datasets before fitting a profile, without providing scorer metadata or writing an output file:
+
+```bash
+claimlatch-calibrate \
+  --validate \
+  --calibration ./calibration.jsonl \
+  --evaluation ./evaluation.jsonl \
+  --json
+```
+
+Validation reports the canonical SHA-256 hash and observation count for each dataset, and fails closed when manifests are invalid, datasets are empty, or source case/claim pairs overlap.
+
 ## Offline demo
 
 The offline demo shows the gate with deterministic fake providers and makes no network or model calls.
