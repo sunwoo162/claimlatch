@@ -62,9 +62,22 @@ export function createExpressGuardedAnswerHandler(
     }
 
     const upstreamResponse = await fetchHandler(new Request(new URL(path, `${protocol}://${host}`), init));
-    upstreamResponse.headers.forEach((value, name) => response.setHeader(name, value));
+    const responseCookies = getResponseCookies(upstreamResponse.headers);
+    upstreamResponse.headers.forEach((value, name) => {
+      if (name !== "set-cookie") response.setHeader(name, value);
+    });
+    if (responseCookies.length > 0) response.setHeader("set-cookie", responseCookies);
     response.status(upstreamResponse.status).send(await upstreamResponse.text());
   };
+}
+
+function getResponseCookies(headers: Headers): string[] {
+  const headersWithGetSetCookie = headers as Headers & { getSetCookie?: () => string[] };
+  const cookies = headersWithGetSetCookie.getSetCookie?.() ?? [];
+  if (cookies.length > 0) return cookies;
+
+  const fallback = headers.get("set-cookie");
+  return fallback ? [fallback] : [];
 }
 
 // Copy this adapter into an Express route after installing `express.json()`.
