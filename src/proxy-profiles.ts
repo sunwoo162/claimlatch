@@ -13,6 +13,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "gemini",
   "groq",
   "huggingface",
+  "ionos",
   "hunyuan",
   "minimax",
   "mistral",
@@ -132,6 +133,12 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamBaseUrl: "https://router.huggingface.co/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+  },
+  ionos: {
+    upstreamBaseUrl: "https://openai.inference.de-txl.ionos.com/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
   },
   hunyuan: {
     upstreamBaseUrl: "https://api.hunyuan.cloud.tencent.com/v1",

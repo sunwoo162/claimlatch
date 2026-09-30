@@ -22,6 +22,7 @@ const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "azure"
   gemini: "https://generativelanguage.googleapis.com/v1beta/openai",
   groq: "https://api.groq.com/openai/v1",
   huggingface: "https://router.huggingface.co/v1",
+  ionos: "https://openai.inference.de-txl.ionos.com/v1",
   hunyuan: "https://api.hunyuan.cloud.tencent.com/v1",
   minimax: "https://api.minimax.io/v1",
   mistral: "https://api.mistral.ai/v1",
@@ -1511,6 +1512,39 @@ test("Featherless provider profile sends its model-list path and bearer header",
 
   assert.equal(capturedUrl, "https://api.featherless.ai/v1/models");
   assert.equal(capturedHeaders?.get("authorization"), "Bearer featherless-key");
+  assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
+test("IONOS provider profile sends its model-list path and bearer header", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "ionos",
+  });
+  let capturedUrl: string | undefined;
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "ionos-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrl = String(input);
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({ object: "list", data: [{ id: "openai/gpt-oss-120b", object: "model" }] }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/models`);
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), {
+      object: "list",
+      data: [{ id: "openai/gpt-oss-120b", object: "model" }],
+    });
+  });
+
+  assert.equal(capturedUrl, "https://openai.inference.de-txl.ionos.com/v1/models");
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer ionos-key");
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
