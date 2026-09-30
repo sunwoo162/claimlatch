@@ -14,6 +14,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
     "baichuan",
   "cerebras",
     "chutes",
+    "cloudflare",
     "cohere",
     "dashscope",
     "deepinfra",
@@ -56,7 +57,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
   ]);
   assert.equal(
     formatProxyProviderProfileNames(),
-    "ai21, aimlapi, azure, baichuan, cerebras, chutes, cohere, dashscope, deepinfra, deepseek, featherless, fireworks, friendli, gemini, groq, huggingface, hyperbolic, inferencenet, ionos, lamini, hunyuan, minimax, mimo, mistral, moonshot, nebius, novita, nvidia, openai, openrouter, ovhcloud, perplexity, poe, qianfan, requesty, sambanova, scaleway, siliconflow, stepfun, together, tokenhub, upstage, volcengine, xai, or zai",
+    "ai21, aimlapi, azure, baichuan, cerebras, chutes, cloudflare, cohere, dashscope, deepinfra, deepseek, featherless, fireworks, friendli, gemini, groq, huggingface, hyperbolic, inferencenet, ionos, lamini, hunyuan, minimax, mimo, mistral, moonshot, nebius, novita, nvidia, openai, openrouter, ovhcloud, perplexity, poe, qianfan, requesty, sambanova, scaleway, siliconflow, stepfun, together, tokenhub, upstage, volcengine, xai, or zai",
   );
 });
 
@@ -108,6 +109,14 @@ test("proxy profiles provide Chutes-compatible Chat Completions and model-list d
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
     upstreamModelsPath: "/models",
+  });
+});
+
+test("proxy profiles provide Cloudflare Workers AI Chat Completions defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("cloudflare"), {
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: null,
   });
 });
 
@@ -445,7 +454,7 @@ test("proxy profiles provide SiliconFlow-compatible Chat Completions defaults", 
 
 test("every hosted proxy profile resolves a complete HTTPS Chat Completions contract", () => {
   for (const profile of PROXY_PROVIDER_PROFILE_NAMES) {
-    if (profile === "azure" || profile === "openrouter") continue;
+    if (profile === "azure" || profile === "cloudflare" || profile === "openrouter") continue;
     const resolved = resolveProxyProviderProfile(profile);
     assert.match(resolved.upstreamBaseUrl ?? "", /^https:\/\//);
     assert.equal(resolved.upstreamApiKeyHeader, "authorization");
