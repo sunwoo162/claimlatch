@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added an Upstage OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions defaults and wire-contract coverage.
 - Added a Poe OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions and model-list defaults and wire-contract coverage.
 - Added a FriendliAI serverless OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions defaults and profile coverage.
 - Added an Alibaba Cloud DashScope OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions and model-list defaults and wire-contract coverage.

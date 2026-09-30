@@ -59,6 +59,7 @@
 - Novita AI OpenAI-compatible proxy provider profile with Chat Completions and model-list contract coverage
 - Chutes OpenAI-compatible proxy provider profile with Chat Completions and model-list contract coverage
 - Poe OpenAI-compatible proxy provider profile with Chat Completions and model-list contract coverage
+- Upstage OpenAI-compatible proxy provider profile with Chat Completions contract coverage
 
 ## Next
 
