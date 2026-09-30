@@ -24,7 +24,7 @@ test("proxy CLI help documents credentials, routes, and fail-closed behavior", (
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_API_KEY_PREFIX.*default Bearer/);
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_MODELS_PATH.*profile supplies one/);
   assert.match(help, /CLAIMLATCH_PROXY_PROVIDER_PROFILE/);
-  assert.match(help, /ai21, aimlapi, azure, baichuan, baseten, cerebras, chutes, cloudflare, cohere, dashscope, deepinfra, deepseek, featherless, fireworks, friendli, gemini, groq, huggingface, hyperbolic, inferencenet, ionos, lamini, hunyuan, minimax, mimo, mistral, moonshot, nebius, novita, nvidia, openai, openrouter, ovhcloud, perplexity, poe, qianfan, requesty, sambanova, scaleway, siliconflow, stepfun, together, tokenhub, upstage, volcengine, xai, or zai/);
+  assert.match(help, /ai21, aimlapi, azure, baichuan, baseten, cerebras, chutes, clarifai, cloudflare, cohere, dashscope, deepinfra, deepseek, featherless, fireworks, friendli, gemini, groq, huggingface, hyperbolic, inferencenet, ionos, lamini, hunyuan, minimax, mimo, mistral, moonshot, nebius, novita, nvidia, openai, openrouter, ovhcloud, perplexity, poe, qianfan, requesty, sambanova, scaleway, siliconflow, stepfun, together, tokenhub, upstage, volcengine, xai, or zai/);
   assert.match(help, /PASS.*BLOCK/s);
   assert.match(help, /credential-free/);
 });
@@ -126,6 +126,7 @@ test("proxy CLI resolves every hosted built-in profile without an explicit base 
     baseten: "https://inference.baseten.co/v1",
     cerebras: "https://api.cerebras.ai/v1",
     chutes: "https://llm.chutes.ai/v1",
+    clarifai: "https://api.clarifai.com/v2/ext/openai/v1",
     cohere: "https://api.cohere.ai/compatibility/v1",
     dashscope: "https://dashscope.aliyuncs.com/compatible-mode/v1",
     deepinfra: "https://api.deepinfra.com/v1/openai",
@@ -175,8 +176,9 @@ test("proxy CLI resolves every hosted built-in profile without an explicit base 
     }), {
       upstreamBaseUrl,
       upstreamApiKeyHeader: "authorization",
+      ...(profile === "clarifai" ? { upstreamApiKeyPrefix: "Key" } : {}),
       upstreamChatCompletionsPath,
-      upstreamModelsPath: profile === "baichuan" || profile === "ovhcloud" ? null : "/models",
+      upstreamModelsPath: profile === "baichuan" || profile === "clarifai" || profile === "ovhcloud" ? null : "/models",
     });
   }
 });

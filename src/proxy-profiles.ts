@@ -6,6 +6,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "baseten",
   "cerebras",
   "chutes",
+  "clarifai",
   "cloudflare",
   "cohere",
   "dashscope",
@@ -110,6 +111,13 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
     upstreamModelsPath: "/models",
+  },
+  clarifai: {
+    upstreamBaseUrl: "https://api.clarifai.com/v2/ext/openai/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamApiKeyPrefix: "Key",
+    upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: null,
   },
   cloudflare: {
     upstreamApiKeyHeader: "authorization",

@@ -15,6 +15,7 @@ const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "azure"
   baseten: "https://inference.baseten.co/v1",
   cerebras: "https://api.cerebras.ai/v1",
   chutes: "https://llm.chutes.ai/v1",
+  clarifai: "https://api.clarifai.com/v2/ext/openai/v1",
   cohere: "https://api.cohere.ai/compatibility/v1",
   dashscope: "https://dashscope.aliyuncs.com/compatible-mode/v1",
   deepinfra: "https://api.deepinfra.com/v1/openai",
@@ -2205,6 +2206,74 @@ test("Baseten provider profile sends its model-list path and bearer header", asy
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
+test("Clarifai provider profile sends its Key-authenticated OpenAI-compatible contract", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "clarifai",
+  });
+  let capturedUrl: string | undefined;
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "clarifai-pat",
+    fetchImpl: (async (input, init) => {
+      capturedUrl = String(input);
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({
+        id: "chatcmpl_clarifai_profile",
+        object: "chat.completion",
+        choices: [{ message: { role: "assistant", content: "Clarifai-compatible answer." } }],
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        model: "https://clarifai.com/openai/chat-completion/models/gpt-oss-120b",
+        messages: [{ role: "user", content: "question" }],
+      }),
+    });
+    assert.equal(response.status, 200);
+  });
+
+  assert.equal(capturedUrl, "https://api.clarifai.com/v2/ext/openai/v1/chat/completions");
+  assert.equal(capturedHeaders?.get("authorization"), "Key clarifai-pat");
+  assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
+test("Clarifai provider profile fails closed for undocumented model routes", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "clarifai",
+  });
+  let upstreamCalled = false;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "clarifai-pat",
+    fetchImpl: (async () => {
+      upstreamCalled = true;
+      return new Response("unexpected upstream request", { status: 500 });
+    }) as typeof fetch,
+  }, async (url) => {
+    for (const path of ["/v1/models", "/v1/models/https%3A%2F%2Fclarifai.com%2Fopenai%2Fchat-completion%2Fmodels%2Fgpt-oss-120b"]) {
+      const response = await fetch(`${url}${path}`);
+      assert.equal(response.status, 404);
+      assert.deepEqual(await response.json(), {
+        error: {
+          type: "claimlatch_proxy_error",
+          code: "claimlatch_model_route_unavailable",
+          message: "The configured provider does not expose a model-list route.",
+        },
+      });
+    }
+  });
+
+  assert.equal(upstreamCalled, false);
+});
+
 test("Cloudflare Workers AI provider profile sends the account-scoped bearer contract", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "cloudflare",
@@ -2409,7 +2478,7 @@ test("hosted provider profiles preserve their resolver contracts through the pro
       ? "/v1/chat/completions"
       : "/chat/completions";
     assert.equal(capturedUrl, `${expectedBaseUrl}${expectedChatCompletionsPath}`);
-    assert.equal(capturedHeaders?.get("authorization"), `Bearer ${profileName}-key`);
+    assert.equal(capturedHeaders?.get("authorization"), `${profileName === "clarifai" ? "Key" : "Bearer"} ${profileName}-key`);
     assert.equal(capturedHeaders?.get("api-key"), null);
   }
 });
