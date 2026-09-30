@@ -546,7 +546,7 @@ PASS is not proof of universal truth. Claim extraction, search, source selection
 
 ## Project status
 
-The unreleased receipt hardening rejects present key IDs that are empty or whitespace-only.
+`0.3.66` hardens signed receipt validation so present key IDs cannot be empty or whitespace-only.
 
 `0.3.65` applies the document request timeout to provenance DNS lookup and fails closed when a resolver hangs.
 
