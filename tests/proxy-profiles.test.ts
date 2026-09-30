@@ -8,6 +8,7 @@ import {
 
 test("proxy profile names are centralized for CLI and SDK consumers", () => {
   assert.deepEqual(PROXY_PROVIDER_PROFILE_NAMES, [
+    "ai21",
     "azure",
   "cerebras",
     "cohere",
@@ -40,7 +41,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
   ]);
   assert.equal(
     formatProxyProviderProfileNames(),
-    "azure, cerebras, cohere, dashscope, deepinfra, deepseek, fireworks, friendli, gemini, groq, huggingface, hunyuan, minimax, mistral, moonshot, nebius, nvidia, openai, openrouter, perplexity, qianfan, sambanova, siliconflow, stepfun, together, tokenhub, volcengine, xai, or zai",
+    "ai21, azure, cerebras, cohere, dashscope, deepinfra, deepseek, fireworks, friendli, gemini, groq, huggingface, hunyuan, minimax, mistral, moonshot, nebius, nvidia, openai, openrouter, perplexity, qianfan, sambanova, siliconflow, stepfun, together, tokenhub, volcengine, xai, or zai",
   );
 });
 
@@ -49,6 +50,14 @@ test("proxy profiles provide Azure-compatible defaults", () => {
     upstreamApiKeyHeader: "api-key",
     upstreamChatCompletionsPath: "/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-10-21",
     upstreamModelsPath: "/openai/models?api-version=2024-10-21",
+  });
+});
+
+test("proxy profiles provide AI21-compatible Chat Completions defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("ai21"), {
+    upstreamBaseUrl: "https://api.ai21.com/studio/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
   });
 });
 
