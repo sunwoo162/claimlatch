@@ -546,7 +546,7 @@ PASS is not proof of universal truth. Claim extraction, search, source selection
 
 ## Project status
 
-The unreleased provenance hardening applies the document request timeout to DNS lookup and fails closed when a resolver hangs.
+`0.3.65` applies the document request timeout to provenance DNS lookup and fails closed when a resolver hangs.
 
 `0.3.64` hardens literal local-host filtering to reject fully qualified localhost and `.local` hostnames with trailing root labels before hydration.
 
