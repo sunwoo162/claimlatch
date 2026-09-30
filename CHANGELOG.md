@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+No unreleased changes.
+
+## 0.3.66 - 2026-09-30
+
 - Hardened signed receipt key metadata validation so present `keyId` values must be non-empty strings.
 
 ## 0.3.65 - 2026-09-30
