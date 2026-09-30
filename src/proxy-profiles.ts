@@ -25,6 +25,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "inferencenet",
   "ionos",
   "jan",
+  "koboldcpp",
   "lamini",
   "litellm",
   "llamacpp",
@@ -232,6 +233,12 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/v1/chat/completions",
     upstreamModelsPath: "/v1/models",
+  },
+  koboldcpp: {
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/v1/chat/completions",
+    upstreamModelsPath: "/v1/models",
+    upstreamModelRetrievalPath: null,
   },
   lamini: {
     upstreamBaseUrl: "https://api.lamini.ai/inf",
