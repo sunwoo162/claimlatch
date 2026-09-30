@@ -236,6 +236,7 @@ test("proxy CLI requires an explicit base URL for OpenLLM", () => {
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/v1/chat/completions",
     upstreamModelsPath: "/v1/models",
+    upstreamModelRetrievalPath: null,
   });
 });
 

@@ -3332,6 +3332,36 @@ test("OpenLLM provider profile sends its versioned model-list path and bearer he
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
+test("OpenLLM provider profile fails closed for unsupported model retrieval routes", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "openllm",
+    CLAIMLATCH_PROXY_UPSTREAM_BASE_URL: "http://localhost:3000",
+  });
+  let upstreamCalled = false;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "openllm-local",
+    fetchImpl: (async () => {
+      upstreamCalled = true;
+      return new Response("unexpected upstream request", { status: 500 });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/models/meta-llama%2FLlama-3.2-1B-Instruct`);
+    assert.equal(response.status, 404);
+    assert.deepEqual(await response.json(), {
+      error: {
+        type: "claimlatch_proxy_error",
+        code: "claimlatch_model_retrieval_route_unavailable",
+        message: "The configured provider does not expose a model-retrieval route.",
+      },
+    });
+  });
+
+  assert.equal(upstreamCalled, false);
+});
+
 test("Cloudflare Workers AI provider profile sends the account-scoped bearer contract", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "cloudflare",

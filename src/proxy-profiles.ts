@@ -318,6 +318,7 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/v1/chat/completions",
     upstreamModelsPath: "/v1/models",
+    upstreamModelRetrievalPath: null,
   },
   openai: {
     upstreamBaseUrl: "https://api.openai.com/v1",
