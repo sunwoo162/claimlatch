@@ -29,6 +29,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "stepfun",
   "together",
   "tokenhub",
+  "upstage",
   "volcengine",
   "xai",
   "zai",
@@ -207,6 +208,11 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
     upstreamModelsPath: "/models",
+  },
+  upstage: {
+    upstreamBaseUrl: "https://api.upstage.ai/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
   },
   volcengine: {
     upstreamBaseUrl: "https://ark.cn-beijing.volces.com/api/v3",

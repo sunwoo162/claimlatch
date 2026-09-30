@@ -37,6 +37,7 @@ const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "azure"
   stepfun: "https://api.stepfun.ai/v1",
   together: "https://api.together.xyz/v1",
   tokenhub: "https://tokenhub.tencentmaas.com/v1",
+  upstage: "https://api.upstage.ai/v1",
   volcengine: "https://ark.cn-beijing.volces.com/api/v3",
   xai: "https://api.x.ai/v1",
   zai: "https://api.z.ai/api/paas/v4",
@@ -1408,6 +1409,40 @@ test("Poe provider profile sends its model-list path and bearer header", async (
 
   assert.equal(capturedUrl, "https://api.poe.com/v1/models");
   assert.equal(capturedHeaders?.get("authorization"), "Bearer poe-key");
+  assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
+test("Upstage provider profile sends the OpenAI-compatible bearer contract", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "upstage",
+  });
+  let capturedUrl: string | undefined;
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "upstage-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrl = String(input);
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({
+        id: "chatcmpl_upstage_profile",
+        object: "chat.completion",
+        choices: [{ message: { role: "assistant", content: "Upstage-compatible answer." } }],
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ model: "solar-pro4", messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 200);
+  });
+
+  assert.equal(capturedUrl, "https://api.upstage.ai/v1/chat/completions");
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer upstage-key");
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
