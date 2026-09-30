@@ -44,7 +44,8 @@ test("Express example adapts parsed JSON requests to the guarded Fetch handler",
   const request: ExpressRequest = {
     method: "POST",
     protocol: "http",
-    originalUrl: "/answer",
+    originalUrl: "/api/answer",
+    url: "/answer",
     body: { question: "question", draft: "draft" },
     get(name) {
       return name.toLowerCase() === "host" ? "example.test" : undefined;

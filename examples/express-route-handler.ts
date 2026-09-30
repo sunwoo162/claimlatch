@@ -53,7 +53,7 @@ export function createExpressGuardedAnswerHandler(
   return async (request, response) => {
     const protocol = request.protocol ?? "http";
     const host = request.get("host") ?? "localhost";
-    const path = request.originalUrl ?? request.url ?? "/";
+    const path = request.url ?? request.originalUrl ?? "/";
     const method = request.method ?? "GET";
     const init: RequestInit = { method };
     if (request.body !== undefined && method !== "GET" && method !== "HEAD") {
