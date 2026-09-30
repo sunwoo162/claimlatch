@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-No unreleased changes.
+- Normalizes trailing-dot hostnames when comparing evidence sources for cross-source contradictions.
 
 ## 0.3.70 - 2026-09-30
 

@@ -35,7 +35,7 @@ A PASS means the configured pipeline found no policy violation under the evidenc
 
 For PDFs, the normalized text is extracted page by page and the selected quote includes a 1-based page number plus offsets within that page. Scanned PDFs without an embedded text layer fall back to search-snippet provenance because OCR is not silently performed.
 
-When a verifier identifies both supporting and contradicting evidence, ClaimLatch compares their normalized source URLs. Evidence from distinct sources creates a deterministic `CROSS_SOURCE_CONTRADICTION` policy violation by default. This does not establish which source is correct; it prevents an unresolved disagreement from silently becoming a PASS.
+When a verifier identifies both supporting and contradicting evidence, ClaimLatch compares their normalized source URLs, including canonical host casing, default ports, fragments, and trailing-dot hostnames. Evidence from distinct sources creates a deterministic `CROSS_SOURCE_CONTRADICTION` policy violation by default. This does not establish which source is correct; it prevents an unresolved disagreement from silently becoming a PASS.
 
 ## Network boundary
 

@@ -203,6 +203,7 @@ function sourceKey(evidence: NonNullable<ClaimVerification["evidence"][number]>)
   try {
     const normalized = new URL(sourceUrl);
     normalized.hash = "";
+    normalized.hostname = normalized.hostname.replace(/\.+$/u, "");
     return normalized.toString();
   } catch {
     return sourceUrl;

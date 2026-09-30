@@ -117,7 +117,7 @@ test("same-source supporting and contradicting evidence is not a cross-source co
         id: "support",
         claimId: "same_source",
         title: "Source",
-        url: "https://source.example/release#summary",
+        url: "https://source.example./release#summary",
         snippet: "The release is stable.",
         sourceType: "primary",
         retrievedAt: "2026-09-29T00:00:00.000Z",
