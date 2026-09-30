@@ -81,6 +81,7 @@
 - LiteLLM self-hosted gateway OpenAI-compatible proxy provider profile with explicit base URL configuration and versioned Chat Completions/model-list contract coverage
 - Ollama OpenAI-compatible proxy provider profile with explicit local/cloud base URL configuration and versioned Chat Completions/model-list contract coverage
 - llama.cpp server OpenAI-compatible proxy provider profile with explicit base URL configuration and versioned Chat Completions/model-list contract coverage
+- vLLM OpenAI-compatible proxy provider profile with explicit base URL configuration and versioned Chat Completions/model-list contract coverage
 
 ## Next
 
