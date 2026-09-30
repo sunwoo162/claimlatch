@@ -33,6 +33,7 @@ export function parseCalibrationCliArguments(argv: readonly string[]): Calibrati
     }
     const value = argv[index + 1];
     if (!value || value.startsWith("-")) throw new Error(`${option} requires a value.`);
+    if (values.has(option!)) throw new Error(`${option} may only be specified once.`);
     values.set(option!, value);
     index += 1;
   }
