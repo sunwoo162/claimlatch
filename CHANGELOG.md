@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-No unreleased changes.
+- Made provenance DNS lookup honor the document request timeout and fail closed when a resolver hangs.
 
 ## 0.3.64 - 2026-09-30
 

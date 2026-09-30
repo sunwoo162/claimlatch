@@ -43,7 +43,7 @@ The built-in provenance fetcher rejects non-HTTP(S) URLs, literal localhost incl
 
 Tavily search can be scoped to fixed official domains or to domains returned by a claim-aware resolver. The provider sends the policy to the search API and filters returned URLs again; resolver errors and empty results fail closed without an unrestricted search.
 
-DNS failures and empty or unsafe resolution results fail closed. An optional outbound allowlist can restrict document hydration to exact hosts or their subdomains and selected ports; it is rechecked before every redirect. Custom fetch or request implementations must provide equivalent DNS pinning and transport protections. For public multi-tenant services, run document retrieval in a network sandbox or enforce an outbound allowlist/proxy.
+DNS failures, hangs, and empty or unsafe resolution results fail closed; the configured document request timeout covers DNS lookup as well as document transfer. An optional outbound allowlist can restrict document hydration to exact hosts or their subdomains and selected ports; it is rechecked before every redirect. Custom fetch or request implementations must provide equivalent DNS pinning and transport protections. For public multi-tenant services, run document retrieval in a network sandbox or enforce an outbound allowlist/proxy.
 
 ## Proxy boundary
 
