@@ -32,13 +32,14 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
     "sambanova",
     "siliconflow",
     "together",
+    "tokenhub",
     "volcengine",
     "xai",
     "zai",
   ]);
   assert.equal(
     formatProxyProviderProfileNames(),
-    "azure, cerebras, cohere, dashscope, deepinfra, deepseek, fireworks, friendli, gemini, groq, huggingface, hunyuan, minimax, mistral, moonshot, nebius, nvidia, openai, openrouter, perplexity, qianfan, sambanova, siliconflow, together, volcengine, xai, or zai",
+    "azure, cerebras, cohere, dashscope, deepinfra, deepseek, fireworks, friendli, gemini, groq, huggingface, hunyuan, minimax, mistral, moonshot, nebius, nvidia, openai, openrouter, perplexity, qianfan, sambanova, siliconflow, together, tokenhub, volcengine, xai, or zai",
   );
 });
 
@@ -119,6 +120,15 @@ test("proxy profiles provide Tencent Hunyuan-compatible Chat Completions default
     upstreamBaseUrl: "https://api.hunyuan.cloud.tencent.com/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+  });
+});
+
+test("proxy profiles provide Tencent TokenHub-compatible Chat Completions defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("tokenhub"), {
+    upstreamBaseUrl: "https://tokenhub.tencentmaas.com/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
   });
 });
 

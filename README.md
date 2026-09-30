@@ -162,6 +162,8 @@ For Hugging Face Inference Providers' OpenAI-compatible Chat Completions endpoin
 
 For Tencent Hunyuan's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="hunyuan"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.hunyuan.cloud.tencent.com/v1`, bearer authentication, and `/chat/completions`; see [Tencent Cloud's Hunyuan OpenAI compatibility examples](https://cloud.tencent.com/document/product/1729/111007).
 
+For Tencent Cloud TokenHub's OpenAI-compatible API, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="tokenhub"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://tokenhub.tencentmaas.com/v1`, bearer authentication, `/chat/completions`, and `/models`; override `CLAIMLATCH_PROXY_UPSTREAM_BASE_URL` for the documented international endpoint when needed. See [TokenHub's API usage guide](https://cloud.tencent.com/document/product/1823/130078) and [Hunyuan integration guide](https://cloud.tencent.com/document/product/1823/132252).
+
 For MiniMax's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="minimax"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.minimax.io/v1`, bearer authentication, and `/chat/completions`; see [MiniMax's model invocation guide](https://platform.minimax.io/docs/guides/text-generation).
 
 For Mistral's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="mistral"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.mistral.ai/v1`, bearer authentication, and `/chat/completions`.
