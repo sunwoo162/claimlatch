@@ -340,6 +340,8 @@ For a Next.js App Router route, copy [`examples/next-route-handler.ts`](examples
 
 For Remix route modules, copy the `loader` export from [`examples/remix-route-handler.ts`](examples/remix-route-handler.ts) to `app/routes/health.ts` and the `action` export to `app/routes/answer.ts`. Both routes share the same lazy gate initialization and preserve the guarded integration's fail-closed responses without adding a Remix dependency to the core package.
 
+For Cloudflare Workers, copy [`examples/cloudflare-worker.ts`](examples/cloudflare-worker.ts) into the Worker module and export its default object. Bind `CLAIMLATCH_LLM_MODEL`, `TAVILY_API_KEY`, and optional `CLAIMLATCH_LLM_API_KEY` / `CLAIMLATCH_LLM_BASE_URL` through the Worker environment; the adapter passes each `Request` to the same Fetch-native guarded handler and keeps the core package dependency-light.
+
 ### Structured-output proxy policy example
 
 `structuredOutputVerifier` is the application-owned safety boundary for tool calls and multimodal output. The runnable example below allows only the comma-separated tool names in `CLAIMLATCH_ALLOWED_TOOLS`; any other tool call is returned as a deterministic BLOCK report. The example uses a local policy report for structured output and the configured ClaimLatch gate for ordinary textual responses.
