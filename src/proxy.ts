@@ -645,6 +645,9 @@ function normalizeResponseHeaderConfiguration(values: string[], kind: "name" | "
     if (RESPONSE_HEADERS_NEVER_FORWARD.has(normalized)) {
       throw new Error(`upstreamResponseHeader${kind === "name" ? "Names" : "Prefixes"} cannot include a restricted proxy response header.`);
     }
+    if (normalizedValues.has(normalized)) {
+      throw new Error(`duplicate proxy response header ${kind}: ${value}.`);
+    }
     normalizedValues.add(normalized);
   }
   return normalizedValues;

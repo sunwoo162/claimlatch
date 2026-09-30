@@ -1238,6 +1238,16 @@ test("proxy rejects unsafe configured response headers", () => {
     upstreamBaseUrl: "https://upstream.example/v1",
     upstreamResponseHeaderPrefixes: ["bad prefix"],
   }), /valid HTTP header prefix/);
+  assert.throws(() => createOpenAIProxy({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://upstream.example/v1",
+    upstreamResponseHeaderNames: ["x-vendor-request-id", "X-Vendor-Request-Id"],
+  }), /duplicate proxy response header name/);
+  assert.throws(() => createOpenAIProxy({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://upstream.example/v1",
+    upstreamResponseHeaderPrefixes: ["x-vendor-rate-", "X-Vendor-Rate-"],
+  }), /duplicate proxy response header prefix/);
 });
 
 test("proxy rejects restricted upstream request headers", () => {
