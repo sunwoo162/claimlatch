@@ -527,6 +527,7 @@ function withSearchSnippetProvenance(evidence: Evidence): Evidence {
 
 export function isSafePublicHttpUrl(url: URL): boolean {
   if (url.protocol !== "http:" && url.protocol !== "https:") return false;
+  if (url.username || url.password) return false;
   const hostname = url.hostname.toLowerCase().replace(/^\[|\]$/g, "").replace(/\.+$/u, "");
   if (!hostname || hostname === "localhost" || hostname.endsWith(".localhost") || hostname.endsWith(".local")) return false;
 

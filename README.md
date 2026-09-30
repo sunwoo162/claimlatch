@@ -437,7 +437,7 @@ When document hydration succeeds, ClaimLatch stores:
 
 This makes a verdict auditable. It does not prove that the publisher is correct or that HTML extraction preserved every piece of context.
 
-The built-in fetcher blocks localhost (including fully qualified forms), private-network, reserved, documentation, multicast, unspecified, and other non-routable IPv4/IPv6 targets. It resolves DNS addresses before making a request; DNS lookup and document transfer share the request timeout, and any non-public result fails closed before the connection is pinned to a selected public IP. Redirects are validated again, and response size is limited. If you provide a custom fetch/request transport, you must preserve the same protections yourself. See `docs/TRUST_MODEL.md` and `SECURITY.md` for remaining network risks.
+The built-in fetcher blocks localhost (including fully qualified forms), embedded URL credentials, private-network, reserved, documentation, multicast, unspecified, and other non-routable IPv4/IPv6 targets. It resolves DNS addresses before making a request; DNS lookup and document transfer share the request timeout, and any non-public result fails closed before the connection is pinned to a selected public IP. Redirects are validated again, and response size is limited. If you provide a custom fetch/request transport, you must preserve the same protections yourself. See `docs/TRUST_MODEL.md` and `SECURITY.md` for remaining network risks.
 
 For deployments with a restricted egress policy, configure `outboundAllowlist` on `ProvenanceEvidenceProvider` or `createDefaultClaimLatch`. A blocked host or port never reaches the configured fetch transport and falls back to search-snippet provenance.
 
@@ -545,6 +545,8 @@ It demonstrates plumbing, not factuality benchmark performance.
 PASS is not proof of universal truth. Claim extraction, search, source selection, document parsing, and entailment can all fail. Read [docs/TRUST_MODEL.md](docs/TRUST_MODEL.md) before using ClaimLatch in high-stakes decisions.
 
 ## Project status
+
+The unreleased provenance hardening rejects evidence URLs containing embedded username or password credentials.
 
 `0.3.68` exposes the canonical signed payload SHA-256 after successful receipt verification in the receipt CLI JSON output.
 

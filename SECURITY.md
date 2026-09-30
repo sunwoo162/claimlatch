@@ -6,7 +6,7 @@ ClaimLatch sends claim/evidence text to the configured verifier endpoint and cla
 
 ## Evidence-fetch SSRF boundary
 
-The built-in provenance fetcher blocks literal loopback (including fully qualified localhost and `.local` hostnames), private-network, reserved, documentation, multicast, unspecified, and other non-routable IPv4/IPv6 targets, rejects non-HTTP(S) schemes, resolves hostnames before every request, applies the request timeout to DNS lookup and document transfer, rejects any resolution set containing a non-public address, pins the selected public address for the connection, revalidates redirects, caps response size, and fails closed on timeout.
+The built-in provenance fetcher blocks literal loopback (including fully qualified localhost and `.local` hostnames), embedded URL username/password credentials, private-network, reserved, documentation, multicast, unspecified, and other non-routable IPv4/IPv6 targets, rejects non-HTTP(S) schemes, resolves hostnames before every request, applies the request timeout to DNS lookup and document transfer, rejects any resolution set containing a non-public address, pins the selected public address for the connection, revalidates redirects, caps response size, and fails closed on timeout.
 
 The built-in path fails closed when DNS resolution fails or returns no safe address. Applications that provide a custom `fetchImpl` or custom request transport are responsible for preserving these DNS and egress guarantees. Public or multi-tenant deployments should still put evidence retrieval behind an outbound allowlist, egress proxy, or isolated network sandbox.
 
