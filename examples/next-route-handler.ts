@@ -6,6 +6,8 @@ import {
 
 let cachedHandler: GuardedAnswerFetchHandler | undefined;
 
+export const runtime = "nodejs";
+
 function getHandler(): GuardedAnswerFetchHandler {
   if (cachedHandler) return cachedHandler;
 
