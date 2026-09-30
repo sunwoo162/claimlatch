@@ -560,6 +560,8 @@ PASS is not proof of universal truth. Claim extraction, search, source selection
 
 ## Project status
 
+`0.3.81` adds a dependency-light Cloudflare Workers integration example using environment bindings with the Fetch-native guarded answer handler.
+
 `0.3.80` expands the frozen independent benchmark to 80 balanced cases across 40 paired topics with a Google Gemini OpenAI compatibility endpoint pair.
 
 `0.3.79` adds a Google Gemini OpenAI-compatible Chat Completions proxy provider profile with the documented bearer-authenticated endpoint.
