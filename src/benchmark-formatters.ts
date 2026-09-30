@@ -8,8 +8,10 @@ export interface BenchmarkFormatOptions {
 
 export function resolveBenchmarkOutputFormat(argv: readonly string[]): BenchmarkOutputFormat {
   const json = argv.includes("--json");
+  const formatArguments = argv.filter((argument) => argument === "--format" || argument.startsWith("--format="));
+  if (formatArguments.length > 1) throw new Error("--format may only be specified once.");
   const formatIndex = argv.indexOf("--format");
-  const inlineFormat = argv.find((argument) => argument.startsWith("--format="));
+  const inlineFormat = formatArguments.find((argument) => argument.startsWith("--format="));
   const requested = inlineFormat
     ? inlineFormat.slice("--format=".length)
     : formatIndex === -1

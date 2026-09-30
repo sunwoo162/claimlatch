@@ -73,6 +73,9 @@ async function main(): Promise<void> {
 function argumentValue(argv: string[], name: string): string | undefined {
   const index = argv.indexOf(name);
   if (index === -1) return undefined;
+  if (argv.indexOf(name, index + 1) !== -1) {
+    throw new Error(`${name} may only be specified once.`);
+  }
   const value = argv[index + 1];
   if (!value || value.startsWith("-")) throw new Error(`${name} requires a value.`);
   return value;

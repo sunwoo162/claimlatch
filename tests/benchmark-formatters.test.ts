@@ -135,5 +135,9 @@ test("benchmark output format parser preserves --json compatibility and rejects 
   assert.equal(resolveBenchmarkOutputFormat(["--format", "junit"]), "junit");
   assert.equal(resolveBenchmarkOutputFormat(["--format=sarif"]), "sarif");
   assert.throws(() => resolveBenchmarkOutputFormat(["--json", "--format", "sarif"]), /cannot be combined/);
+  assert.throws(
+    () => resolveBenchmarkOutputFormat(["--format", "json", "--format=text"]),
+    /--format may only be specified once/,
+  );
   assert.throws(() => resolveBenchmarkOutputFormat(["--format", "yaml"]), /Unsupported benchmark format/);
 });
