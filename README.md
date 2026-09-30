@@ -152,7 +152,7 @@ export TAVILY_API_KEY="..."
 npm run example:provider-proxy
 ```
 
-The profile fails closed when either attribution value is missing or the site URL is not HTTP(S). Explicit `CLAIMLATCH_PROXY_UPSTREAM_*` values override profile defaults.
+The profile fails closed when either attribution value is missing or the site URL is not an absolute HTTP(S) URL without embedded username or password credentials. Explicit `CLAIMLATCH_PROXY_UPSTREAM_*` values override profile defaults.
 
 For Groq's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="groq"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.groq.com/openai/v1`, bearer authentication, and `/chat/completions`; the proxy does not enable Groq's separate Responses API route.
 

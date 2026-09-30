@@ -178,4 +178,11 @@ test("every hosted proxy profile resolves a complete HTTPS Chat Completions cont
 test("proxy profiles fail closed for unknown names and incomplete OpenRouter metadata", () => {
   assert.throws(() => resolveProxyProviderProfile("unknown"), /Unsupported proxy provider profile/);
   assert.throws(() => resolveProxyProviderProfile("openrouter"), /siteUrl and appName/);
+  assert.throws(
+    () => resolveProxyProviderProfile("openrouter", {
+      siteUrl: "https://user:password@example.com",
+      appName: "ClaimLatch",
+    }),
+    /absolute HTTP or HTTPS URL/,
+  );
 });
