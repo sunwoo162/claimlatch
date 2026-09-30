@@ -7,9 +7,28 @@ ClaimLatch is a pipeline of replaceable ports with a deterministic release bound
 3. **ProvenanceEvidenceProvider** can fetch the original document and replace search snippets with an auditable quote plus content hash.
 4. **ClaimVerifier** classifies the relationship between one claim and supplied evidence.
 5. **Core invariant sanitizer** refuses malformed plugin output and strips invented evidence references.
-6. **Policy evaluator** makes the final PASS/BLOCK decision.
+6. **Optional confidence scorer and calibration profile** attach a calibrated verification-status-correctness value to each sanitized claim.
+7. **Policy evaluator** makes the final PASS/BLOCK decision.
 
 The model never gets to directly decide whether the answer is released. It can propose claim/evidence relations, but the final gate result is deterministic policy code over explicit statuses and validated bindings.
+
+## Confidence data flow
+
+Confidence is an independent annotation path, not a policy input:
+
+```text
+sanitized claim verification
+        ↓
+caller-provided scorer → raw score
+        ↓
+validated offline isotonic profile
+        ↓
+claim.confidence.value + scorer/profile provenance
+```
+
+The profile's target is `verification-status-correctness`: the probability that the emitted status is correct under the calibration distribution. It is not the probability that the claim is factually true. Confidence is omitted unless the caller configures both a scorer and a matching profile. Invalid scorer output fails the verification operation closed, and confidence never changes statuses, coverage, counts, violations, or the policy PASS/BLOCK result.
+
+Calibration is performed by `claimlatch-calibrate` from disjoint calibration and evaluation JSONL datasets. The profile records both canonical dataset SHA-256 hashes, the scorer ID, the profile ID, and evaluation Brier/ECE metrics so downstream receipts can preserve the provenance of the optional value.
 
 ## Status semantics
 

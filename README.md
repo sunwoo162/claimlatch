@@ -37,6 +37,8 @@ Every factual claim ends in exactly one of these states:
 
 `coverage` is the fraction of claims that could receive a supported or contradicted verdict based on sufficient evidence. It is not an accuracy percentage.
 
+Claim confidence is a separate, opt-in signal. When configured with a caller-owned scorer and an independently calibrated profile, each claim can include a probability that the verification status (`SUPPORTED`, `CONTRADICTED`, `UNSUPPORTED`, or `UNVERIFIABLE`) is correct. This is not a probability that the underlying fact is true.
+
 ## Install and build
 
 ```bash
@@ -266,6 +268,29 @@ if (!report.passed) {
 ```
 
 All extraction, search, and verification components are defined as interfaces. You can replace the default adapters with a local model, private corpus, official API, or custom RAG system.
+
+### Optional calibrated confidence
+
+Confidence is never inferred from an LLM's self-report. The caller must provide a scorer and a profile fitted offline from independent labels. Without `confidence` configuration, reports contain no confidence field. Adding confidence does not change `PASS`/`BLOCK`, coverage, counts, policy violations, or evidence bindings.
+
+```ts
+import { ClaimLatch, type ClaimConfidenceScorer, type ConfidenceCalibrationProfile } from "claimlatch";
+
+const scorer: ClaimConfidenceScorer = {
+  id: "my-verifier-v1",
+  score: ({ verification }) => verification.status === "SUPPORTED" ? 0.9 : 0.2,
+};
+const profile: ConfidenceCalibrationProfile = JSON.parse(profileJson) as ConfidenceCalibrationProfile;
+
+const gate = new ClaimLatch({
+  extractor,
+  evidenceProvider,
+  verifier,
+  confidence: { scorer, profile },
+});
+```
+
+The profile maps raw scorer output through a monotonic isotonic calibration and records separate calibration/evaluation dataset hashes. It describes measured verification-status correctness on data similar to the calibration task; it must not be presented as factual truth probability or as a confidence-based release rule.
 
 Tavily search can apply an official-source domain policy. `officialDomains` scopes every search to fixed domains; `resolveOfficialDomains` can return domains from the claim (for example, government, standards, or vendor documentation domains). Configured policy results are filtered again after the API response, and an empty or failing resolver returns no evidence instead of falling back to unrestricted search.
 
@@ -540,11 +565,23 @@ Reported metrics:
 
 This is a frozen regression dataset, not a publication-quality benchmark. Do not tune prompts against the test split and then describe the result as an independent evaluation.
 
-## Why there is no confidence score
+## Confidence semantics and offline calibration
 
-A badge such as `87% trustworthy` would reproduce the problem ClaimLatch is meant to address. ClaimLatch reports observable states: which claims were found, which evidence was collected, how evidence relates to each claim, and which deterministic rule blocked the answer.
+A badge such as `87% trustworthy` would reproduce the problem ClaimLatch is meant to address. ClaimLatch's optional confidence value is narrower: it estimates status correctness for a calibrated verification pipeline, not global truth, completeness, source authority, or answer safety. The deterministic policy gate remains the only release decision.
 
-If probability scores are added later, they should be calibrated with independent labels and describe measured behavior rather than model self-confidence.
+Generate a profile offline with separate JSONL datasets for calibration and evaluation. Each observation contains a predicted status, an independently labelled expected status, a raw scorer output, source case/claim identifiers, and label source URLs.
+
+```bash
+claimlatch-calibrate \
+  --calibration ./calibration.jsonl \
+  --evaluation ./evaluation.jsonl \
+  --output ./confidence-profile.json \
+  --profile-id verifier-status-v1 \
+  --scorer-id my-verifier-v1 \
+  --created-at 2026-09-30T00:00:00.000Z
+```
+
+The command writes the validated profile only after checking dataset hashes, independent source case/claim pairs, monotonic mapping constraints, and evaluation metrics. It prints deterministic evaluation JSON to stdout and requires no provider credentials. Do not call calibration experiments complete until the independently labelled fixture and generated metrics are committed and reviewed.
 
 ## Offline demo
 
