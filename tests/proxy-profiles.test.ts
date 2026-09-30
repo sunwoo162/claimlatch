@@ -39,6 +39,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
     "modal",
     "moonshot",
     "nebius",
+    "nscale",
     "novita",
     "nvidia",
     "openai",
@@ -61,7 +62,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
   ]);
   assert.equal(
     formatProxyProviderProfileNames(),
-    "ai21, aimlapi, azure, baichuan, baseten, cerebras, cerebrium, chutes, clarifai, cloudflare, cohere, dashscope, deepinfra, deepseek, featherless, fireworks, friendli, gemini, groq, huggingface, hyperbolic, inferencenet, ionos, lamini, hunyuan, minimax, mimo, mistral, modal, moonshot, nebius, novita, nvidia, openai, openrouter, ovhcloud, perplexity, poe, qianfan, requesty, sambanova, scaleway, siliconflow, stepfun, together, tokenhub, upstage, volcengine, xai, or zai",
+    "ai21, aimlapi, azure, baichuan, baseten, cerebras, cerebrium, chutes, clarifai, cloudflare, cohere, dashscope, deepinfra, deepseek, featherless, fireworks, friendli, gemini, groq, huggingface, hyperbolic, inferencenet, ionos, lamini, hunyuan, minimax, mimo, mistral, modal, moonshot, nebius, nscale, novita, nvidia, openai, openrouter, ovhcloud, perplexity, poe, qianfan, requesty, sambanova, scaleway, siliconflow, stepfun, together, tokenhub, upstage, volcengine, xai, or zai",
   );
 });
 
@@ -95,6 +96,15 @@ test("proxy profiles provide Cerebrium endpoint-compatible Chat Completions defa
   assert.deepEqual(resolveProxyProviderProfile("cerebrium"), {
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/v1/chat/completions",
+    upstreamModelsPath: null,
+  });
+});
+
+test("proxy profiles provide Nscale Inference-compatible Chat Completions defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("nscale"), {
+    upstreamBaseUrl: "https://inference.api.nscale.com/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
     upstreamModelsPath: null,
   });
 });

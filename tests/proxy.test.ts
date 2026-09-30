@@ -36,6 +36,7 @@ const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "azure"
   mistral: "https://api.mistral.ai/v1",
   moonshot: "https://api.moonshot.ai/v1",
   nebius: "https://api.tokenfactory.nebius.com/v1",
+  nscale: "https://inference.api.nscale.com/v1",
   novita: "https://api.novita.ai/openai/v1",
   nvidia: "https://integrate.api.nvidia.com/v1",
   openai: "https://api.openai.com/v1",
@@ -2393,6 +2394,71 @@ test("Cerebrium provider profile fails closed for undocumented model routes", as
     }) as typeof fetch,
   }, async (url) => {
     for (const path of ["/v1/models", "/v1/models/model-name"]) {
+      const response = await fetch(`${url}${path}`);
+      assert.equal(response.status, 404);
+      assert.deepEqual(await response.json(), {
+        error: {
+          type: "claimlatch_proxy_error",
+          code: "claimlatch_model_route_unavailable",
+          message: "The configured provider does not expose a model-list route.",
+        },
+      });
+    }
+  });
+
+  assert.equal(upstreamCalled, false);
+});
+
+test("Nscale provider profile sends the OpenAI-compatible bearer contract", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "nscale",
+  });
+  let capturedUrl: string | undefined;
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "nscale-token",
+    fetchImpl: (async (input, init) => {
+      capturedUrl = String(input);
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({
+        id: "chatcmpl_nscale_profile",
+        object: "chat.completion",
+        choices: [{ message: { role: "assistant", content: "Nscale-compatible answer." } }],
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ model: "meta-llama/Llama-3.1-8B-Instruct", messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 200);
+  });
+
+  assert.equal(capturedUrl, "https://inference.api.nscale.com/v1/chat/completions");
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer nscale-token");
+  assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
+test("Nscale provider profile fails closed for undocumented model routes", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "nscale",
+  });
+  let upstreamCalled = false;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "nscale-token",
+    fetchImpl: (async () => {
+      upstreamCalled = true;
+      return new Response("unexpected upstream request", { status: 500 });
+    }) as typeof fetch,
+  }, async (url) => {
+    for (const path of ["/v1/models", "/v1/models/meta-llama%2FLlama-3.1-8B-Instruct"]) {
       const response = await fetch(`${url}${path}`);
       assert.equal(response.status, 404);
       assert.deepEqual(await response.json(), {
