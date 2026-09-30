@@ -33,6 +33,7 @@
 - Expanded 74-case independent benchmark with balanced train/dev/test splits
 - Credential-free benchmark manifest validation in local scripts and CI
 - Next.js App Router Fetch-native route handler example with explicit Node.js runtime
+- Remix loader/action route module example using the Fetch-native guarded handler
 
 ## Next
 

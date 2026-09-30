@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { GET, POST, runtime } from "../examples/next-route-handler.js";
+import { action, loader } from "../examples/remix-route-handler.js";
 import {
   isReceiptStorageMainModule,
   renderReceiptStorageOutput,
@@ -10,6 +11,11 @@ test("Next.js route example exports Fetch-native GET and POST handlers", () => {
   assert.equal(typeof GET, "function");
   assert.equal(typeof POST, "function");
   assert.equal(runtime, "nodejs");
+});
+
+test("Remix route example exports Fetch-native loader and action handlers", () => {
+  assert.equal(typeof loader, "function");
+  assert.equal(typeof action, "function");
 });
 
 test("receipt storage example renders the canonical payload hash", () => {
