@@ -247,7 +247,7 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamBaseUrl: "https://inference.api.nscale.com/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
-    upstreamModelsPath: null,
+    upstreamModelsPath: "/models",
   },
   novita: {
     upstreamBaseUrl: "https://api.novita.ai/openai/v1",

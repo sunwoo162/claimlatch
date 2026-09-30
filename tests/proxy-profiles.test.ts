@@ -100,12 +100,12 @@ test("proxy profiles provide Cerebrium endpoint-compatible Chat Completions defa
   });
 });
 
-test("proxy profiles provide Nscale Inference-compatible Chat Completions defaults", () => {
+test("proxy profiles provide Nscale Inference-compatible Chat Completions and model-list defaults", () => {
   assert.deepEqual(resolveProxyProviderProfile("nscale"), {
     upstreamBaseUrl: "https://inference.api.nscale.com/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
-    upstreamModelsPath: null,
+    upstreamModelsPath: "/models",
   });
 });
 

@@ -179,7 +179,7 @@ test("proxy CLI resolves every hosted built-in profile without an explicit base 
       upstreamApiKeyHeader: "authorization",
       ...(profile === "clarifai" ? { upstreamApiKeyPrefix: "Key" } : {}),
       upstreamChatCompletionsPath,
-      upstreamModelsPath: profile === "baichuan" || profile === "clarifai" || profile === "nscale" || profile === "ovhcloud" ? null : "/models",
+      upstreamModelsPath: profile === "baichuan" || profile === "clarifai" || profile === "ovhcloud" ? null : "/models",
     });
   }
 });
