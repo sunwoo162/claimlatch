@@ -10,6 +10,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "huggingface",
   "mistral",
   "moonshot",
+  "nebius",
   "nvidia",
   "openai",
   "openrouter",
@@ -95,6 +96,11 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
   },
   moonshot: {
     upstreamBaseUrl: "https://api.moonshot.ai/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  },
+  nebius: {
+    upstreamBaseUrl: "https://api.tokenfactory.nebius.com/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
   },
