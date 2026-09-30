@@ -15,6 +15,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "openrouter",
   "perplexity",
   "sambanova",
+  "siliconflow",
   "together",
   "xai",
 ] as const;
@@ -114,6 +115,11 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
   },
   sambanova: {
     upstreamBaseUrl: "https://api.sambanova.ai/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  },
+  siliconflow: {
+    upstreamBaseUrl: "https://api.siliconflow.cn/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
   },

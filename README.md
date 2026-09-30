@@ -186,6 +186,8 @@ For Perplexity's Router API, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="perplexity"
 
 For SambaNova's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="sambanova"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.sambanova.ai/v1`, bearer authentication, and `/chat/completions`.
 
+For SiliconFlow's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="siliconflow"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.siliconflow.cn/v1`, bearer authentication, and `/chat/completions`; see [SiliconFlow's Chat Completions documentation](https://docs.siliconflow.cn/docs/api/chat-completions-post).
+
 For a custom provider profile, the same example can use a different credential header and relative completion path while retaining the proxy's restricted header policy:
 
 ```bash
