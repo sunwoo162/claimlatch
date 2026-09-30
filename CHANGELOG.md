@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+No unreleased changes.
+
+## 0.3.64 - 2026-09-30
+
 - Hardened literal local-host filtering to reject fully qualified localhost and `.local` hostnames with trailing root labels.
 
 ## 0.3.63 - 2026-09-30
