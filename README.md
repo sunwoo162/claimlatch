@@ -419,6 +419,19 @@ import { createAwsLambdaHttpApiV2Handler } from "claimlatch/examples/aws-lambda-
 export const handler = createAwsLambdaHttpApiV2Handler();
 ```
 
+For Koa, enable a JSON body parser and mount the adapter from [`examples/koa-route-handler.ts`](examples/koa-route-handler.ts). It maps Koa's parsed `ctx.request` and `ctx.response` objects to the same Fetch-native guarded handler without adding Koa to ClaimLatch's package dependencies; see [Koa's context documentation](https://koajs.com/#context).
+
+```ts
+import Koa from "koa";
+import bodyParser from "koa-bodyparser";
+import { createKoaGuardedAnswerHandler } from "claimlatch/examples/koa-route-handler.js";
+
+const app = new Koa();
+app.use(bodyParser());
+app.use(createKoaGuardedAnswerHandler());
+app.listen(3000);
+```
+
 ### Structured-output proxy policy example
 
 `structuredOutputVerifier` is the application-owned safety boundary for tool calls and multimodal output. The runnable example below allows only the comma-separated tool names in `CLAIMLATCH_ALLOWED_TOOLS`; any other tool call is returned as a deterministic BLOCK report. The example uses a local policy report for structured output and the configured ClaimLatch gate for ordinary textual responses.

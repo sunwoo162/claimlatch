@@ -38,6 +38,10 @@
     "./examples/aws-lambda-http-api-handler.js": {
       "types": "./dist/examples/aws-lambda-http-api-handler.d.ts",
       "import": "./dist/examples/aws-lambda-http-api-handler.js"
+    },
+    "./examples/koa-route-handler.js": {
+      "types": "./dist/examples/koa-route-handler.d.ts",
+      "import": "./dist/examples/koa-route-handler.js"
     }
   },
   "files": [

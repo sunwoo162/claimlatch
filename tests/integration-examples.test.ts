@@ -23,6 +23,10 @@ import {
   createAwsLambdaHttpApiV2Handler,
   type AwsLambdaHttpApiV2Event,
 } from "../examples/aws-lambda-http-api-handler.js";
+import {
+  createKoaGuardedAnswerHandler,
+  type KoaContext,
+} from "../examples/koa-route-handler.js";
 import { GET, POST, runtime } from "../examples/next-route-handler.js";
 import { action, loader } from "../examples/remix-route-handler.js";
 import {
@@ -248,6 +252,54 @@ test("AWS Lambda HTTP API example omits bodies for GET and HEAD requests", async
 
     assert.equal(response.statusCode, 204);
   }
+});
+
+test("Koa example adapts parsed JSON requests and response setters", async () => {
+  const handler = createKoaGuardedAnswerHandler(async (request) => {
+    assert.equal(request.method, "POST");
+    assert.equal(request.url, "http://example.test:3000/answer?trace=1");
+    assert.deepEqual(await request.json(), { question: "question", draft: "draft" });
+    return new Response(JSON.stringify({ answer: "verified" }), {
+      status: 200,
+      headers: [
+        ["content-type", "application/json"],
+        ["x-claimlatch-result", "pass"],
+        ["set-cookie", "session=abc; Path=/"],
+        ["set-cookie", "theme=dark; Path=/"],
+      ],
+    });
+  });
+
+  let statusCode: number | undefined;
+  let responseBody: unknown;
+  const responseHeaders = new Map<string, string | string[]>();
+  const context: KoaContext = {
+    request: {
+      method: "POST",
+      protocol: "http",
+      host: "example.test:3000",
+      originalUrl: "/answer?trace=1",
+      body: { question: "question", draft: "draft" },
+    },
+    response: {
+      status: 404,
+      set(name, value) {
+        responseHeaders.set(name.toLowerCase(), value);
+      },
+      set body(value: unknown) {
+        responseBody = value;
+      },
+    },
+  };
+
+  await handler(context);
+  statusCode = context.response.status;
+
+  assert.equal(statusCode, 200);
+  assert.equal(responseHeaders.get("content-type"), "application/json");
+  assert.equal(responseHeaders.get("x-claimlatch-result"), "pass");
+  assert.deepEqual(responseHeaders.get("set-cookie"), ["session=abc; Path=/", "theme=dark; Path=/"]);
+  assert.equal(responseBody, JSON.stringify({ answer: "verified" }));
 });
 
 test("receipt storage example renders the canonical payload hash", () => {
