@@ -32,6 +32,7 @@ const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "azure"
   perplexity: "https://api.perplexity.ai/router/v1",
   poe: "https://api.poe.com/v1",
   qianfan: "https://qianfan.baidubce.com/v2",
+  requesty: "https://router.requesty.ai/v1",
   sambanova: "https://api.sambanova.ai/v1",
   siliconflow: "https://api.siliconflow.cn/v1",
   stepfun: "https://api.stepfun.ai/v1",
@@ -1443,6 +1444,39 @@ test("Upstage provider profile sends the OpenAI-compatible bearer contract", asy
 
   assert.equal(capturedUrl, "https://api.upstage.ai/v1/chat/completions");
   assert.equal(capturedHeaders?.get("authorization"), "Bearer upstage-key");
+  assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
+test("Requesty provider profile sends its model-list path and bearer header", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "requesty",
+  });
+  let capturedUrl: string | undefined;
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "requesty-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrl = String(input);
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({ object: "list", data: [{ id: "openai/gpt-6-luna", object: "model" }] }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/models`);
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), {
+      object: "list",
+      data: [{ id: "openai/gpt-6-luna", object: "model" }],
+    });
+  });
+
+  assert.equal(capturedUrl, "https://router.requesty.ai/v1/models");
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer requesty-key");
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 

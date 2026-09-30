@@ -182,6 +182,8 @@ For Novita AI's OpenAI-compatible LLM API, set `CLAIMLATCH_PROXY_PROVIDER_PROFIL
 
 For Poe's OpenAI-compatible API, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="poe"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.poe.com/v1`, bearer authentication, `/chat/completions`, and `/models`; see [Poe's OpenAI-compatible API guide](https://creator.poe.com/docs/external-applications/openai-compatible-api).
 
+For Requesty's OpenAI-compatible gateway, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="requesty"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://router.requesty.ai/v1`, bearer authentication, `/chat/completions`, and `/models`; see [Requesty's Quickstart](https://docs.requesty.ai/).
+
 For the direct OpenAI API, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="openai"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.openai.com/v1`, bearer authentication, and `/chat/completions`.
 
 For NVIDIA NIM's hosted OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="nvidia"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://integrate.api.nvidia.com/v1`, bearer authentication, and `/chat/completions`.

@@ -33,6 +33,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
     "perplexity",
     "poe",
     "qianfan",
+    "requesty",
     "sambanova",
     "siliconflow",
     "stepfun",
@@ -45,7 +46,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
   ]);
   assert.equal(
     formatProxyProviderProfileNames(),
-    "ai21, azure, cerebras, chutes, cohere, dashscope, deepinfra, deepseek, fireworks, friendli, gemini, groq, huggingface, hunyuan, minimax, mistral, moonshot, nebius, novita, nvidia, openai, openrouter, perplexity, poe, qianfan, sambanova, siliconflow, stepfun, together, tokenhub, upstage, volcengine, xai, or zai",
+    "ai21, azure, cerebras, chutes, cohere, dashscope, deepinfra, deepseek, fireworks, friendli, gemini, groq, huggingface, hunyuan, minimax, mistral, moonshot, nebius, novita, nvidia, openai, openrouter, perplexity, poe, qianfan, requesty, sambanova, siliconflow, stepfun, together, tokenhub, upstage, volcengine, xai, or zai",
   );
 });
 
@@ -96,6 +97,15 @@ test("proxy profiles provide Upstage-compatible Chat Completions defaults", () =
     upstreamBaseUrl: "https://api.upstage.ai/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+  });
+});
+
+test("proxy profiles provide Requesty-compatible Chat Completions and model-list defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("requesty"), {
+    upstreamBaseUrl: "https://router.requesty.ai/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
   });
 });
 
