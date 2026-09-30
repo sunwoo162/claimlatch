@@ -34,6 +34,7 @@
 - Expanded the frozen independent benchmark to 180 balanced cases across 90 paired topics with WebDAV IETF RFC 4918-backed HTTP 423 Locked and HTTP 424 Failed Dependency pairs.
 - Expanded the frozen independent benchmark to 184 balanced cases across 92 paired topics with IETF RFC 8297-backed HTTP 103 Early Hints and RFC 3229-backed HTTP 226 IM Used pairs.
 - Expanded the frozen independent benchmark to 188 balanced cases across 94 paired topics with IETF RFC 9110-backed HTTP 100 Continue and HTTP 101 Switching Protocols pairs.
+- Expanded the frozen independent benchmark to 192 balanced cases across 96 paired topics with IETF RFC 8470-backed HTTP 425 Too Early and RFC 2295-backed HTTP 506 Variant Also Negotiates pairs.
 - Added a dependency-light Fastify route adapter example using the Fetch-native guarded answer handler.
 - Synced the roadmap with the implemented credential-free calibration dataset validation mode.
 
