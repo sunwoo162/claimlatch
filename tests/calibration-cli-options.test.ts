@@ -56,3 +56,23 @@ test("calibration CLI parser rejects missing or unknown arguments", () => {
     /Unknown calibration CLI option/,
   );
 });
+
+test("calibration CLI rejects non-ISO created-at values", () => {
+  const createArguments = (createdAt: string): string[] => [
+      "--calibration", "calibration.jsonl",
+      "--evaluation", "evaluation.jsonl",
+      "--output", "profile.json",
+      "--profile-id", "profile-v1",
+      "--scorer-id", "scorer-v1",
+      "--created-at", createdAt,
+    ];
+
+  assert.throws(
+    () => parseCalibrationCliArguments(createArguments("not-a-date")),
+    /--created-at must be a valid ISO-8601 timestamp/,
+  );
+  assert.throws(
+    () => parseCalibrationCliArguments(createArguments("2026-02-30T00:00:00.000Z")),
+    /--created-at must be a valid ISO-8601 timestamp/,
+  );
+});
