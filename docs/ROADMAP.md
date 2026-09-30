@@ -44,6 +44,7 @@
 - Fastify route adapter example without a core framework dependency
 - Hono route adapter example without a core framework dependency
 - SvelteKit route adapter example without a core framework dependency
+- AWS Lambda HTTP API payload v2 adapter example without an AWS SDK dependency
 
 ## Next
 

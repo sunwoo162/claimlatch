@@ -409,6 +409,14 @@ import { createSvelteKitGuardedAnswerHandler } from "claimlatch/examples/sveltek
 export const POST = createSvelteKitGuardedAnswerHandler();
 ```
 
+For AWS Lambda behind API Gateway HTTP API payload format `2.0`, use [`examples/aws-lambda-http-api-handler.ts`](examples/aws-lambda-http-api-handler.ts). It converts the Lambda event to a Fetch `Request` and returns the guarded `Response` as a base64-encoded Lambda proxy response without adding an AWS SDK dependency. Configure the API Gateway integration with payload format version `2.0`; see [AWS's HTTP API Lambda proxy integration documentation](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-develop-integrations-lambda.html).
+
+```ts
+import { createAwsLambdaHttpApiV2Handler } from "claimlatch/examples/aws-lambda-http-api-handler.js";
+
+export const handler = createAwsLambdaHttpApiV2Handler();
+```
+
 ### Structured-output proxy policy example
 
 `structuredOutputVerifier` is the application-owned safety boundary for tool calls and multimodal output. The runnable example below allows only the comma-separated tool names in `CLAIMLATCH_ALLOWED_TOOLS`; any other tool call is returned as a deterministic BLOCK report. The example uses a local policy report for structured output and the configured ClaimLatch gate for ordinary textual responses.
