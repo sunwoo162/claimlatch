@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Added fail-closed regression coverage for calibration dataset validation, including empty datasets, malformed manifests, and overlapping source case/claim pairs.
+- Added a dependency-light Fastify route adapter example using the Fetch-native guarded answer handler.
 - Synced the roadmap with the implemented credential-free calibration dataset validation mode.
 
 ## 0.3.86 - 2026-09-30

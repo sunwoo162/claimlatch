@@ -6,6 +6,11 @@ import {
   type ExpressRequest,
   type ExpressResponse,
 } from "../examples/express-route-handler.js";
+import {
+  createFastifyGuardedAnswerHandler,
+  type FastifyReply,
+  type FastifyRequest,
+} from "../examples/fastify-route-handler.js";
 import { GET, POST, runtime } from "../examples/next-route-handler.js";
 import { action, loader } from "../examples/remix-route-handler.js";
 import {
@@ -68,6 +73,50 @@ test("Express example adapts parsed JSON requests to the guarded Fetch handler",
 
   await handler(request, response);
 
+  assert.equal(statusCode, 200);
+  assert.equal(responseHeaders.get("content-type"), "application/json");
+  assert.equal(responseHeaders.get("x-claimlatch-result"), "pass");
+  assert.equal(responseBody, JSON.stringify({ answer: "verified" }));
+});
+
+test("Fastify example adapts parsed JSON requests to the guarded Fetch handler", async () => {
+  let statusCode: number | undefined;
+  const responseHeaders = new Map<string, string>();
+  let responseBody: string | undefined;
+  const handler = createFastifyGuardedAnswerHandler(async (request) => {
+    assert.equal(request.method, "POST");
+    assert.equal(request.url, "http://example.test:3000/answer?trace=1");
+    assert.deepEqual(await request.json(), { question: "question", draft: "draft" });
+    return new Response(JSON.stringify({ answer: "verified" }), {
+      status: 200,
+      headers: { "content-type": "application/json", "x-claimlatch-result": "pass" },
+    });
+  });
+  const request: FastifyRequest = {
+    method: "POST",
+    protocol: "http",
+    host: "example.test:3000",
+    url: "/answer?trace=1",
+    body: { question: "question", draft: "draft" },
+  };
+  const response: FastifyReply = {
+    code(code) {
+      statusCode = code;
+      return this;
+    },
+    header(name, value) {
+      responseHeaders.set(name.toLowerCase(), Array.isArray(value) ? value.join(", ") : value);
+      return this;
+    },
+    send(body) {
+      responseBody = body;
+      return this;
+    },
+  };
+
+  const result = await handler(request, response);
+
+  assert.equal(result, response);
   assert.equal(statusCode, 200);
   assert.equal(responseHeaders.get("content-type"), "application/json");
   assert.equal(responseHeaders.get("x-claimlatch-result"), "pass");

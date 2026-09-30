@@ -379,6 +379,17 @@ app.all("/answer", createExpressGuardedAnswerHandler());
 app.listen(3000);
 ```
 
+For Fastify, enable its built-in JSON content-type parser and mount the adapter from [`examples/fastify-route-handler.ts`](examples/fastify-route-handler.ts). It maps Fastify's parsed request body and `reply` methods to the same Fetch-native guarded handler without adding Fastify to ClaimLatch's package dependencies:
+
+```ts
+import Fastify from "fastify";
+import { createFastifyGuardedAnswerHandler } from "claimlatch/examples/fastify-route-handler.js";
+
+const app = Fastify();
+app.all("/answer", createFastifyGuardedAnswerHandler());
+await app.listen({ host: "127.0.0.1", port: 3000 });
+```
+
 ### Structured-output proxy policy example
 
 `structuredOutputVerifier` is the application-owned safety boundary for tool calls and multimodal output. The runnable example below allows only the comma-separated tool names in `CLAIMLATCH_ALLOWED_TOOLS`; any other tool call is returned as a deterministic BLOCK report. The example uses a local policy report for structured output and the configured ClaimLatch gate for ordinary textual responses.

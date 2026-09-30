@@ -22,6 +22,10 @@
     "./examples/express-route-handler.js": {
       "types": "./dist/examples/express-route-handler.d.ts",
       "import": "./dist/examples/express-route-handler.js"
+    },
+    "./examples/fastify-route-handler.js": {
+      "types": "./dist/examples/fastify-route-handler.d.ts",
+      "import": "./dist/examples/fastify-route-handler.js"
     }
   },
   "files": [
