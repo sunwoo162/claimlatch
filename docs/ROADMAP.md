@@ -86,6 +86,7 @@
 - Jan local OpenAI-compatible proxy provider profile with explicit base URL configuration and versioned Chat Completions/model-list contract coverage
 - LocalAI OpenAI-compatible proxy provider profile with explicit base URL configuration and versioned Chat Completions/model-list contract coverage
 - SGLang OpenAI-compatible proxy provider profile with explicit base URL configuration and versioned Chat Completions/model-list contract coverage
+- Self-hosted TGI OpenAI-compatible proxy provider profile with explicit base URL configuration, versioned Chat Completions coverage, and fail-closed handling for its undocumented model-list route
 
 ## Next
 
