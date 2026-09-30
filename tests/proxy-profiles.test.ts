@@ -36,6 +36,7 @@ test("proxy profiles provide Azure-compatible defaults", () => {
   assert.deepEqual(resolveProxyProviderProfile("azure"), {
     upstreamApiKeyHeader: "api-key",
     upstreamChatCompletionsPath: "/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-10-21",
+    upstreamModelsPath: "/openai/models?api-version=2024-10-21",
   });
 });
 

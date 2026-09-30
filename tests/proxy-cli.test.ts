@@ -21,7 +21,7 @@ test("proxy CLI help documents credentials, routes, and fail-closed behavior", (
   assert.match(help, /POST \/v1\/chat\/completions/);
   assert.match(help, /GET  \/v1\/models, \/models, \/v1\/models\/:id, \/models\/:id/);
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS/);
-  assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_MODELS_PATH/);
+  assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_MODELS_PATH.*profile supplies one/);
   assert.match(help, /CLAIMLATCH_PROXY_PROVIDER_PROFILE/);
   assert.match(help, /azure, cerebras, cohere, deepinfra, deepseek, fireworks, gemini, groq, huggingface, mistral, nvidia, openai, openrouter, perplexity, sambanova, together, or xai/);
   assert.match(help, /PASS.*BLOCK/s);
@@ -100,7 +100,7 @@ test("proxy CLI resolves Azure deployment paths with an explicit base URL", () =
     upstreamBaseUrl: "https://claimlatch-resource.openai.azure.com",
     upstreamApiKeyHeader: "api-key",
     upstreamChatCompletionsPath: "/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-10-21",
-    upstreamModelsPath: "/models",
+    upstreamModelsPath: "/openai/models?api-version=2024-10-21",
   });
 });
 
