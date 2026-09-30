@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-No unreleased changes.
+- Rejects HTTP(S) evidence URLs containing embedded username or password credentials before hydration.
 
 ## 0.3.68 - 2026-09-30
 
