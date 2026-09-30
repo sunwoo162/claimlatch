@@ -3,10 +3,12 @@ import test from "node:test";
 import { ClaimLatch } from "../src/gate.js";
 import { createOpenAIProxy } from "../src/proxy.js";
 import { resolveProxyProviderConfiguration } from "../src/proxy-cli-options.js";
+import { PROXY_PROVIDER_PROFILE_NAMES } from "../src/proxy-profiles.js";
 import type { ClaimExtractor, ClaimVerifier, EvidenceProvider } from "../src/types.js";
 import type { OpenAIProxyOptions } from "../src/proxy.js";
+import type { ProxyProviderProfileName } from "../src/proxy-profiles.js";
 
-const HOSTED_PROFILE_BASE_URLS = {
+const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "azure" | "openrouter">, string> = {
   cerebras: "https://api.cerebras.ai/v1",
   cohere: "https://api.cohere.ai/compatibility/v1",
   deepinfra: "https://api.deepinfra.com/v1/openai",
@@ -1230,6 +1232,11 @@ test("OpenRouter provider profile forwards attribution headers with bearer auth"
 });
 
 test("hosted provider profiles preserve their resolver contracts through the proxy", async () => {
+  const expectedHostedProfiles = PROXY_PROVIDER_PROFILE_NAMES.filter(
+    (profileName) => profileName !== "azure" && profileName !== "openrouter",
+  );
+  assert.deepEqual(Object.keys(HOSTED_PROFILE_BASE_URLS).sort(), [...expectedHostedProfiles].sort());
+
   for (const [profileName, expectedBaseUrl] of Object.entries(HOSTED_PROFILE_BASE_URLS)) {
     const profile = resolveProxyProviderConfiguration({
       CLAIMLATCH_PROXY_PROVIDER_PROFILE: profileName,
