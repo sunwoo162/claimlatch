@@ -41,6 +41,13 @@ test("proxy header map parser rejects entries without a name=value separator", (
   );
 });
 
+test("proxy header map parser rejects duplicate header names case-insensitively", () => {
+  assert.throws(
+    () => parseProxyHeaderMap("x-tenant=prod,X-Tenant=staging"),
+    /duplicate header name/,
+  );
+});
+
 test("proxy CLI resolves provider profile defaults and explicit overrides", () => {
   assert.deepEqual(resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "openrouter",
