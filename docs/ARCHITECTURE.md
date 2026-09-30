@@ -67,7 +67,7 @@ The strict `requireRetrievedDocumentForDecisiveClaims` policy requires every sel
 
 ## Reverse proxy
 
-The proxy implements `GET /v1/models`, `GET /models`, `GET /v1/models/:id`, `GET /models/:id`, `POST /v1/chat/completions`, and `POST /chat/completions`. Model listing and retrieval are bounded metadata passthroughs and never invoke the answer gate. Model IDs are encoded as a single upstream path segment. Provider profiles can supply a provider-specific model route; the Azure profile uses `/openai/models?api-version=2024-10-21` alongside its deployment completion path. For completions, it verifies every assistant choice in a multi-choice response; textual choices use ClaimLatch, while structured choices require an explicit application verifier. One blocked choice blocks the whole response.
+The proxy implements `GET /v1/models`, `GET /models`, `GET /v1/models/:id`, `GET /models/:id`, `POST /v1/chat/completions`, and `POST /chat/completions`. Model listing and retrieval are bounded metadata passthroughs and never invoke the answer gate. Model IDs are encoded as a single upstream path segment. Provider profiles can supply provider-specific model-list and model-retrieval routes; a profile can set model retrieval to `null` to fail closed when an upstream exposes listing but not per-model retrieval. The Azure profile uses `/openai/models?api-version=2024-10-21` alongside its deployment completion path, while FastChat uses `/v1/models` and disables `/v1/models/:id` by default. For completions, it verifies every assistant choice in a multi-choice response; textual choices use ClaimLatch, while structured choices require an explicit application verifier. One blocked choice blocks the whole response.
 
 ```text
 client
