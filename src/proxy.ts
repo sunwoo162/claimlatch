@@ -11,6 +11,7 @@ export interface OpenAIProxyOptions {
   upstreamApiKeyPrefix?: string;
   upstreamChatCompletionsPath?: string;
   upstreamModelsPath?: string | null;
+  upstreamModelRetrievalPath?: string | null;
   upstreamRequestHeaders?: Record<string, string>;
   upstreamResponseHeaderNames?: string[];
   upstreamResponseHeaderPrefixes?: string[];
@@ -117,6 +118,11 @@ export function createOpenAIProxy(options: OpenAIProxyOptions): OpenAIProxyServe
   const upstreamModelsPath = options.upstreamModelsPath === null
     ? undefined
     : normalizeUpstreamModelsPath(options.upstreamModelsPath ?? "/models");
+  const upstreamModelRetrievalPath = options.upstreamModelRetrievalPath === null
+    ? undefined
+    : options.upstreamModelRetrievalPath !== undefined
+      ? normalizeUpstreamModelsPath(options.upstreamModelRetrievalPath)
+      : upstreamModelsPath;
   const upstreamRequestHeaders = normalizeUpstreamRequestHeaders(options.upstreamRequestHeaders ?? {});
   const upstreamResponseHeaderNames = normalizeResponseHeaderConfiguration(
     options.upstreamResponseHeaderNames ?? [],
@@ -144,6 +150,7 @@ export function createOpenAIProxy(options: OpenAIProxyOptions): OpenAIProxyServe
         upstreamApiKeyPrefix,
         upstreamChatCompletionsPath,
         upstreamModelsPath,
+        upstreamModelRetrievalPath,
         upstreamRequestHeaders,
         upstreamResponseHeaderNames,
         upstreamResponseHeaderPrefixes,
@@ -193,6 +200,7 @@ async function handleRequest(input: {
   upstreamApiKeyPrefix: string | undefined;
   upstreamChatCompletionsPath: string;
   upstreamModelsPath: string | undefined;
+  upstreamModelRetrievalPath: string | undefined;
   upstreamRequestHeaders: ReadonlyMap<string, string>;
   upstreamResponseHeaderNames: ReadonlySet<string>;
   upstreamResponseHeaderPrefixes: ReadonlySet<string>;
@@ -214,10 +222,14 @@ async function handleRequest(input: {
       writeUnavailableModelRoute(response);
       return;
     }
+    if (input.upstreamModelRetrievalPath === undefined) {
+      writeUnavailableModelRetrievalRoute(response);
+      return;
+    }
     await handleModelsRequest({
       ...input,
       ...(input.options.upstreamApiKey ? { upstreamApiKey: input.options.upstreamApiKey } : {}),
-      upstreamModelsPath: appendModelId(input.upstreamModelsPath, modelId),
+      upstreamModelsPath: appendModelId(input.upstreamModelRetrievalPath, modelId),
       requestQuery: query,
     });
     return;
@@ -504,6 +516,16 @@ function writeUnavailableModelRoute(response: ServerResponse): void {
       type: "claimlatch_proxy_error",
       code: "claimlatch_model_route_unavailable",
       message: "The configured provider does not expose a model-list route.",
+    },
+  });
+}
+
+function writeUnavailableModelRetrievalRoute(response: ServerResponse): void {
+  writeJson(response, 404, {
+    error: {
+      type: "claimlatch_proxy_error",
+      code: "claimlatch_model_retrieval_route_unavailable",
+      message: "The configured provider does not expose a model-retrieval route.",
     },
   });
 }

@@ -23,6 +23,7 @@ test("proxy CLI help documents credentials, routes, and fail-closed behavior", (
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS/);
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_API_KEY_PREFIX.*default Bearer/);
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_MODELS_PATH.*profile supplies one/);
+  assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_MODEL_RETRIEVAL_PATH.*profile supplies one/);
   assert.match(help, /CLAIMLATCH_PROXY_PROVIDER_PROFILE/);
   assert.match(help, /ai21, aimlapi, azure, baichuan, baseten, cerebras, cerebrium, chutes, clarifai, cloudflare, cohere, dashscope, deepinfra, deepseek, featherless, fastchat, fireworks, friendli, gemini, groq, huggingface, hyperbolic, inferencenet, ionos, jan, lamini, litellm, llamacpp, lmstudio, localai, mlx, hunyuan, minimax, mimo, mistral, modal, moonshot, nebius, nscale, novita, nvidia, ollama, openai, openrouter, ovhcloud, perplexity, poe, qianfan, requesty, sambanova, scaleway, sglang, siliconflow, stepfun, tgi, together, tokenhub, upstage, vllm, volcengine, xai, or zai/);
   assert.match(help, /PASS.*BLOCK/s);
@@ -379,6 +380,7 @@ test("proxy CLI requires an explicit base URL for FastChat", () => {
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/v1/chat/completions",
     upstreamModelsPath: "/v1/models",
+    upstreamModelRetrievalPath: null,
   });
 });
 
@@ -455,6 +457,14 @@ test("proxy CLI allows an explicit MiMo model route override", () => {
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "mimo",
     CLAIMLATCH_PROXY_UPSTREAM_MODELS_PATH: "/v1/models",
   }).upstreamModelsPath, "/v1/models");
+});
+
+test("proxy CLI allows an explicit model-retrieval route override", () => {
+  assert.equal(resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "fastchat",
+    CLAIMLATCH_PROXY_UPSTREAM_BASE_URL: "http://localhost:8000",
+    CLAIMLATCH_PROXY_UPSTREAM_MODEL_RETRIEVAL_PATH: "/v1/model",
+  }).upstreamModelRetrievalPath, "/v1/model");
 });
 
 test("provider-compatible proxy example preserves the configured model route", () => {

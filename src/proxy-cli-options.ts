@@ -6,6 +6,7 @@ export interface ProxyProviderConfiguration {
   upstreamApiKeyPrefix?: string;
   upstreamChatCompletionsPath: string;
   upstreamModelsPath: string | null;
+  upstreamModelRetrievalPath?: string | null;
   upstreamRequestHeaders?: Record<string, string>;
 }
 
@@ -83,6 +84,11 @@ export function resolveProxyProviderConfiguration(
       : profile.upstreamModelsPath === null
         ? null
         : profile.upstreamModelsPath ?? "/models",
+    ...(env.CLAIMLATCH_PROXY_UPSTREAM_MODEL_RETRIEVAL_PATH !== undefined
+      ? { upstreamModelRetrievalPath: env.CLAIMLATCH_PROXY_UPSTREAM_MODEL_RETRIEVAL_PATH }
+      : profile.upstreamModelRetrievalPath !== undefined
+        ? { upstreamModelRetrievalPath: profile.upstreamModelRetrievalPath }
+        : {}),
     ...(Object.keys(upstreamRequestHeaders).length > 0 ? { upstreamRequestHeaders } : {}),
   };
 }
@@ -109,6 +115,7 @@ export function renderProxyHelp(): string {
     "  CLAIMLATCH_PROXY_UPSTREAM_API_KEY_PREFIX   Authentication scheme prefix (default Bearer for Authorization)",
     "  CLAIMLATCH_PROXY_UPSTREAM_CHAT_COMPLETIONS_PATH",
     "  CLAIMLATCH_PROXY_UPSTREAM_MODELS_PATH       Relative model-list path (default /models unless the provider profile supplies one)",
+    "  CLAIMLATCH_PROXY_UPSTREAM_MODEL_RETRIEVAL_PATH Relative model-retrieval path (defaults to the model-list path unless the provider profile supplies one)",
     "  CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS   Comma-separated name=value headers",
     "  CLAIMLATCH_PROXY_UPSTREAM_RESPONSE_HEADER_NAMES",
     "  CLAIMLATCH_PROXY_UPSTREAM_RESPONSE_HEADER_PREFIXES",

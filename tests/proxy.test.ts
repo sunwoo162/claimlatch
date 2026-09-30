@@ -3233,6 +3233,36 @@ test("FastChat provider profile sends its versioned model-list path and bearer h
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
+test("FastChat provider profile fails closed for unsupported model retrieval routes", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "fastchat",
+    CLAIMLATCH_PROXY_UPSTREAM_BASE_URL: "http://localhost:8000",
+  });
+  let upstreamCalled = false;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "EMPTY",
+    fetchImpl: (async () => {
+      upstreamCalled = true;
+      return new Response("unexpected upstream request", { status: 500 });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/models/vicuna-7b-v1.5`);
+    assert.equal(response.status, 404);
+    assert.deepEqual(await response.json(), {
+      error: {
+        type: "claimlatch_proxy_error",
+        code: "claimlatch_model_retrieval_route_unavailable",
+        message: "The configured provider does not expose a model-retrieval route.",
+      },
+    });
+  });
+
+  assert.equal(upstreamCalled, false);
+});
+
 test("Cloudflare Workers AI provider profile sends the account-scoped bearer contract", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "cloudflare",

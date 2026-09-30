@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Added a FastChat self-hosted OpenAI-compatible proxy provider profile with explicit base URL configuration, versioned Chat Completions, model-list coverage, and wire-contract tests.
+- Added a FastChat self-hosted OpenAI-compatible proxy provider profile with explicit base URL configuration, versioned Chat Completions/model-list coverage, fail-closed handling for its undocumented model-retrieval route, and wire-contract tests.
 - Added an MLX-LM OpenAI-compatible proxy provider profile with explicit base URL configuration, versioned Chat Completions, model-list coverage, and wire-contract tests.
 - Added an Nscale Serverless Inference OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions and model-list coverage and wire-contract tests.
 - Added a LiteLLM self-hosted gateway OpenAI-compatible proxy provider profile with explicit base URL configuration, bearer-authenticated versioned Chat Completions, model-list coverage, and wire-contract tests.

@@ -81,6 +81,7 @@ export interface ProxyProviderProfile {
   upstreamApiKeyPrefix?: string;
   upstreamChatCompletionsPath: string;
   upstreamModelsPath?: string | null;
+  upstreamModelRetrievalPath?: string | null;
   upstreamRequestHeaders?: Record<string, string>;
 }
 
@@ -174,6 +175,7 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/v1/chat/completions",
     upstreamModelsPath: "/v1/models",
+    upstreamModelRetrievalPath: null,
   },
   fireworks: {
     upstreamBaseUrl: "https://api.fireworks.ai/inference/v1",

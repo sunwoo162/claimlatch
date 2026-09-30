@@ -261,6 +261,7 @@ test("proxy profiles provide FastChat-compatible Chat Completions and model-list
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/v1/chat/completions",
     upstreamModelsPath: "/v1/models",
+    upstreamModelRetrievalPath: null,
   });
 });
 
