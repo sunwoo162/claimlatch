@@ -41,6 +41,7 @@
 - Remix loader/action route module example using the Fetch-native guarded handler
 - Cloudflare Worker Fetch-native integration example
 - Express route adapter example without a core framework dependency
+- Fastify route adapter example without a core framework dependency
 
 ## Next
 
