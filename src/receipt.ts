@@ -137,6 +137,10 @@ export function createSignedVerificationReceipt(
   report: VerificationReport,
   options: SignedVerificationReceiptOptions,
 ): SignedVerificationReceipt {
+  if (options.keyId !== undefined && (typeof options.keyId !== "string" || options.keyId.trim().length === 0)) {
+    throw new TypeError("keyId must be a non-empty string.");
+  }
+
   const payload: VerificationReceiptPayload = {
     report,
     publicKeyPem: options.publicKeyPem,
