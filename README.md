@@ -550,7 +550,7 @@ PASS is not proof of universal truth. Claim extraction, search, source selection
 
 ## Project status
 
-The unreleased receipt storage example prints the canonical signed payload SHA-256 and is safe to import without running the demo.
+`0.3.75` updates the receipt storage example to print the canonical signed payload SHA-256 and remain safe to import without running the demo.
 
 `0.3.74` explicitly selects the Node.js runtime required by the default gate in the Next.js example.
 
