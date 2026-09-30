@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+No unreleased changes.
+
+## 0.3.75 - 2026-09-30
+
 - Updated the receipt storage example to print the canonical signed payload SHA-256 for audit logs.
 
 ## 0.3.74 - 2026-09-30
