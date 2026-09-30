@@ -261,13 +261,18 @@ test("Koa example adapts parsed JSON requests and response setters", async () =>
     assert.deepEqual(await request.json(), { question: "question", draft: "draft" });
     return new Response(JSON.stringify({ answer: "verified" }), {
       status: 200,
-      headers: { "content-type": "application/json", "x-claimlatch-result": "pass" },
+      headers: [
+        ["content-type", "application/json"],
+        ["x-claimlatch-result", "pass"],
+        ["set-cookie", "session=abc; Path=/"],
+        ["set-cookie", "theme=dark; Path=/"],
+      ],
     });
   });
 
   let statusCode: number | undefined;
   let responseBody: unknown;
-  const responseHeaders = new Map<string, string>();
+  const responseHeaders = new Map<string, string | string[]>();
   const context: KoaContext = {
     request: {
       method: "POST",
@@ -293,6 +298,7 @@ test("Koa example adapts parsed JSON requests and response setters", async () =>
   assert.equal(statusCode, 200);
   assert.equal(responseHeaders.get("content-type"), "application/json");
   assert.equal(responseHeaders.get("x-claimlatch-result"), "pass");
+  assert.deepEqual(responseHeaders.get("set-cookie"), ["session=abc; Path=/", "theme=dark; Path=/"]);
   assert.equal(responseBody, JSON.stringify({ answer: "verified" }));
 });
 

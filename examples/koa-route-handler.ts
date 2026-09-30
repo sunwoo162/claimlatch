@@ -16,7 +16,7 @@ export interface KoaRequest {
 
 export interface KoaResponse {
   status: number;
-  set(name: string, value: string): void;
+  set(name: string, value: string | string[]): void;
   body: unknown;
 }
 
@@ -71,10 +71,23 @@ export function createKoaGuardedAnswerHandler(
     }
 
     const upstreamResponse = await fetchHandler(new Request(new URL(path, `${protocol}://${host}`), init));
-    upstreamResponse.headers.forEach((value, name) => context.response.set(name, value));
+    const responseCookies = getResponseCookies(upstreamResponse.headers);
+    upstreamResponse.headers.forEach((value, name) => {
+      if (name !== "set-cookie") context.response.set(name, value);
+    });
+    if (responseCookies.length > 0) context.response.set("set-cookie", responseCookies);
     context.response.body = await upstreamResponse.text();
     context.response.status = upstreamResponse.status;
   };
+}
+
+function getResponseCookies(headers: Headers): string[] {
+  const headersWithGetSetCookie = headers as Headers & { getSetCookie?: () => string[] };
+  const cookies = headersWithGetSetCookie.getSetCookie?.() ?? [];
+  if (cookies.length > 0) return cookies;
+
+  const fallback = headers.get("set-cookie");
+  return fallback ? [fallback] : [];
 }
 
 // Copy this adapter into a Koa route after enabling a JSON body parser.
