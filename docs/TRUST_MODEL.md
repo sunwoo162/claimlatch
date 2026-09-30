@@ -39,7 +39,7 @@ When a verifier identifies both supporting and contradicting evidence, ClaimLatc
 
 ## Network boundary
 
-The built-in provenance fetcher rejects non-HTTP(S) URLs, literal localhost, private-network, reserved, documentation, multicast, unspecified, and other non-routable IPv4/IPv6 targets, local hostnames, and IPv4-mapped IPv6. Before each document request it resolves the hostname, rejects the entire result if any address is non-public, and pins the selected public address for the connection. It also validates redirects, limits response size, and applies a timeout.
+The built-in provenance fetcher rejects non-HTTP(S) URLs, literal localhost including fully qualified forms, private-network, reserved, documentation, multicast, unspecified, and other non-routable IPv4/IPv6 targets, local hostnames, and IPv4-mapped IPv6. Before each document request it resolves the hostname, rejects the entire result if any address is non-public, and pins the selected public address for the connection. It also validates redirects, limits response size, and applies a timeout.
 
 Tavily search can be scoped to fixed official domains or to domains returned by a claim-aware resolver. The provider sends the policy to the search API and filters returned URLs again; resolver errors and empty results fail closed without an unrestricted search.
 

@@ -484,7 +484,7 @@ function withSearchSnippetProvenance(evidence: Evidence): Evidence {
 
 export function isSafePublicHttpUrl(url: URL): boolean {
   if (url.protocol !== "http:" && url.protocol !== "https:") return false;
-  const hostname = url.hostname.toLowerCase().replace(/^\[|\]$/g, "");
+  const hostname = url.hostname.toLowerCase().replace(/^\[|\]$/g, "").replace(/\.+$/u, "");
   if (!hostname || hostname === "localhost" || hostname.endsWith(".localhost") || hostname.endsWith(".local")) return false;
 
   if (hostname === "::1" || hostname === "0:0:0:0:0:0:0:1" || hostname.startsWith("::ffff:")) return false;
