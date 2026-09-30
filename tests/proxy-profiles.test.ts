@@ -32,6 +32,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
     "inferencenet",
     "ionos",
     "lamini",
+    "litellm",
     "hunyuan",
     "minimax",
     "mimo",
@@ -62,7 +63,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
   ]);
   assert.equal(
     formatProxyProviderProfileNames(),
-    "ai21, aimlapi, azure, baichuan, baseten, cerebras, cerebrium, chutes, clarifai, cloudflare, cohere, dashscope, deepinfra, deepseek, featherless, fireworks, friendli, gemini, groq, huggingface, hyperbolic, inferencenet, ionos, lamini, hunyuan, minimax, mimo, mistral, modal, moonshot, nebius, nscale, novita, nvidia, openai, openrouter, ovhcloud, perplexity, poe, qianfan, requesty, sambanova, scaleway, siliconflow, stepfun, together, tokenhub, upstage, volcengine, xai, or zai",
+    "ai21, aimlapi, azure, baichuan, baseten, cerebras, cerebrium, chutes, clarifai, cloudflare, cohere, dashscope, deepinfra, deepseek, featherless, fireworks, friendli, gemini, groq, huggingface, hyperbolic, inferencenet, ionos, lamini, litellm, hunyuan, minimax, mimo, mistral, modal, moonshot, nebius, nscale, novita, nvidia, openai, openrouter, ovhcloud, perplexity, poe, qianfan, requesty, sambanova, scaleway, siliconflow, stepfun, together, tokenhub, upstage, volcengine, xai, or zai",
   );
 });
 
@@ -245,6 +246,14 @@ test("proxy profiles provide Lamini-compatible Chat Completions and model-list d
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
     upstreamModelsPath: "/models",
+  });
+});
+
+test("proxy profiles provide LiteLLM-compatible Chat Completions and model-list defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("litellm"), {
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/v1/chat/completions",
+    upstreamModelsPath: "/v1/models",
   });
 });
 
@@ -503,7 +512,7 @@ test("proxy profiles provide SiliconFlow-compatible Chat Completions defaults", 
 
 test("every hosted proxy profile resolves a complete HTTPS Chat Completions contract", () => {
   for (const profile of PROXY_PROVIDER_PROFILE_NAMES) {
-    if (profile === "azure" || profile === "cerebrium" || profile === "cloudflare" || profile === "modal" || profile === "openrouter") continue;
+    if (profile === "azure" || profile === "cerebrium" || profile === "cloudflare" || profile === "litellm" || profile === "modal" || profile === "openrouter") continue;
     const resolved = resolveProxyProviderProfile(profile);
     assert.match(resolved.upstreamBaseUrl ?? "", /^https:\/\//);
     assert.equal(resolved.upstreamApiKeyHeader, "authorization");

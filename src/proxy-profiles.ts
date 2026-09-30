@@ -23,6 +23,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "inferencenet",
   "ionos",
   "lamini",
+  "litellm",
   "hunyuan",
   "minimax",
   "mimo",
@@ -206,6 +207,11 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
     upstreamModelsPath: "/models",
+  },
+  litellm: {
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/v1/chat/completions",
+    upstreamModelsPath: "/v1/models",
   },
   hunyuan: {
     upstreamBaseUrl: "https://api.hunyuan.cloud.tencent.com/v1",
