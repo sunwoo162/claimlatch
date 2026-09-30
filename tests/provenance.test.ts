@@ -235,6 +235,44 @@ test("DNS resolution rejects a public hostname that resolves to a private addres
   assert.equal(result[0]?.provenance?.kind, "search-snippet");
 });
 
+test("DNS lookup timeout fails closed instead of hanging document hydration", async () => {
+  let requestCalled = false;
+  const provider = new ProvenanceEvidenceProvider({
+    provider: new StaticEvidenceProvider(() => [
+      {
+        id: "e1",
+        claimId: "claim_1",
+        title: "Hanging DNS target",
+        url: "http://public.example.test/mars",
+        snippet: "fallback",
+        sourceType: "unknown",
+        retrievedAt: "2026-09-28T00:00:00.000Z",
+        provider: "fixture",
+      },
+    ]),
+    lookupImpl: async () => new Promise(() => undefined),
+    requestImpl: async () => {
+      requestCalled = true;
+      return new Response("should not be fetched", { status: 200, headers: { "content-type": "text/plain" } });
+    },
+    timeoutMs: 250,
+  });
+
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    const result = await Promise.race([
+      provider.search(claim),
+      new Promise<never>((_, reject) => {
+        timer = setTimeout(() => reject(new Error("DNS lookup did not honor the request timeout.")), 1_000);
+      }),
+    ]);
+    assert.equal(requestCalled, false);
+    assert.equal(result[0]?.provenance?.kind, "search-snippet");
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+});
+
 test("DNS resolution pins the selected public address for the document request", async () => {
   let lookupCalled = false;
   let requestedAddress: string | undefined;

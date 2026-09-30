@@ -208,7 +208,11 @@ async function fetchWithPinnedAddress(
   requestImpl: PinnedRequest,
   maxBytes: number,
 ): Promise<Response> {
-  const addresses = await lookupImpl(url.hostname.replace(/^\[|\]$/g, ""), { all: true, verbatim: true });
+  const addresses = await lookupWithAbort(
+    url.hostname.replace(/^\[|\]$/g, ""),
+    lookupImpl,
+    options.signal,
+  );
   if (addresses.length === 0 || addresses.some(({ address }) => !isSafePublicIp(address))) {
     throw new Error("Evidence hostname resolved to a non-public address.");
   }
@@ -220,6 +224,45 @@ async function fetchWithPinnedAddress(
     address: selected.address,
     family: selected.family,
     maxBytes,
+  });
+}
+
+async function lookupWithAbort(
+  hostname: string,
+  lookupImpl: DnsLookup,
+  signal: AbortSignal,
+): Promise<Array<{ address: string; family: 4 | 6 }>> {
+  if (signal.aborted) {
+    throw signal.reason instanceof Error ? signal.reason : new Error("Evidence DNS lookup was aborted.");
+  }
+
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    const cleanup = (): void => {
+      signal.removeEventListener("abort", onAbort);
+    };
+    const finish = (callback: () => void): void => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      callback();
+    };
+    const onAbort = (): void => {
+      finish(() => reject(signal.reason instanceof Error ? signal.reason : new Error("Evidence DNS lookup was aborted.")));
+    };
+
+    signal.addEventListener("abort", onAbort, { once: true });
+    if (signal.aborted) {
+      onAbort();
+      return;
+    }
+
+    Promise.resolve()
+      .then(() => lookupImpl(hostname, { all: true, verbatim: true }))
+      .then(
+        (addresses) => finish(() => resolve(addresses)),
+        (error: unknown) => finish(() => reject(error)),
+      );
   });
 }
 
