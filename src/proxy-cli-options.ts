@@ -3,6 +3,7 @@ import { formatProxyProviderProfileNames, resolveProxyProviderProfile } from "./
 export interface ProxyProviderConfiguration {
   upstreamBaseUrl: string;
   upstreamApiKeyHeader: string;
+  upstreamApiKeyPrefix?: string;
   upstreamChatCompletionsPath: string;
   upstreamModelsPath: string | null;
   upstreamRequestHeaders?: Record<string, string>;
@@ -72,6 +73,9 @@ export function resolveProxyProviderConfiguration(
   return {
     upstreamBaseUrl,
     upstreamApiKeyHeader: env.CLAIMLATCH_PROXY_UPSTREAM_API_KEY_HEADER ?? profile.upstreamApiKeyHeader,
+    ...(env.CLAIMLATCH_PROXY_UPSTREAM_API_KEY_PREFIX !== undefined || profile.upstreamApiKeyPrefix !== undefined
+      ? { upstreamApiKeyPrefix: env.CLAIMLATCH_PROXY_UPSTREAM_API_KEY_PREFIX ?? profile.upstreamApiKeyPrefix }
+      : {}),
     upstreamChatCompletionsPath:
       env.CLAIMLATCH_PROXY_UPSTREAM_CHAT_COMPLETIONS_PATH ?? profile.upstreamChatCompletionsPath,
     upstreamModelsPath: env.CLAIMLATCH_PROXY_UPSTREAM_MODELS_PATH !== undefined
@@ -102,6 +106,7 @@ export function renderProxyHelp(): string {
     "  CLAIMLATCH_LLM_API_KEY               Verification model credential",
     "  CLAIMLATCH_PROXY_HOST / _PORT        Bind host and port (127.0.0.1 / 4317)",
     "  CLAIMLATCH_PROXY_UPSTREAM_API_KEY_HEADER",
+    "  CLAIMLATCH_PROXY_UPSTREAM_API_KEY_PREFIX   Authentication scheme prefix (default Bearer for Authorization)",
     "  CLAIMLATCH_PROXY_UPSTREAM_CHAT_COMPLETIONS_PATH",
     "  CLAIMLATCH_PROXY_UPSTREAM_MODELS_PATH       Relative model-list path (default /models unless the provider profile supplies one)",
     "  CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS   Comma-separated name=value headers",

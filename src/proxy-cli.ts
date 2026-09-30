@@ -41,6 +41,9 @@ async function main(): Promise<void> {
       ? { upstreamApiKey: process.env.CLAIMLATCH_PROXY_UPSTREAM_API_KEY }
       : {}),
     upstreamApiKeyHeader: providerConfiguration.upstreamApiKeyHeader,
+    ...(providerConfiguration.upstreamApiKeyPrefix !== undefined
+      ? { upstreamApiKeyPrefix: providerConfiguration.upstreamApiKeyPrefix }
+      : {}),
     upstreamChatCompletionsPath: providerConfiguration.upstreamChatCompletionsPath,
     upstreamModelsPath: providerConfiguration.upstreamModelsPath,
     ...(providerConfiguration.upstreamRequestHeaders

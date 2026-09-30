@@ -21,6 +21,7 @@ test("proxy CLI help documents credentials, routes, and fail-closed behavior", (
   assert.match(help, /POST \/v1\/chat\/completions/);
   assert.match(help, /GET  \/v1\/models, \/models, \/v1\/models\/:id, \/models\/:id/);
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS/);
+  assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_API_KEY_PREFIX.*default Bearer/);
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_MODELS_PATH.*profile supplies one/);
   assert.match(help, /CLAIMLATCH_PROXY_PROVIDER_PROFILE/);
   assert.match(help, /ai21, aimlapi, azure, baichuan, cerebras, chutes, cloudflare, cohere, dashscope, deepinfra, deepseek, featherless, fireworks, friendli, gemini, groq, huggingface, hyperbolic, inferencenet, ionos, lamini, hunyuan, minimax, mimo, mistral, moonshot, nebius, novita, nvidia, openai, openrouter, ovhcloud, perplexity, poe, qianfan, requesty, sambanova, scaleway, siliconflow, stepfun, together, tokenhub, upstage, volcengine, xai, or zai/);
@@ -89,6 +90,19 @@ test("proxy CLI resolves provider profile defaults and explicit overrides", () =
       "x-tenant": "prod",
       "x-signature": "a=b",
     },
+  });
+});
+
+test("proxy CLI resolves an explicit upstream API key prefix", () => {
+  assert.deepEqual(resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "openai",
+    CLAIMLATCH_PROXY_UPSTREAM_API_KEY_PREFIX: "Api-Key",
+  }), {
+    upstreamBaseUrl: "https://api.openai.com/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamApiKeyPrefix: "Api-Key",
+    upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
   });
 });
 

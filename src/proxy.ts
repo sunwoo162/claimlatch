@@ -8,6 +8,7 @@ export interface OpenAIProxyOptions {
   upstreamBaseUrl: string;
   upstreamApiKey?: string;
   upstreamApiKeyHeader?: string;
+  upstreamApiKeyPrefix?: string;
   upstreamChatCompletionsPath?: string;
   upstreamModelsPath?: string | null;
   upstreamRequestHeaders?: Record<string, string>;
@@ -107,6 +108,9 @@ export function createOpenAIProxy(options: OpenAIProxyOptions): OpenAIProxyServe
   const maxBufferedChoiceBytes = clampInteger(options.maxBufferedChoiceBytes ?? 2_000_000, 1_024, 10_000_000);
   const upstreamTimeoutMs = normalizeTimeout(options.upstreamTimeoutMs ?? DEFAULT_UPSTREAM_TIMEOUT_MS);
   const upstreamApiKeyHeader = normalizeUpstreamApiKeyHeader(options.upstreamApiKeyHeader ?? "authorization");
+  const upstreamApiKeyPrefix = normalizeUpstreamApiKeyPrefix(
+    options.upstreamApiKeyPrefix ?? (upstreamApiKeyHeader === "authorization" ? "Bearer" : undefined),
+  );
   const upstreamChatCompletionsPath = normalizeUpstreamChatCompletionsPath(
     options.upstreamChatCompletionsPath ?? "/chat/completions",
   );
@@ -137,6 +141,7 @@ export function createOpenAIProxy(options: OpenAIProxyOptions): OpenAIProxyServe
         maxBufferedChoiceBytes,
         upstreamTimeoutMs,
         upstreamApiKeyHeader,
+        upstreamApiKeyPrefix,
         upstreamChatCompletionsPath,
         upstreamModelsPath,
         upstreamRequestHeaders,
@@ -185,6 +190,7 @@ async function handleRequest(input: {
   maxBufferedChoiceBytes: number;
   upstreamTimeoutMs: number;
   upstreamApiKeyHeader: string;
+  upstreamApiKeyPrefix: string | undefined;
   upstreamChatCompletionsPath: string;
   upstreamModelsPath: string | undefined;
   upstreamRequestHeaders: ReadonlyMap<string, string>;
@@ -274,6 +280,7 @@ async function handleRequest(input: {
         incomingAuthorization,
         input.options.upstreamApiKey,
         input.upstreamApiKeyHeader,
+        input.upstreamApiKeyPrefix,
         input.upstreamRequestHeaders,
       ),
       body: bodyText,
@@ -510,6 +517,7 @@ async function handleModelsRequest(input: {
   upstreamTimeoutMs: number;
   upstreamApiKey?: string;
   upstreamApiKeyHeader: string;
+  upstreamApiKeyPrefix: string | undefined;
   upstreamModelsPath: string;
   upstreamRequestHeaders: ReadonlyMap<string, string>;
   upstreamResponseHeaderNames: ReadonlySet<string>;
@@ -528,6 +536,7 @@ async function handleModelsRequest(input: {
         headerValue(request.headers.authorization),
         input.upstreamApiKey,
         input.upstreamApiKeyHeader,
+        input.upstreamApiKeyPrefix,
         input.upstreamRequestHeaders,
       ),
       signal: upstreamAbort.signal,
@@ -579,6 +588,7 @@ function upstreamRequestHeaders(
   incomingAuthorization: string | undefined,
   upstreamApiKey: string | undefined,
   upstreamApiKeyHeader: string,
+  upstreamApiKeyPrefix: string | undefined,
   configuredHeaders: ReadonlyMap<string, string>,
 ): Record<string, string> {
   const headers: Record<string, string> = { "content-type": "application/json" };
@@ -594,8 +604,8 @@ function upstreamRequestHeaders(
   }
 
   if (upstreamApiKey) {
-    headers[upstreamApiKeyHeader] = upstreamApiKeyHeader === "authorization"
-      ? `Bearer ${upstreamApiKey}`
+    headers[upstreamApiKeyHeader] = upstreamApiKeyPrefix
+      ? `${upstreamApiKeyPrefix} ${upstreamApiKey}`
       : upstreamApiKey;
   } else if (incomingAuthorization) {
     headers.authorization = incomingAuthorization;
@@ -1114,6 +1124,16 @@ function normalizeUpstreamApiKeyHeader(value: string): string {
     throw new Error("upstreamApiKeyHeader cannot target a restricted proxy header.");
   }
   return header;
+}
+
+function normalizeUpstreamApiKeyPrefix(value: string | undefined): string | undefined {
+  if (value === undefined) return undefined;
+  const prefix = value.trim();
+  if (!prefix) return undefined;
+  if (!/^[A-Za-z][A-Za-z0-9._-]*$/u.test(prefix)) {
+    throw new Error("upstreamApiKeyPrefix must be an HTTP authentication scheme token.");
+  }
+  return prefix;
 }
 
 function normalizeUpstreamChatCompletionsPath(value: string): string {
