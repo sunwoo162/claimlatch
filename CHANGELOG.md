@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Added a Xiaomi MiMo OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions coverage and fail-closed model-route handling.
+- Added a Xiaomi MiMo OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions and model-list coverage.
 - Added a Baichuan OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions coverage and fail-closed model-route handling.
 - Added an OVHcloud AI Endpoints OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions coverage and fail-closed model-route handling.
 - Added a Lamini OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions and model-list defaults and wire-contract coverage.

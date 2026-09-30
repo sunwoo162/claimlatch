@@ -186,7 +186,7 @@ For Upstage's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY
 
 For MiniMax's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="minimax"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.minimax.io/v1`, bearer authentication, and `/chat/completions`; see [MiniMax's model invocation guide](https://platform.minimax.io/docs/guides/text-generation).
 
-For Xiaomi MiMo's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="mimo"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.xiaomimimo.com/v1`, bearer authentication, and `/chat/completions`. Its model-list and model-retrieval routes return a local 404 unless `CLAIMLATCH_PROXY_UPSTREAM_MODELS_PATH` is explicitly configured; see [MiMo's official OpenAI-compatible usage guide](https://platform.xiaomimimo.com/docs/en-US/usage-guide/passing-back-reasoning_content).
+For Xiaomi MiMo's OpenAI-compatible API, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="mimo"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.xiaomimimo.com/v1`, bearer authentication, `/chat/completions`, and `/models`; see [MiMo's official OpenAI-compatible usage guide](https://platform.xiaomimimo.com/docs/en-US/usage-guide/passing-back-reasoning_content) and [model-list API documentation](https://mimo.mi.com/docs/en-US/api/model/list-models).
 
 For Mistral's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="mistral"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.mistral.ai/v1`, bearer authentication, and `/chat/completions`.
 

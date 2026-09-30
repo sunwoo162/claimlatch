@@ -260,7 +260,7 @@ test("proxy profiles provide Xiaomi MiMo-compatible Chat Completions defaults", 
     upstreamBaseUrl: "https://api.xiaomimimo.com/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
-    upstreamModelsPath: null,
+    upstreamModelsPath: "/models",
   });
 });
 

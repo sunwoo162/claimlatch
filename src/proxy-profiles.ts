@@ -191,7 +191,7 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamBaseUrl: "https://api.xiaomimimo.com/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
-    upstreamModelsPath: null,
+    upstreamModelsPath: "/models",
   },
   mistral: {
     upstreamBaseUrl: "https://api.mistral.ai/v1",
