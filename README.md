@@ -206,6 +206,8 @@ For SambaNova's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PRO
 
 For SiliconFlow's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="siliconflow"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.siliconflow.cn/v1`, bearer authentication, and `/chat/completions`; see [SiliconFlow's Chat Completions documentation](https://docs.siliconflow.cn/docs/api/chat-completions-post).
 
+For StepFun's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="stepfun"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.stepfun.ai/v1`, bearer authentication, and `/chat/completions`; use `CLAIMLATCH_PROXY_UPSTREAM_BASE_URL="https://api.stepfun.com/v1"` for the documented China platform endpoint. See [StepFun's official platform](https://platform.stepfun.ai/).
+
 For a custom provider profile, the same example can use a different credential header and relative completion path while retaining the proxy's restricted header policy:
 
 ```bash

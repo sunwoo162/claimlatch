@@ -23,7 +23,7 @@ test("proxy CLI help documents credentials, routes, and fail-closed behavior", (
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_REQUEST_HEADERS/);
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_MODELS_PATH.*profile supplies one/);
   assert.match(help, /CLAIMLATCH_PROXY_PROVIDER_PROFILE/);
-  assert.match(help, /azure, cerebras, cohere, dashscope, deepinfra, deepseek, fireworks, friendli, gemini, groq, huggingface, hunyuan, minimax, mistral, moonshot, nebius, nvidia, openai, openrouter, perplexity, qianfan, sambanova, siliconflow, together, tokenhub, volcengine, xai, or zai/);
+  assert.match(help, /azure, cerebras, cohere, dashscope, deepinfra, deepseek, fireworks, friendli, gemini, groq, huggingface, hunyuan, minimax, mistral, moonshot, nebius, nvidia, openai, openrouter, perplexity, qianfan, sambanova, siliconflow, stepfun, together, tokenhub, volcengine, xai, or zai/);
   assert.match(help, /PASS.*BLOCK/s);
   assert.match(help, /credential-free/);
 });
@@ -127,6 +127,7 @@ test("proxy CLI resolves every hosted built-in profile without an explicit base 
     qianfan: "https://qianfan.baidubce.com/v2",
     sambanova: "https://api.sambanova.ai/v1",
     siliconflow: "https://api.siliconflow.cn/v1",
+    stepfun: "https://api.stepfun.ai/v1",
     together: "https://api.together.xyz/v1",
     tokenhub: "https://tokenhub.tencentmaas.com/v1",
     volcengine: "https://ark.cn-beijing.volces.com/api/v3",
