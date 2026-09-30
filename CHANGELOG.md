@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added a Lamini OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions and model-list defaults and wire-contract coverage.
 - Added a Scaleway Generative APIs OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions and model-list defaults and wire-contract coverage.
 - Added an Inference.net OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions and model-list defaults and wire-contract coverage.
 - Added an AI/ML API OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions and model-list paths and wire-contract coverage.

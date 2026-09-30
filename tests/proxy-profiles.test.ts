@@ -26,6 +26,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
     "hyperbolic",
     "inferencenet",
     "ionos",
+    "lamini",
     "hunyuan",
     "minimax",
     "mistral",
@@ -52,7 +53,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
   ]);
   assert.equal(
     formatProxyProviderProfileNames(),
-    "ai21, aimlapi, azure, cerebras, chutes, cohere, dashscope, deepinfra, deepseek, featherless, fireworks, friendli, gemini, groq, huggingface, hyperbolic, inferencenet, ionos, hunyuan, minimax, mistral, moonshot, nebius, novita, nvidia, openai, openrouter, perplexity, poe, qianfan, requesty, sambanova, scaleway, siliconflow, stepfun, together, tokenhub, upstage, volcengine, xai, or zai",
+    "ai21, aimlapi, azure, cerebras, chutes, cohere, dashscope, deepinfra, deepseek, featherless, fireworks, friendli, gemini, groq, huggingface, hyperbolic, inferencenet, ionos, lamini, hunyuan, minimax, mistral, moonshot, nebius, novita, nvidia, openai, openrouter, perplexity, poe, qianfan, requesty, sambanova, scaleway, siliconflow, stepfun, together, tokenhub, upstage, volcengine, xai, or zai",
   );
 });
 
@@ -162,6 +163,15 @@ test("proxy profiles provide Inference.net-compatible Chat Completions and model
 test("proxy profiles provide Scaleway-compatible Chat Completions and model-list defaults", () => {
   assert.deepEqual(resolveProxyProviderProfile("scaleway"), {
     upstreamBaseUrl: "https://api.scaleway.ai/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
+  });
+});
+
+test("proxy profiles provide Lamini-compatible Chat Completions and model-list defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("lamini"), {
+    upstreamBaseUrl: "https://api.lamini.ai/inf",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
     upstreamModelsPath: "/models",
