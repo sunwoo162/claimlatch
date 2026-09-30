@@ -30,7 +30,7 @@
 - Signed receipt persistence, verification CLI, and key rotation support
 - Buffered multi-choice, streaming, structured-output, and multimodal proxy verification
 - Provider compatibility profiles for hosted OpenAI-compatible endpoints
-- Expanded 82-case independent benchmark with balanced train/dev/test splits
+- Expanded 84-case independent benchmark with balanced train/dev/test splits
 - Credential-free benchmark manifest validation in local scripts and CI
 - Next.js App Router Fetch-native route handler example with explicit Node.js runtime
 - Remix loader/action route module example using the Fetch-native guarded handler
