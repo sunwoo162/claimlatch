@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.79 - 2026-09-30
+
+- Added a Google Gemini OpenAI-compatible Chat Completions proxy provider profile with documented bearer authentication.
+
 ## 0.3.78 - 2026-09-30
 
 - Expanded the frozen independent benchmark to 78 balanced cases with an IETF RFC 9110-backed HTTP 201 Created pair.

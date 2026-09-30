@@ -558,6 +558,8 @@ PASS is not proof of universal truth. Claim extraction, search, source selection
 
 ## Project status
 
+`0.3.79` adds a Google Gemini OpenAI-compatible Chat Completions proxy provider profile with the documented bearer-authenticated endpoint.
+
 `0.3.78` expands the frozen independent benchmark to 78 balanced cases with an IETF RFC 9110-backed HTTP 201 Created pair.
 
 `0.3.77` expands the frozen independent benchmark to 76 balanced cases, adds production dependency auditing and npm caching to CI, and extends DNS/SSRF regression coverage.
