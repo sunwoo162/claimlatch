@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-No unreleased changes.
+- Added a release metadata consistency test covering package versions and current documentation headings.
 
 ## 0.3.85 - 2026-09-30
 
