@@ -4,6 +4,10 @@
 
 No unreleased changes.
 
+## 0.3.76 - 2026-09-30
+
+- Added a dependency-light Remix route module example using `loader` and `action` with the Fetch-native guarded handler.
+
 ## 0.3.75 - 2026-09-30
 
 - Updated the receipt storage example to print the canonical signed payload SHA-256 for audit logs.

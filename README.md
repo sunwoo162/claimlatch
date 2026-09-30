@@ -556,6 +556,8 @@ PASS is not proof of universal truth. Claim extraction, search, source selection
 
 ## Project status
 
+`0.3.76` adds a Remix route module example that maps `loader` and `action` to the Fetch-native guarded integration.
+
 `0.3.75` updates the receipt storage example to print the canonical signed payload SHA-256 and remain safe to import without running the demo.
 
 `0.3.74` explicitly selects the Node.js runtime required by the default gate in the Next.js example.
