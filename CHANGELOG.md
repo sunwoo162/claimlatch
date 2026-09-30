@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+No unreleased changes.
+
+## 0.3.67 - 2026-09-30
+
 - Rejects empty signed receipt `keyId` values during receipt creation as well as verification and storage.
 
 ## 0.3.66 - 2026-09-30
