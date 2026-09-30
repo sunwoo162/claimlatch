@@ -3,6 +3,7 @@ import {
   createGuardedAnswerFetchHandler,
   type GuardedAnswerFetchHandler,
 } from "../src/index.js";
+import { getResponseCookies } from "./response-cookies.js";
 
 export interface AwsLambdaHttpApiV2Event {
   version: "2.0";
@@ -101,15 +102,6 @@ export function createAwsLambdaHttpApiV2Handler(
       isBase64Encoded: true,
     };
   };
-}
-
-function getResponseCookies(headers: Headers): string[] {
-  const headersWithGetSetCookie = headers as Headers & { getSetCookie?: () => string[] };
-  const cookies = headersWithGetSetCookie.getSetCookie?.() ?? [];
-  if (cookies.length > 0) return cookies;
-
-  const fallback = headers.get("set-cookie");
-  return fallback ? [fallback] : [];
 }
 
 function decodeBase64(value: string): ArrayBuffer {
