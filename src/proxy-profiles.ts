@@ -10,6 +10,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "gemini",
   "groq",
   "huggingface",
+  "hunyuan",
   "minimax",
   "mistral",
   "moonshot",
@@ -103,6 +104,11 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
   },
   huggingface: {
     upstreamBaseUrl: "https://router.huggingface.co/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+  },
+  hunyuan: {
+    upstreamBaseUrl: "https://api.hunyuan.cloud.tencent.com/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
   },
