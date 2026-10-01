@@ -1831,35 +1831,50 @@ test("StepFun provider profile sends the OpenAI-compatible bearer contract", asy
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
-test("StepFun provider profile fails closed for undocumented model routes", async () => {
+test("StepFun provider profile forwards documented model-list and retrieval paths", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "stepfun",
   });
-  let upstreamCalled = false;
+  const capturedUrls: string[] = [];
+  let capturedHeaders: Headers | undefined;
 
   await withProxyOptions({
     gate: fixtureGate(),
     ...profile,
     upstreamApiKey: "stepfun-key",
-    fetchImpl: (async () => {
-      upstreamCalled = true;
-      return new Response("unexpected upstream request", { status: 500 });
+    fetchImpl: (async (input, init) => {
+      capturedUrls.push(String(input));
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify(capturedUrls.length === 1
+        ? { object: "list", data: [{ id: "step-5-preview", object: "model", owned_by: "stepai" }] }
+        : { id: "step-5-preview", object: "model", owned_by: "stepai" }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
     }) as typeof fetch,
   }, async (url) => {
-    for (const path of ["/v1/models", "/v1/models/step-3.7-flash"]) {
-      const response = await fetch(`${url}${path}`);
-      assert.equal(response.status, 404);
-      assert.deepEqual(await response.json(), {
-        error: {
-          type: "claimlatch_proxy_error",
-          code: "claimlatch_model_route_unavailable",
-          message: "The configured provider does not expose a model-list route.",
-        },
-      });
-    }
+    const modelsResponse = await fetch(`${url}/v1/models`);
+    assert.equal(modelsResponse.status, 200);
+    assert.deepEqual(await modelsResponse.json(), {
+      object: "list",
+      data: [{ id: "step-5-preview", object: "model", owned_by: "stepai" }],
+    });
+
+    const retrievalResponse = await fetch(`${url}/v1/models/step-5-preview`);
+    assert.equal(retrievalResponse.status, 200);
+    assert.deepEqual(await retrievalResponse.json(), {
+      id: "step-5-preview",
+      object: "model",
+      owned_by: "stepai",
+    });
   });
 
-  assert.equal(upstreamCalled, false);
+  assert.deepEqual(capturedUrls, [
+    "https://api.stepfun.ai/v1/models",
+    "https://api.stepfun.ai/v1/models/step-5-preview",
+  ]);
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer stepfun-key");
+  assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
 test("AI21 provider profile sends the OpenAI-compatible bearer contract", async () => {
