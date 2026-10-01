@@ -601,6 +601,8 @@ test("proxy profiles provide NVIDIA NIM-compatible Chat Completions defaults", (
     upstreamBaseUrl: "https://integrate.api.nvidia.com/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: null,
+    upstreamModelRetrievalPath: null,
   });
 });
 

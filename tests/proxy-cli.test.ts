@@ -181,13 +181,14 @@ test("proxy CLI resolves every hosted built-in profile without an explicit base 
       upstreamApiKeyHeader: "authorization",
       ...(profile === "clarifai" ? { upstreamApiKeyPrefix: "Key" } : {}),
       upstreamChatCompletionsPath,
-      upstreamModelsPath: profile === "baichuan" || profile === "clarifai" || profile === "cohere" || profile === "ovhcloud" ? null : "/models",
+      upstreamModelsPath: profile === "baichuan" || profile === "clarifai" || profile === "cohere" || profile === "nvidia" || profile === "ovhcloud" ? null : "/models",
       ...(profile === "mistral" ? { upstreamModelRetrievalPath: "/models" } : {}),
       ...(profile === "moonshot" ? { upstreamModelRetrievalPath: null } : {}),
       ...(profile === "cohere" ? { upstreamModelRetrievalPath: null } : {}),
       ...(profile === "deepseek" ? { upstreamModelRetrievalPath: null } : {}),
       ...(profile === "groq" ? { upstreamModelRetrievalPath: "/models" } : {}),
       ...(profile === "openai" ? { upstreamModelRetrievalPath: "/models" } : {}),
+      ...(profile === "nvidia" ? { upstreamModelRetrievalPath: null } : {}),
       ...(profile === "xai" ? { upstreamModelRetrievalPath: "/models" } : {}),
     });
   }
