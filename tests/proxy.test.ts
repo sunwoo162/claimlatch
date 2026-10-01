@@ -5498,6 +5498,73 @@ test("proxy rejects malformed upstream base URL configuration", () => {
   }), /query or fragment/);
 });
 
+test("proxy pins upstream requests to a validated public DNS address", async () => {
+  let lookupHostname: string | undefined;
+  let pinnedAddress: string | undefined;
+  let pinnedServername: string | undefined;
+  let acceptEncoding: string | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://upstream.example/v1",
+    lookupImpl: async (hostname) => {
+      lookupHostname = hostname;
+      return [
+        { address: "8.8.8.8", family: 4 },
+        { address: "1.1.1.1", family: 4 },
+      ];
+    },
+    requestImpl: async (url, options) => {
+      pinnedAddress = options.address;
+      pinnedServername = url.hostname;
+      acceptEncoding = options.headers["accept-encoding"];
+      return new Response(JSON.stringify({
+        id: "chatcmpl_pinned_proxy",
+        object: "chat.completion",
+        choices: [{ message: { role: "assistant", content: "Pinned upstream answer." } }],
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    },
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ model: "test-model", messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 200);
+  });
+
+  assert.equal(lookupHostname, "upstream.example");
+  assert.equal(pinnedAddress, "8.8.8.8");
+  assert.equal(pinnedServername, "upstream.example");
+  assert.equal(acceptEncoding, "identity");
+});
+
+test("proxy fails closed when upstream DNS resolves to a private address", async () => {
+  let requestCalled = false;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    upstreamBaseUrl: "https://upstream.example/v1",
+    lookupImpl: async () => [{ address: "127.0.0.1", family: 4 }],
+    requestImpl: async () => {
+      requestCalled = true;
+      return new Response("unexpected upstream request", { status: 500 });
+    },
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/models`);
+    assert.equal(response.status, 500);
+    assert.deepEqual(await response.json(), {
+      error: {
+        type: "claimlatch_proxy_error",
+        code: "claimlatch_proxy_error",
+        message: "Upstream hostname resolved to a non-public address.",
+      },
+    });
+  });
+
+  assert.equal(requestCalled, false);
+});
+
 test("proxy rejects restricted upstream API key header configuration", () => {
   assert.throws(() => createOpenAIProxy({
     gate: fixtureGate(),

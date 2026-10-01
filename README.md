@@ -89,7 +89,7 @@ claimlatch -q "..." -a "..." --json
 
 ## OpenAI-compatible reverse proxy
 
-`claimlatch-proxy` can sit in front of an OpenAI Chat Completions-compatible provider. It buffers the generated answer, verifies it, and releases the upstream completion only when it passes.
+`claimlatch-proxy` can sit in front of an OpenAI Chat Completions-compatible provider. It buffers the generated answer, verifies it, and releases the upstream completion only when it passes. By default, outbound upstream requests resolve DNS first, reject non-public results, and pin the connection to the selected public address.
 
 Run `claimlatch-proxy --help` for the required credentials, supported routes, provider compatibility settings, and fail-closed behavior without configuring credentials.
 
@@ -122,7 +122,7 @@ Behavior:
 - `GET /v1/models`, `GET /models`, `GET /v1/models/:id`, and `GET /models/:id` are forwarded as bounded model metadata requests without invoking the answer gate, so standard OpenAI-compatible clients can discover or retrieve available models. Model IDs are encoded as one path segment, and model responses are still subject to the configured upstream timeout and response-size limit.
 - `/health`: a lightweight local health endpoint.
 
-If no upstream API key is configured, the incoming `Authorization` header is forwarded to the upstream provider. The proxy binds to `127.0.0.1` by default.
+If no upstream API key is configured, the incoming `Authorization` header is forwarded to the upstream provider. The proxy binds to `127.0.0.1` by default. Custom `fetchImpl` or request transports bypass the built-in DNS/IP pinning and must provide equivalent protections.
 
 Do not set the ClaimLatch proxy itself as `CLAIMLATCH_LLM_BASE_URL`. The verifier must use an endpoint that does not recursively pass through the gate.
 

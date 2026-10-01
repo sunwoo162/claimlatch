@@ -2,6 +2,7 @@ import { createServer, type IncomingMessage, type Server, type ServerResponse } 
 import type { ClaimLatch } from "./gate.js";
 import { calculateCoverage } from "./policy.js";
 import type { GatePolicy, VerificationCounts, VerificationReport } from "./types.js";
+import { createPinnedProxyFetch, type ProxyDnsLookup, type ProxyPinnedRequest } from "./proxy-network.js";
 
 export interface OpenAIProxyOptions {
   gate: ClaimLatch;
@@ -19,6 +20,8 @@ export interface OpenAIProxyOptions {
   policy?: Partial<GatePolicy>;
   structuredOutputVerifier?: OpenAIProxyStructuredOutputVerifier;
   fetchImpl?: typeof fetch;
+  lookupImpl?: ProxyDnsLookup;
+  requestImpl?: ProxyPinnedRequest;
   maxRequestBytes?: number;
   maxBufferedResponseBytes?: number;
   maxBufferedChoices?: number;
@@ -103,7 +106,7 @@ const DEFAULT_UPSTREAM_TIMEOUT_MS = 120_000;
 
 export function createOpenAIProxy(options: OpenAIProxyOptions): OpenAIProxyServer {
   const baseUrl = normalizeUpstreamBaseUrl(options.upstreamBaseUrl);
-  const fetchImpl = options.fetchImpl ?? fetch;
+  const fetchImpl = options.fetchImpl ?? createPinnedProxyFetch(options.lookupImpl, options.requestImpl);
   const maxRequestBytes = clampInteger(options.maxRequestBytes ?? 2_000_000, 1_024, 10_000_000);
   const maxBufferedResponseBytes = clampInteger(options.maxBufferedResponseBytes ?? 10_000_000, 1_024, 50_000_000);
   const maxBufferedChoices = clampInteger(options.maxBufferedChoices ?? 16, 1, 128);
@@ -630,6 +633,10 @@ function upstreamRequestHeaders(
   for (const [name, value] of configuredHeaders) {
     headers[name] = value;
   }
+
+  // The built-in pinned transport intentionally does not decompress response bodies.
+  // Keep upstream JSON/SSE responses readable and bounded by disabling content encoding.
+  headers["accept-encoding"] = "identity";
 
   if (upstreamApiKey) {
     headers[upstreamApiKeyHeader] = upstreamApiKeyPrefix
