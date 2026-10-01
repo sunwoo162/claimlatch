@@ -657,6 +657,8 @@ test("proxy profiles provide xAI-compatible Chat Completions defaults", () => {
     upstreamBaseUrl: "https://api.x.ai/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
+    upstreamModelRetrievalPath: "/models",
   });
 });
 
