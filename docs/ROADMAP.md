@@ -91,6 +91,7 @@
 - IONOS Cloud AI Model Hub OpenAI-compatible proxy provider profile with Chat Completions and model-list contract coverage
 - Hyperbolic OpenAI-compatible proxy provider profile with Chat Completions and fail-closed retired model-route coverage
 - Nscale model-list coverage with fail-closed individual model retrieval
+- Novita AI OpenAI-compatible proxy provider profile with Chat Completions, model-list, and model-retrieval contract coverage
 - AI/ML API OpenAI-compatible proxy provider profile with Chat Completions and model-list contract coverage
 - Inference.net OpenAI-compatible proxy provider profile with Chat Completions and model-list contract coverage
 - Scaleway Generative APIs OpenAI-compatible proxy provider profile with Chat Completions and model-list contract coverage

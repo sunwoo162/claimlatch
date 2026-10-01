@@ -203,6 +203,7 @@ test("proxy CLI resolves every hosted built-in profile without an explicit base 
       ...(profile === "volcengine" ? { upstreamModelRetrievalPath: null } : {}),
       ...(profile === "stepfun" ? { upstreamModelRetrievalPath: "/models" } : {}),
       ...(profile === "minimax" ? { upstreamModelRetrievalPath: "/models" } : {}),
+      ...(profile === "novita" ? { upstreamModelRetrievalPath: "/models" } : {}),
       ...(profile === "huggingface" ? { upstreamModelIdEncoding: "path" } : {}),
     });
   }
