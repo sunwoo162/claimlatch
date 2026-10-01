@@ -59,6 +59,7 @@
 - Cohere compatibility profile with fail-closed model-route handling
 - NVIDIA hosted provider profile with documented model-list and fail-closed retrieval coverage
 - Fireworks provider profile with fail-closed model-route handling for its inference endpoint
+- FriendliAI serverless provider profile with documented model-list and fail-closed retrieval coverage
 - Koa route adapter example without a core framework dependency
 - Baidu Qianfan v2 OpenAI-compatible proxy provider profile with model-list contract coverage
 - Alibaba Cloud DashScope OpenAI-compatible proxy provider profile with model-list contract coverage

@@ -2459,6 +2459,54 @@ test("Fireworks provider profile fails closed for management-only model routes",
   assert.equal(upstreamCalled, false);
 });
 
+test("FriendliAI provider profile forwards its documented model list and blocks undocumented retrieval", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "friendli",
+  });
+  const capturedUrls: string[] = [];
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "friendli-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrls.push(String(input));
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({
+        object: "list",
+        data: [{ id: "zai-org/GLM-5.3", object: "model", owned_by: "friendli" }],
+      }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch,
+  }, async (url) => {
+    const modelsResponse = await fetch(`${url}/v1/models?limit=1`);
+    assert.equal(modelsResponse.status, 200);
+    assert.deepEqual(await modelsResponse.json(), {
+      object: "list",
+      data: [{ id: "zai-org/GLM-5.3", object: "model", owned_by: "friendli" }],
+    });
+
+    const retrievalResponse = await fetch(`${url}/v1/models/zai-org%2FGLM-5.3`);
+    assert.equal(retrievalResponse.status, 404);
+    assert.deepEqual(await retrievalResponse.json(), {
+      error: {
+        type: "claimlatch_proxy_error",
+        code: "claimlatch_model_retrieval_route_unavailable",
+        message: "The configured provider does not expose a model-retrieval route.",
+      },
+    });
+  });
+
+  assert.deepEqual(capturedUrls, [
+    "https://api.friendli.ai/serverless/v1/models?limit=1",
+  ]);
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer friendli-key");
+  assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
 test("Baseten provider profile sends the OpenAI-compatible bearer contract", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "baseten",
