@@ -8,7 +8,7 @@ import type { ClaimExtractor, ClaimVerifier, EvidenceProvider } from "../src/typ
 import type { OpenAIProxyOptions } from "../src/proxy.js";
 import type { ProxyProviderProfileName } from "../src/proxy-profiles.js";
 
-const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "aphrodite" | "azure" | "cerebrium" | "cloudflare" | "fastchat" | "jan" | "koboldcpp" | "litellm" | "llamacpp" | "lmstudio" | "localai" | "mlx" | "modal" | "ollama" | "openllm" | "openrouter" | "sglang" | "tgi" | "tensorrtllm" | "vllm">, string> = {
+const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "aphrodite" | "azure" | "cerebrium" | "cloudflare" | "fastchat" | "jan" | "koboldcpp" | "litellm" | "llamacpp" | "lmdeploy" | "lmstudio" | "localai" | "mlx" | "modal" | "ollama" | "openllm" | "openrouter" | "sglang" | "tgi" | "tensorrtllm" | "vllm">, string> = {
   ai21: "https://api.ai21.com/studio/v1",
   aimlapi: "https://api.aimlapi.com",
   baichuan: "https://api.baichuan-ai.com/v1",
@@ -3659,6 +3659,105 @@ test("KoboldCpp provider profile fails closed for undocumented model retrieval r
   assert.equal(upstreamCalled, false);
 });
 
+test("LMDeploy provider profile sends its versioned Chat Completions contract", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "lmdeploy",
+    CLAIMLATCH_PROXY_UPSTREAM_BASE_URL: "http://localhost:23333",
+  });
+  let capturedUrl: string | undefined;
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "lmdeploy-local",
+    fetchImpl: (async (input, init) => {
+      capturedUrl = String(input);
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({
+        id: "chatcmpl_lmdeploy_profile",
+        object: "chat.completion",
+        choices: [{ message: { role: "assistant", content: "LMDeploy-compatible answer." } }],
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ model: "lmdeploy-model", messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 200);
+  });
+
+  assert.equal(capturedUrl, "http://localhost:23333/v1/chat/completions");
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer lmdeploy-local");
+  assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
+test("LMDeploy provider profile sends its versioned model-list path and bearer header", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "lmdeploy",
+    CLAIMLATCH_PROXY_UPSTREAM_BASE_URL: "http://localhost:23333",
+  });
+  let capturedUrl: string | undefined;
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "lmdeploy-local",
+    fetchImpl: (async (input, init) => {
+      capturedUrl = String(input);
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({ object: "list", data: [{ id: "lmdeploy-model", object: "model" }] }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/models?limit=1`);
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), {
+      object: "list",
+      data: [{ id: "lmdeploy-model", object: "model" }],
+    });
+  });
+
+  assert.equal(capturedUrl, "http://localhost:23333/v1/models?limit=1");
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer lmdeploy-local");
+  assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
+test("LMDeploy provider profile fails closed for undocumented model retrieval routes", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "lmdeploy",
+    CLAIMLATCH_PROXY_UPSTREAM_BASE_URL: "http://localhost:23333",
+  });
+  let upstreamCalled = false;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "lmdeploy-local",
+    fetchImpl: (async () => {
+      upstreamCalled = true;
+      return new Response("unexpected upstream request", { status: 500 });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/models/lmdeploy-model`);
+    assert.equal(response.status, 404);
+    assert.deepEqual(await response.json(), {
+      error: {
+        type: "claimlatch_proxy_error",
+        code: "claimlatch_model_retrieval_route_unavailable",
+        message: "The configured provider does not expose a model-retrieval route.",
+      },
+    });
+  });
+
+  assert.equal(upstreamCalled, false);
+});
+
 test("Cloudflare Workers AI provider profile sends the account-scoped bearer contract", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "cloudflare",
@@ -3826,7 +3925,7 @@ test("OVHcloud provider profile fails closed for unsupported model routes", asyn
 
 test("hosted provider profiles preserve their resolver contracts through the proxy", async () => {
   const expectedHostedProfiles = PROXY_PROVIDER_PROFILE_NAMES.filter(
-    (profileName) => profileName !== "aphrodite" && profileName !== "azure" && profileName !== "cerebrium" && profileName !== "cloudflare" && profileName !== "fastchat" && profileName !== "jan" && profileName !== "koboldcpp" && profileName !== "litellm" && profileName !== "llamacpp" && profileName !== "lmstudio" && profileName !== "localai" && profileName !== "mlx" && profileName !== "modal" && profileName !== "ollama" && profileName !== "openllm" && profileName !== "openrouter" && profileName !== "sglang" && profileName !== "tgi" && profileName !== "tensorrtllm" && profileName !== "vllm",
+    (profileName) => profileName !== "aphrodite" && profileName !== "azure" && profileName !== "cerebrium" && profileName !== "cloudflare" && profileName !== "fastchat" && profileName !== "jan" && profileName !== "koboldcpp" && profileName !== "litellm" && profileName !== "llamacpp" && profileName !== "lmdeploy" && profileName !== "lmstudio" && profileName !== "localai" && profileName !== "mlx" && profileName !== "modal" && profileName !== "ollama" && profileName !== "openllm" && profileName !== "openrouter" && profileName !== "sglang" && profileName !== "tgi" && profileName !== "tensorrtllm" && profileName !== "vllm",
   );
   assert.deepEqual(Object.keys(HOSTED_PROFILE_BASE_URLS).sort(), [...expectedHostedProfiles].sort());
 

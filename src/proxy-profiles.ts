@@ -29,6 +29,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "lamini",
   "litellm",
   "llamacpp",
+  "lmdeploy",
   "lmstudio",
   "localai",
   "mlx",
@@ -255,6 +256,12 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/v1/chat/completions",
     upstreamModelsPath: "/v1/models",
+  },
+  lmdeploy: {
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/v1/chat/completions",
+    upstreamModelsPath: "/v1/models",
+    upstreamModelRetrievalPath: null,
   },
   lmstudio: {
     upstreamApiKeyHeader: "authorization",

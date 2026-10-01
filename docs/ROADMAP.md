@@ -90,6 +90,7 @@
 - TensorRT-LLM `trtllm-serve` self-hosted OpenAI-compatible proxy provider profile with explicit base URL configuration, versioned Chat Completions/model-list contract coverage, and fail-closed handling for its undocumented model-retrieval route
 - Aphrodite Engine self-hosted OpenAI-compatible proxy provider profile with explicit base URL configuration, versioned Chat Completions/model-list contract coverage, and fail-closed handling for its undocumented model-retrieval route
 - KoboldCpp self-hosted OpenAI-compatible proxy provider profile with explicit base URL configuration, versioned Chat Completions/model-list contract coverage, and fail-closed handling for its undocumented model-retrieval route
+- LMDeploy self-hosted OpenAI-compatible proxy provider profile with explicit base URL configuration, versioned Chat Completions/model-list contract coverage, and fail-closed handling for its undocumented model-retrieval route
 - MLX-LM OpenAI-compatible proxy provider profile with explicit base URL configuration and versioned Chat Completions/model-list contract coverage
 - OpenLLM self-hosted OpenAI-compatible proxy provider profile with explicit base URL configuration, versioned Chat Completions/model-list contract coverage, and fail-closed handling for its undocumented model-retrieval route
 - FastChat self-hosted OpenAI-compatible proxy provider profile with explicit base URL configuration and versioned Chat Completions/model-list contract coverage
