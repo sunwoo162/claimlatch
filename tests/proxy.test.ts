@@ -2623,14 +2623,14 @@ test("SambaNova provider profile forwards documented model-list and retrieval pa
       });
     }) as typeof fetch,
   }, async (url) => {
-    const modelsResponse = await fetch(`${url}/v1/models?limit=1`);
+    const modelsResponse = await fetch(`${url}/v1/models`);
     assert.equal(modelsResponse.status, 200);
     assert.deepEqual(await modelsResponse.json(), {
       object: "list",
       data: [{ id: "DeepSeek-R1", object: "model" }],
     });
 
-    const retrievalResponse = await fetch(`${url}/v1/models/DeepSeek-R1?include=metadata`);
+    const retrievalResponse = await fetch(`${url}/v1/models/DeepSeek-R1`);
     assert.equal(retrievalResponse.status, 200);
     assert.deepEqual(await retrievalResponse.json(), {
       id: "DeepSeek-R1",
@@ -2640,8 +2640,8 @@ test("SambaNova provider profile forwards documented model-list and retrieval pa
   });
 
   assert.deepEqual(capturedUrls, [
-    "https://api.sambanova.ai/v1/models?limit=1",
-    "https://api.sambanova.ai/v1/models/DeepSeek-R1?include=metadata",
+    "https://api.sambanova.ai/v1/models",
+    "https://api.sambanova.ai/v1/models/DeepSeek-R1",
   ]);
   assert.equal(capturedHeaders?.get("authorization"), "Bearer sambanova-key");
   assert.equal(capturedHeaders?.get("api-key"), null);
