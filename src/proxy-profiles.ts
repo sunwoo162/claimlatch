@@ -507,6 +507,8 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamBaseUrl: "https://ark.cn-beijing.volces.com/api/v3",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: null,
+    upstreamModelRetrievalPath: null,
   },
   xinference: {
     upstreamApiKeyHeader: "authorization",
