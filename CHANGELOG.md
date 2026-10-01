@@ -22,6 +22,7 @@
 - Added StepFun's documented `/models` and `/models/{model}` routes with bearer-authenticated wire-contract coverage.
 - Hardened the Tencent Hunyuan provider profile with fail-closed handling for undocumented model-list and per-model retrieval routes.
 - Deprecated the retired Tencent Hunyuan provider profile and directed new deployments to the TokenHub profile.
+- Hardened the Tencent Cloud TokenHub profile with fail-closed handling for its undocumented per-model retrieval route.
 - Hardened the AI21 provider profile with fail-closed handling for undocumented model-list and per-model retrieval routes.
 - Added documented Gemini OpenAI-compatibility model-list and per-model retrieval routes.
 - Added documented Hugging Face Inference Providers model-list and per-model retrieval routes, including encoded repository-style model IDs.

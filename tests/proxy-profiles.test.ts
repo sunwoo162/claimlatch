@@ -563,6 +563,7 @@ test("proxy profiles provide Tencent TokenHub-compatible Chat Completions defaul
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
     upstreamModelsPath: "/models",
+    upstreamModelRetrievalPath: null,
   });
 });
 

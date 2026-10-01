@@ -75,7 +75,7 @@
 - Nebius Token Factory OpenAI-compatible proxy provider profile with documented model-list coverage and fail-closed model retrieval
 - SiliconFlow OpenAI-compatible proxy provider profile with documented model-list coverage and fail-closed model retrieval
 - Retired Tencent Hunyuan provider profile documented as legacy-only with migration guidance to TokenHub
-- Tencent Cloud TokenHub OpenAI-compatible proxy provider profile with model-list contract coverage
+- Tencent Cloud TokenHub OpenAI-compatible proxy provider profile with model-list and fail-closed retrieval coverage
 - StepFun OpenAI-compatible proxy provider profile with Chat Completions, model-list, and model-retrieval contract coverage
 - AI21 OpenAI-compatible proxy provider profile with Chat Completions contract coverage
 - Novita AI OpenAI-compatible proxy provider profile with Chat Completions and model-list contract coverage
