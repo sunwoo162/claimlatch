@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Hardened the Upstage provider profile with fail-closed handling for undocumented model-list and per-model retrieval routes.
+- Hardened the StepFun provider profile with fail-closed handling for undocumented model-list and per-model retrieval routes.
 - Hardened the Tencent Hunyuan provider profile with fail-closed handling for undocumented model-list and per-model retrieval routes.
 - Deprecated the retired Tencent Hunyuan provider profile and directed new deployments to the TokenHub profile.
 - Hardened the AI21 provider profile with fail-closed handling for undocumented model-list and per-model retrieval routes.
