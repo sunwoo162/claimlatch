@@ -39,6 +39,10 @@
       "types": "./dist/examples/aws-lambda-http-api-handler.d.ts",
       "import": "./dist/examples/aws-lambda-http-api-handler.js"
     },
+    "./examples/bun-server.js": {
+      "types": "./dist/examples/bun-server.d.ts",
+      "import": "./dist/examples/bun-server.js"
+    },
     "./examples/deno-server.js": {
       "types": "./dist/examples/deno-server.d.ts",
       "import": "./dist/examples/deno-server.js"
