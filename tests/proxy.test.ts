@@ -1748,7 +1748,7 @@ test("IONOS provider profile forwards model listing and fails closed for retriev
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
-test("Inference.net provider profile sends its model-list path and bearer header", async () => {
+test("Inference.net provider profile forwards model listing and fails closed for retrieval", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "inferencenet",
   });
@@ -1773,6 +1773,16 @@ test("Inference.net provider profile sends its model-list path and bearer header
     assert.deepEqual(await response.json(), {
       object: "list",
       data: [{ id: "glm-5.2", object: "model" }],
+    });
+
+    const retrievalResponse = await fetch(`${url}/v1/models/glm-5.2`);
+    assert.equal(retrievalResponse.status, 404);
+    assert.deepEqual(await retrievalResponse.json(), {
+      error: {
+        type: "claimlatch_proxy_error",
+        code: "claimlatch_model_retrieval_route_unavailable",
+        message: "The configured provider does not expose a model-retrieval route.",
+      },
     });
   });
 
