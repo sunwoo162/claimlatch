@@ -25,7 +25,7 @@ test("proxy CLI help documents credentials, routes, and fail-closed behavior", (
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_MODELS_PATH.*profile supplies one/);
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_MODEL_RETRIEVAL_PATH.*profile supplies one/);
   assert.match(help, /CLAIMLATCH_PROXY_PROVIDER_PROFILE/);
-  assert.match(help, /ai21, aimlapi, aphrodite, azure, baichuan, baseten, cerebras, cerebrium, chutes, clarifai, cloudflare, cohere, dashscope, deepinfra, deepseek, featherless, fastchat, fireworks, friendli, gemini, groq, huggingface, hyperbolic, inferencenet, ionos, jan, koboldcpp, lamini, litellm, llamacpp, lmdeploy, lmstudio, localai, mlx, hunyuan, minimax, mimo, mistral, modal, moonshot, nebius, nscale, novita, nvidia, ollama, openllm, openai, openrouter, ovhcloud, perplexity, poe, qianfan, requesty, sambanova, scaleway, sglang, siliconflow, stepfun, textgen, tgi, tensorrtllm, together, tokenhub, upstage, vllm, volcengine, xinference, xai, or zai/);
+  assert.match(help, /ai21, aimlapi, aphrodite, azure, baichuan, baseten, cerebras, cerebrium, chutes, clarifai, cloudflare, cohere, dashscope, deepinfra, deepseek, featherless, fastchat, fireworks, friendli, gemini, groq, huggingface, hyperbolic, inferencenet, ionos, jan, koboldcpp, lamini, litellm, llamacpp, lmdeploy, lmstudio, localai, mlc, mlx, hunyuan, minimax, mimo, mistral, modal, moonshot, nebius, nscale, novita, nvidia, ollama, openllm, openai, openrouter, ovhcloud, perplexity, poe, qianfan, requesty, sambanova, scaleway, sglang, siliconflow, stepfun, textgen, tgi, tensorrtllm, together, tokenhub, upstage, vllm, volcengine, xinference, xai, or zai/);
   assert.match(help, /PASS.*BLOCK/s);
   assert.match(help, /credential-free/);
 });
@@ -514,6 +514,25 @@ test("proxy CLI requires an explicit base URL for text-generation-webui", () => 
     upstreamChatCompletionsPath: "/v1/chat/completions",
     upstreamModelsPath: "/v1/models",
     upstreamModelRetrievalPath: "/v1/models",
+  });
+});
+
+test("proxy CLI requires an explicit base URL for MLC LLM", () => {
+  assert.throws(
+    () => resolveProxyProviderConfiguration({
+      CLAIMLATCH_PROXY_PROVIDER_PROFILE: "mlc",
+    }),
+    /Set CLAIMLATCH_PROXY_UPSTREAM_BASE_URL/,
+  );
+  assert.deepEqual(resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "mlc",
+    CLAIMLATCH_PROXY_UPSTREAM_BASE_URL: "http://localhost:8000",
+  }), {
+    upstreamBaseUrl: "http://localhost:8000",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/v1/chat/completions",
+    upstreamModelsPath: "/v1/models",
+    upstreamModelRetrievalPath: null,
   });
 });
 
