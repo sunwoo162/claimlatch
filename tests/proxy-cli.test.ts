@@ -25,7 +25,7 @@ test("proxy CLI help documents credentials, routes, and fail-closed behavior", (
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_MODELS_PATH.*profile supplies one/);
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_MODEL_RETRIEVAL_PATH.*profile supplies one/);
   assert.match(help, /CLAIMLATCH_PROXY_PROVIDER_PROFILE/);
-  assert.match(help, /ai21, aimlapi, aphrodite, azure, baichuan, baseten, cerebras, cerebrium, chutes, clarifai, cloudflare, cohere, dashscope, deepinfra, deepseek, featherless, fastchat, fireworks, friendli, gemini, groq, huggingface, hyperbolic, inferencenet, ionos, jan, koboldcpp, lamini, litellm, llamacpp, lmdeploy, lmstudio, localai, mlx, hunyuan, minimax, mimo, mistral, modal, moonshot, nebius, nscale, novita, nvidia, ollama, openllm, openai, openrouter, ovhcloud, perplexity, poe, qianfan, requesty, sambanova, scaleway, sglang, siliconflow, stepfun, tgi, tensorrtllm, together, tokenhub, upstage, vllm, volcengine, xinference, xai, or zai/);
+  assert.match(help, /ai21, aimlapi, aphrodite, azure, baichuan, baseten, cerebras, cerebrium, chutes, clarifai, cloudflare, cohere, dashscope, deepinfra, deepseek, featherless, fastchat, fireworks, friendli, gemini, groq, huggingface, hyperbolic, inferencenet, ionos, jan, koboldcpp, lamini, litellm, llamacpp, lmdeploy, lmstudio, localai, mlx, hunyuan, minimax, mimo, mistral, modal, moonshot, nebius, nscale, novita, nvidia, ollama, openllm, openai, openrouter, ovhcloud, perplexity, poe, qianfan, requesty, sambanova, scaleway, sglang, siliconflow, stepfun, textgen, tgi, tensorrtllm, together, tokenhub, upstage, vllm, volcengine, xinference, xai, or zai/);
   assert.match(help, /PASS.*BLOCK/s);
   assert.match(help, /credential-free/);
 });
@@ -491,6 +491,25 @@ test("proxy CLI requires an explicit base URL for Xinference", () => {
     CLAIMLATCH_PROXY_UPSTREAM_BASE_URL: "http://localhost:9997",
   }), {
     upstreamBaseUrl: "http://localhost:9997",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/v1/chat/completions",
+    upstreamModelsPath: "/v1/models",
+    upstreamModelRetrievalPath: "/v1/models",
+  });
+});
+
+test("proxy CLI requires an explicit base URL for text-generation-webui", () => {
+  assert.throws(
+    () => resolveProxyProviderConfiguration({
+      CLAIMLATCH_PROXY_PROVIDER_PROFILE: "textgen",
+    }),
+    /Set CLAIMLATCH_PROXY_UPSTREAM_BASE_URL/,
+  );
+  assert.deepEqual(resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "textgen",
+    CLAIMLATCH_PROXY_UPSTREAM_BASE_URL: "http://localhost:5000",
+  }), {
+    upstreamBaseUrl: "http://localhost:5000",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/v1/chat/completions",
     upstreamModelsPath: "/v1/models",

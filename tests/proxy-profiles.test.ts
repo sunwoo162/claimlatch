@@ -66,6 +66,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
     "sglang",
     "siliconflow",
     "stepfun",
+    "textgen",
     "tgi",
     "tensorrtllm",
     "together",
@@ -79,7 +80,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
   ]);
   assert.equal(
     formatProxyProviderProfileNames(),
-    "ai21, aimlapi, aphrodite, azure, baichuan, baseten, cerebras, cerebrium, chutes, clarifai, cloudflare, cohere, dashscope, deepinfra, deepseek, featherless, fastchat, fireworks, friendli, gemini, groq, huggingface, hyperbolic, inferencenet, ionos, jan, koboldcpp, lamini, litellm, llamacpp, lmdeploy, lmstudio, localai, mlx, hunyuan, minimax, mimo, mistral, modal, moonshot, nebius, nscale, novita, nvidia, ollama, openllm, openai, openrouter, ovhcloud, perplexity, poe, qianfan, requesty, sambanova, scaleway, sglang, siliconflow, stepfun, tgi, tensorrtllm, together, tokenhub, upstage, vllm, volcengine, xinference, xai, or zai",
+    "ai21, aimlapi, aphrodite, azure, baichuan, baseten, cerebras, cerebrium, chutes, clarifai, cloudflare, cohere, dashscope, deepinfra, deepseek, featherless, fastchat, fireworks, friendli, gemini, groq, huggingface, hyperbolic, inferencenet, ionos, jan, koboldcpp, lamini, litellm, llamacpp, lmdeploy, lmstudio, localai, mlx, hunyuan, minimax, mimo, mistral, modal, moonshot, nebius, nscale, novita, nvidia, ollama, openllm, openai, openrouter, ovhcloud, perplexity, poe, qianfan, requesty, sambanova, scaleway, sglang, siliconflow, stepfun, textgen, tgi, tensorrtllm, together, tokenhub, upstage, vllm, volcengine, xinference, xai, or zai",
   );
 });
 
@@ -318,6 +319,15 @@ test("proxy profiles provide LMDeploy-compatible Chat Completions and model-list
 
 test("proxy profiles provide Xinference-compatible Chat Completions and model-list defaults", () => {
   assert.deepEqual(resolveProxyProviderProfile("xinference"), {
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/v1/chat/completions",
+    upstreamModelsPath: "/v1/models",
+    upstreamModelRetrievalPath: "/v1/models",
+  });
+});
+
+test("proxy profiles provide text-generation-webui-compatible Chat Completions and model routes", () => {
+  assert.deepEqual(resolveProxyProviderProfile("textgen"), {
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/v1/chat/completions",
     upstreamModelsPath: "/v1/models",
@@ -663,7 +673,7 @@ test("proxy profiles provide SiliconFlow-compatible Chat Completions defaults", 
 
 test("every hosted proxy profile resolves a complete HTTPS Chat Completions contract", () => {
   for (const profile of PROXY_PROVIDER_PROFILE_NAMES) {
-    if (profile === "aphrodite" || profile === "azure" || profile === "cerebrium" || profile === "cloudflare" || profile === "fastchat" || profile === "jan" || profile === "koboldcpp" || profile === "litellm" || profile === "llamacpp" || profile === "lmdeploy" || profile === "lmstudio" || profile === "localai" || profile === "mlx" || profile === "modal" || profile === "ollama" || profile === "openllm" || profile === "openrouter" || profile === "sglang" || profile === "tgi" || profile === "tensorrtllm" || profile === "vllm" || profile === "xinference") continue;
+    if (profile === "aphrodite" || profile === "azure" || profile === "cerebrium" || profile === "cloudflare" || profile === "fastchat" || profile === "jan" || profile === "koboldcpp" || profile === "litellm" || profile === "llamacpp" || profile === "lmdeploy" || profile === "lmstudio" || profile === "localai" || profile === "mlx" || profile === "modal" || profile === "ollama" || profile === "openllm" || profile === "openrouter" || profile === "sglang" || profile === "tgi" || profile === "tensorrtllm" || profile === "textgen" || profile === "vllm" || profile === "xinference") continue;
     const resolved = resolveProxyProviderProfile(profile);
     assert.match(resolved.upstreamBaseUrl ?? "", /^https:\/\//);
     assert.equal(resolved.upstreamApiKeyHeader, "authorization");

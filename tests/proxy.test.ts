@@ -8,7 +8,7 @@ import type { ClaimExtractor, ClaimVerifier, EvidenceProvider } from "../src/typ
 import type { OpenAIProxyOptions } from "../src/proxy.js";
 import type { ProxyProviderProfileName } from "../src/proxy-profiles.js";
 
-const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "aphrodite" | "azure" | "cerebrium" | "cloudflare" | "fastchat" | "jan" | "koboldcpp" | "litellm" | "llamacpp" | "lmdeploy" | "lmstudio" | "localai" | "mlx" | "modal" | "ollama" | "openllm" | "openrouter" | "sglang" | "tgi" | "tensorrtllm" | "vllm" | "xinference">, string> = {
+const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "aphrodite" | "azure" | "cerebrium" | "cloudflare" | "fastchat" | "jan" | "koboldcpp" | "litellm" | "llamacpp" | "lmdeploy" | "lmstudio" | "localai" | "mlx" | "modal" | "ollama" | "openllm" | "openrouter" | "sglang" | "tgi" | "tensorrtllm" | "textgen" | "vllm" | "xinference">, string> = {
   ai21: "https://api.ai21.com/studio/v1",
   aimlapi: "https://api.aimlapi.com",
   baichuan: "https://api.baichuan-ai.com/v1",
@@ -3868,6 +3868,87 @@ test("Xinference provider profile forwards its documented model retrieval route"
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
+test("text-generation-webui provider profile sends its versioned Chat Completions contract", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "textgen",
+    CLAIMLATCH_PROXY_UPSTREAM_BASE_URL: "http://localhost:5000",
+  });
+  let capturedUrl: string | undefined;
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "textgen-local",
+    fetchImpl: (async (input, init) => {
+      capturedUrl = String(input);
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({
+        id: "chatcmpl_textgen_profile",
+        object: "chat.completion",
+        choices: [{ message: { role: "assistant", content: "text-generation-webui-compatible answer." } }],
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ model: "textgen-model", messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 200);
+  });
+
+  assert.equal(capturedUrl, "http://localhost:5000/v1/chat/completions");
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer textgen-local");
+  assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
+test("text-generation-webui provider profile sends its model-list and retrieval paths", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "textgen",
+    CLAIMLATCH_PROXY_UPSTREAM_BASE_URL: "http://localhost:5000",
+  });
+  let capturedUrls: string[] = [];
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "textgen-local",
+    fetchImpl: (async (input, init) => {
+      capturedUrls.push(String(input));
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify(capturedUrls.length === 1
+        ? { object: "list", data: [{ id: "textgen-model", object: "model" }] }
+        : { id: "textgen-model", object: "model", owned_by: "text-generation-webui" }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch,
+  }, async (url) => {
+    const modelsResponse = await fetch(`${url}/v1/models?limit=1`);
+    assert.equal(modelsResponse.status, 200);
+    assert.deepEqual(await modelsResponse.json(), {
+      object: "list",
+      data: [{ id: "textgen-model", object: "model" }],
+    });
+    const retrievalResponse = await fetch(`${url}/v1/models/textgen-model?include=metadata`);
+    assert.equal(retrievalResponse.status, 200);
+    assert.deepEqual(await retrievalResponse.json(), {
+      id: "textgen-model",
+      object: "model",
+      owned_by: "text-generation-webui",
+    });
+  });
+
+  assert.deepEqual(capturedUrls, [
+    "http://localhost:5000/v1/models?limit=1",
+    "http://localhost:5000/v1/models/textgen-model?include=metadata",
+  ]);
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer textgen-local");
+  assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
 test("Cloudflare Workers AI provider profile sends the account-scoped bearer contract", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "cloudflare",
@@ -4035,7 +4116,7 @@ test("OVHcloud provider profile fails closed for unsupported model routes", asyn
 
 test("hosted provider profiles preserve their resolver contracts through the proxy", async () => {
   const expectedHostedProfiles = PROXY_PROVIDER_PROFILE_NAMES.filter(
-    (profileName) => profileName !== "aphrodite" && profileName !== "azure" && profileName !== "cerebrium" && profileName !== "cloudflare" && profileName !== "fastchat" && profileName !== "jan" && profileName !== "koboldcpp" && profileName !== "litellm" && profileName !== "llamacpp" && profileName !== "lmdeploy" && profileName !== "lmstudio" && profileName !== "localai" && profileName !== "mlx" && profileName !== "modal" && profileName !== "ollama" && profileName !== "openllm" && profileName !== "openrouter" && profileName !== "sglang" && profileName !== "tgi" && profileName !== "tensorrtllm" && profileName !== "vllm" && profileName !== "xinference",
+    (profileName) => profileName !== "aphrodite" && profileName !== "azure" && profileName !== "cerebrium" && profileName !== "cloudflare" && profileName !== "fastchat" && profileName !== "jan" && profileName !== "koboldcpp" && profileName !== "litellm" && profileName !== "llamacpp" && profileName !== "lmdeploy" && profileName !== "lmstudio" && profileName !== "localai" && profileName !== "mlx" && profileName !== "modal" && profileName !== "ollama" && profileName !== "openllm" && profileName !== "openrouter" && profileName !== "sglang" && profileName !== "tgi" && profileName !== "tensorrtllm" && profileName !== "textgen" && profileName !== "vllm" && profileName !== "xinference",
   );
   assert.deepEqual(Object.keys(HOSTED_PROFILE_BASE_URLS).sort(), [...expectedHostedProfiles].sort());
 
