@@ -1476,7 +1476,7 @@ test("Novita provider profile forwards its documented model retrieval path", asy
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
-test("Chutes provider profile sends its model-list path and bearer header", async () => {
+test("Chutes provider profile forwards model listing and fails closed for retrieval", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "chutes",
   });
@@ -1501,6 +1501,16 @@ test("Chutes provider profile sends its model-list path and bearer header", asyn
     assert.deepEqual(await response.json(), {
       object: "list",
       data: [{ id: "google/gemma-4-31B-turbo-TEE", object: "model" }],
+    });
+
+    const retrievalResponse = await fetch(`${url}/v1/models/google%2Fgemma-4-31B-turbo-TEE`);
+    assert.equal(retrievalResponse.status, 404);
+    assert.deepEqual(await retrievalResponse.json(), {
+      error: {
+        type: "claimlatch_proxy_error",
+        code: "claimlatch_model_retrieval_route_unavailable",
+        message: "The configured provider does not expose a model-retrieval route.",
+      },
     });
   });
 
