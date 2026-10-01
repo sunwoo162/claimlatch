@@ -92,6 +92,7 @@ export interface ProxyProviderProfile {
   upstreamChatCompletionsPath: string;
   upstreamModelsPath?: string | null;
   upstreamModelRetrievalPath?: string | null;
+  upstreamModelIdEncoding?: "encoded" | "path";
   upstreamRequestHeaders?: Record<string, string>;
 }
 
@@ -247,6 +248,7 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamChatCompletionsPath: "/chat/completions",
     upstreamModelsPath: "/models",
     upstreamModelRetrievalPath: "/models",
+    upstreamModelIdEncoding: "path",
   },
   hyperbolic: {
     upstreamBaseUrl: "https://api.hyperbolic.xyz/v1",

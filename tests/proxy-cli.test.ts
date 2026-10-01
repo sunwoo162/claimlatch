@@ -197,6 +197,7 @@ test("proxy CLI resolves every hosted built-in profile without an explicit base 
       ...(profile === "sambanova" ? { upstreamModelRetrievalPath: "/models" } : {}),
       ...(profile === "upstage" ? { upstreamModelRetrievalPath: null } : {}),
       ...(profile === "xai" ? { upstreamModelRetrievalPath: "/models" } : {}),
+      ...(profile === "huggingface" ? { upstreamModelIdEncoding: "path" } : {}),
     });
   }
 });

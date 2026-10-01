@@ -1976,7 +1976,7 @@ test("Gemini provider profile forwards documented model-list and retrieval paths
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
-test("Hugging Face provider profile forwards documented model-list and encoded retrieval paths", async () => {
+test("Hugging Face provider profile forwards documented model-list and multi-segment retrieval paths", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "huggingface",
   });
@@ -2005,7 +2005,7 @@ test("Hugging Face provider profile forwards documented model-list and encoded r
       data: [{ id: "deepseek-ai/DeepSeek-V4-Pro", object: "model", owned_by: "deepseek-ai" }],
     });
 
-    const retrievalResponse = await fetch(`${url}/v1/models/deepseek-ai%2FDeepSeek-V4-Pro`);
+    const retrievalResponse = await fetch(`${url}/v1/models/deepseek-ai/DeepSeek-V4-Pro`);
     assert.equal(retrievalResponse.status, 200);
     assert.deepEqual(await retrievalResponse.json(), {
       id: "deepseek-ai/DeepSeek-V4-Pro",
@@ -2016,10 +2016,32 @@ test("Hugging Face provider profile forwards documented model-list and encoded r
 
   assert.deepEqual(capturedUrls, [
     "https://router.huggingface.co/v1/models",
-    "https://router.huggingface.co/v1/models/deepseek-ai%2FDeepSeek-V4-Pro",
+    "https://router.huggingface.co/v1/models/deepseek-ai/DeepSeek-V4-Pro",
   ]);
   assert.equal(capturedHeaders?.get("authorization"), "Bearer hf-key");
   assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
+test("Hugging Face path-style model retrieval rejects dot-segment traversal", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "huggingface",
+  });
+  let upstreamCalled = false;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "hf-key",
+    fetchImpl: (async () => {
+      upstreamCalled = true;
+      return new Response("unexpected upstream request", { status: 500 });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/models/%2E%2E%2Fsecret-model`);
+    assert.equal(response.status, 404);
+  });
+
+  assert.equal(upstreamCalled, false);
 });
 
 test("Groq provider profile forwards documented model-list and retrieval paths", async () => {

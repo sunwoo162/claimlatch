@@ -12,6 +12,7 @@ export interface OpenAIProxyOptions {
   upstreamChatCompletionsPath?: string;
   upstreamModelsPath?: string | null;
   upstreamModelRetrievalPath?: string | null;
+  upstreamModelIdEncoding?: "encoded" | "path";
   upstreamRequestHeaders?: Record<string, string>;
   upstreamResponseHeaderNames?: string[];
   upstreamResponseHeaderPrefixes?: string[];
@@ -123,6 +124,7 @@ export function createOpenAIProxy(options: OpenAIProxyOptions): OpenAIProxyServe
     : options.upstreamModelRetrievalPath !== undefined
       ? normalizeUpstreamModelsPath(options.upstreamModelRetrievalPath)
       : upstreamModelsPath;
+  const upstreamModelIdEncoding = normalizeUpstreamModelIdEncoding(options.upstreamModelIdEncoding ?? "encoded");
   const upstreamRequestHeaders = normalizeUpstreamRequestHeaders(options.upstreamRequestHeaders ?? {});
   const upstreamResponseHeaderNames = normalizeResponseHeaderConfiguration(
     options.upstreamResponseHeaderNames ?? [],
@@ -151,6 +153,7 @@ export function createOpenAIProxy(options: OpenAIProxyOptions): OpenAIProxyServe
         upstreamChatCompletionsPath,
         upstreamModelsPath,
         upstreamModelRetrievalPath,
+        upstreamModelIdEncoding,
         upstreamRequestHeaders,
         upstreamResponseHeaderNames,
         upstreamResponseHeaderPrefixes,
@@ -201,6 +204,7 @@ async function handleRequest(input: {
   upstreamChatCompletionsPath: string;
   upstreamModelsPath: string | undefined;
   upstreamModelRetrievalPath: string | undefined;
+  upstreamModelIdEncoding: "encoded" | "path";
   upstreamRequestHeaders: ReadonlyMap<string, string>;
   upstreamResponseHeaderNames: ReadonlySet<string>;
   upstreamResponseHeaderPrefixes: ReadonlySet<string>;
@@ -216,7 +220,9 @@ async function handleRequest(input: {
     return;
   }
 
-  const modelId = request.method === "GET" ? extractModelId(path) : undefined;
+  const modelId = request.method === "GET"
+    ? extractModelId(path, input.upstreamModelIdEncoding)
+    : undefined;
   if (request.method === "GET" && modelId !== undefined) {
     if (input.upstreamModelsPath === undefined) {
       writeUnavailableModelRoute(response);
@@ -229,7 +235,7 @@ async function handleRequest(input: {
     await handleModelsRequest({
       ...input,
       ...(input.options.upstreamApiKey ? { upstreamApiKey: input.options.upstreamApiKey } : {}),
-      upstreamModelsPath: appendModelId(input.upstreamModelRetrievalPath, modelId),
+      upstreamModelsPath: appendModelId(input.upstreamModelRetrievalPath, modelId, input.upstreamModelIdEncoding),
       requestQuery: query,
     });
     return;
@@ -1194,28 +1200,43 @@ function appendQuery(path: string, query: string): string {
   return `${path}${path.includes("?") ? "&" : "?"}${query}`;
 }
 
-function extractModelId(path: string): string | undefined {
+function extractModelId(path: string, encoding: "encoded" | "path"): string | undefined {
   const prefixes = ["/v1/models/", "/models/"];
   const prefix = prefixes.find((candidate) => path.startsWith(candidate));
   if (!prefix) return undefined;
 
   const rawModelId = path.slice(prefix.length);
-  if (!rawModelId || rawModelId.includes("/")) return undefined;
+  if (!rawModelId || (encoding === "encoded" && rawModelId.includes("/"))) return undefined;
 
   try {
     const modelId = decodeURIComponent(rawModelId);
     if (!modelId || modelId === "." || modelId === "..") return undefined;
+    if (encoding === "path") {
+      const segments = modelId.split("/");
+      if (segments.some((segment) => segment.length === 0 || segment === "." || segment === "..")) return undefined;
+    }
     return modelId;
   } catch {
     return undefined;
   }
 }
 
-function appendModelId(path: string, modelId: string): string {
+function appendModelId(path: string, modelId: string, encoding: "encoded" | "path"): string {
   const queryStart = path.indexOf("?");
   const pathname = queryStart === -1 ? path : path.slice(0, queryStart);
   const query = queryStart === -1 ? "" : path.slice(queryStart);
-  return `${pathname.replace(/\/+$/u, "")}/${encodeURIComponent(modelId)}${query}`;
+  const encodedModelId = encodeURIComponent(modelId);
+  const modelPath = encoding === "path"
+    ? encodedModelId.replace(/%2F/giu, "/")
+    : encodedModelId;
+  return `${pathname.replace(/\/+$/u, "")}/${modelPath}${query}`;
+}
+
+function normalizeUpstreamModelIdEncoding(value: "encoded" | "path"): "encoded" | "path" {
+  if (value !== "encoded" && value !== "path") {
+    throw new Error("upstreamModelIdEncoding must be either encoded or path.");
+  }
+  return value;
 }
 
 function createUpstreamAbortControl(

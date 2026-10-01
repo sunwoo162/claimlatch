@@ -593,6 +593,7 @@ test("proxy profiles provide Hugging Face Inference Providers model-route defaul
     upstreamChatCompletionsPath: "/chat/completions",
     upstreamModelsPath: "/models",
     upstreamModelRetrievalPath: "/models",
+    upstreamModelIdEncoding: "path",
   });
 });
 
