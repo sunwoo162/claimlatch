@@ -649,6 +649,8 @@ test("proxy profiles provide FriendliAI-compatible Chat Completions defaults", (
     upstreamBaseUrl: "https://api.friendli.ai/serverless/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
+    upstreamModelRetrievalPath: null,
   });
 });
 
