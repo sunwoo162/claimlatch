@@ -376,6 +376,8 @@ test("proxy profiles provide Hyperbolic-compatible Chat Completions defaults", (
     upstreamBaseUrl: "https://api.hyperbolic.xyz/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
+    upstreamModelRetrievalPath: null,
   });
 });
 

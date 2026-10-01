@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Added DNS resolution, public-IP validation, and per-request IP pinning to the built-in OpenAI-compatible proxy transport, including streaming response support and fail-closed private-target handling.
+- Made Hyperbolic model retrieval fail closed while preserving its documented `/models` listing route.
 - Hardened the Upstage provider profile with fail-closed handling for undocumented model-list and per-model retrieval routes.
 - Added MiniMax's documented `/models` and `/models/{model_id}` routes with bearer-authenticated wire-contract coverage.
 - Hardened the Nebius Token Factory profile with fail-closed handling for its undocumented per-model retrieval route.
