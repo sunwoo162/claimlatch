@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added DNS resolution, public-IP validation, and per-request IP pinning to the built-in OpenAI-compatible proxy transport, including streaming response support and fail-closed private-target handling.
 - Hardened the Upstage provider profile with fail-closed handling for undocumented model-list and per-model retrieval routes.
 - Added MiniMax's documented `/models` and `/models/{model_id}` routes with bearer-authenticated wire-contract coverage.
 - Added StepFun's documented `/models` and `/models/{model}` routes with bearer-authenticated wire-contract coverage.

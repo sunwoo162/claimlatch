@@ -12,6 +12,6 @@ The built-in path fails closed when DNS resolution fails or returns no safe addr
 
 ## Reverse proxy
 
-`claimlatch-proxy` binds to `127.0.0.1` by default. If an upstream API key is configured in the proxy and the proxy is exposed to untrusted clients without authentication, those clients may be able to consume the upstream account through the proxy. Keep it loopback-only or add an authenticated front door.
+The built-in proxy transport resolves the upstream hostname before each request, rejects any non-public DNS result, and pins the connection to the selected public address while preserving the hostname for TLS SNI. `claimlatch-proxy` binds to `127.0.0.1` by default. If an upstream API key is configured in the proxy and the proxy is exposed to untrusted clients without authentication, those clients may be able to consume the upstream account through the proxy. Keep it loopback-only or add an authenticated front door. Custom `fetchImpl` or request transports bypass the built-in DNS/IP pinning and are responsible for equivalent protections.
 
 For sensitive deployments, provide local implementations of `ClaimExtractor`, `EvidenceProvider`, and `ClaimVerifier` and keep evidence retrieval inside the trusted network boundary.

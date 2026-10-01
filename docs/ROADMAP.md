@@ -25,6 +25,7 @@
 ## V0.3 — hardened delivery and operations (implemented)
 
 - DNS resolution and public-IP pinning before outbound document requests
+- DNS resolution and public-IP pinning before outbound proxy requests
 - Cross-source contradiction detection
 - Page-level PDF provenance with page-local quote offsets
 - Signed receipt persistence, verification CLI, and key rotation support
