@@ -1288,7 +1288,7 @@ test("DashScope provider profile sends its model-list path and bearer header", a
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
-test("Hyperbolic provider profile forwards model listing and fails closed for retrieval", async () => {
+test("Hyperbolic provider profile fails closed for retired model routes", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "hyperbolic",
   });
@@ -1300,17 +1300,17 @@ test("Hyperbolic provider profile forwards model listing and fails closed for re
     upstreamApiKey: "hyperbolic-key",
     fetchImpl: (async (requestUrl, init) => {
       upstreamRequests.push({ url: String(requestUrl), headers: new Headers(init?.headers) });
-      return new Response(JSON.stringify({
-        object: "list",
-        data: [{ id: "Qwen/Qwen3-235B-A22B", object: "model", owned_by: "hyperbolic" }],
-      }), { status: 200, headers: { "content-type": "application/json" } });
+      return new Response("unexpected upstream request", { status: 500 });
     }) as typeof fetch,
   }, async (url) => {
     const modelsResponse = await fetch(`${url}/v1/models`);
-    assert.equal(modelsResponse.status, 200);
+    assert.equal(modelsResponse.status, 404);
     assert.deepEqual(await modelsResponse.json(), {
-      object: "list",
-      data: [{ id: "Qwen/Qwen3-235B-A22B", object: "model", owned_by: "hyperbolic" }],
+      error: {
+        type: "claimlatch_proxy_error",
+        code: "claimlatch_model_list_route_unavailable",
+        message: "The configured provider does not expose a model-list route.",
+      },
     });
 
     const retrievalResponse = await fetch(`${url}/v1/models/Qwen%2FQwen3-235B-A22B`);
@@ -1324,8 +1324,7 @@ test("Hyperbolic provider profile forwards model listing and fails closed for re
     });
   });
 
-  assert.deepEqual(upstreamRequests.map(({ url }) => url), ["https://api.hyperbolic.xyz/v1/models"]);
-  assert.equal(upstreamRequests[0]?.headers.get("authorization"), "Bearer hyperbolic-key");
+  assert.deepEqual(upstreamRequests, []);
 });
 
 test("Qianfan provider profile sends its model-list path and bearer header", async () => {

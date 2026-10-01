@@ -89,7 +89,7 @@
 - Requesty OpenAI-compatible proxy provider profile with Chat Completions and model-list contract coverage
 - Featherless AI OpenAI-compatible proxy provider profile with Chat Completions and model-list contract coverage
 - IONOS Cloud AI Model Hub OpenAI-compatible proxy provider profile with Chat Completions and model-list contract coverage
-- Hyperbolic OpenAI-compatible proxy provider profile with Chat Completions, `/models` listing, and fail-closed individual retrieval coverage
+- Hyperbolic OpenAI-compatible proxy provider profile with Chat Completions and fail-closed retired model-route coverage
 - AI/ML API OpenAI-compatible proxy provider profile with Chat Completions and model-list contract coverage
 - Inference.net OpenAI-compatible proxy provider profile with Chat Completions and model-list contract coverage
 - Scaleway Generative APIs OpenAI-compatible proxy provider profile with Chat Completions and model-list contract coverage

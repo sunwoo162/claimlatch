@@ -110,7 +110,7 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamBaseUrl: "https://api.aimlapi.com",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/v1/chat/completions",
-    upstreamModelsPath: "/models",
+    upstreamModelsPath: null,
   },
   aphrodite: {
     upstreamApiKeyHeader: "authorization",
