@@ -475,6 +475,8 @@ For Cloudflare Workers, copy [`examples/cloudflare-worker.ts`](examples/cloudfla
 
 For Deno, use [`examples/deno-server.ts`](examples/deno-server.ts) as the default Fetch-native module. It reads the verifier settings through `Deno.env` and initializes the gate lazily on the first request. After `npm run build`, start the compiled module with `deno serve --allow-env --allow-net --port 4318 dist/examples/deno-server.js`. Deno's `deno serve` command invokes the exported `fetch` handler without requiring a framework dependency; see [Deno's HTTP server documentation](https://docs.deno.com/runtime/fundamentals/http_server/).
 
+For Bun, use [`examples/bun-server.ts`](examples/bun-server.ts) as the default Fetch-native module. It reads the verifier settings through `Bun.env` and initializes the gate lazily on the first request. After `npm run build`, start the compiled module with `bun --port 4318 dist/examples/bun-server.js`. Bun starts the default export's `fetch` handler with `Bun.serve` without requiring an additional framework dependency; see [Bun's HTTP server documentation](https://bun.sh/docs/runtime/http/server).
+
 For Express, install and enable `express.json()` before mounting the adapter from [`examples/express-route-handler.ts`](examples/express-route-handler.ts). It converts Express's parsed JSON request and response objects to the same Fetch-native guarded handler without adding Express to ClaimLatch's package dependencies:
 
 ```ts

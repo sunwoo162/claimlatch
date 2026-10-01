@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import cloudflareWorker from "../examples/cloudflare-worker.js";
+import bunServer, { createBunGuardedAnswerHandler } from "../examples/bun-server.js";
 import denoServer, { createDenoGuardedAnswerHandler } from "../examples/deno-server.js";
 import {
   createExpressGuardedAnswerHandler,
@@ -105,6 +106,64 @@ test("Deno example default fetch lazily initializes from Deno.env", async () => 
   } finally {
     if (previousDeno) runtime.Deno = previousDeno;
     else delete runtime.Deno;
+  }
+});
+
+test("Bun example adapts a Fetch-native handler and preserves the response", async () => {
+  const handler = createBunGuardedAnswerHandler(async (request) => {
+    assert.equal(request.method, "POST");
+    assert.equal(request.url, "https://example.test/answer");
+    assert.deepEqual(await request.json(), { question: "question", draft: "draft" });
+    return new Response(JSON.stringify({ answer: "verified" }), {
+      status: 200,
+      headers: { "content-type": "application/json", "x-claimlatch-result": "pass" },
+    });
+  });
+
+  const response = await handler(new Request("https://example.test/answer", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ question: "question", draft: "draft" }),
+  }));
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get("content-type"), "application/json");
+  assert.equal(response.headers.get("x-claimlatch-result"), "pass");
+  assert.deepEqual(await response.json(), { answer: "verified" });
+});
+
+test("Bun example default fetch lazily initializes from Bun.env", async () => {
+  const runtime = globalThis as typeof globalThis & {
+    Bun?: { env: Record<string, string | undefined> };
+  };
+  const previousBun = runtime.Bun;
+  const reads: string[] = [];
+  runtime.Bun = {
+    env: new Proxy<Record<string, string | undefined>>({
+      CLAIMLATCH_LLM_MODEL: "test-model",
+      TAVILY_API_KEY: "test-tavily-key",
+    }, {
+      get(target, name: string) {
+        reads.push(name);
+        return target[name];
+      },
+    }),
+  };
+
+  try {
+    assert.deepEqual(reads, []);
+    const response = await bunServer.fetch(new Request("https://example.test/health"));
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), { ok: true, service: "claimlatch-guarded-answer" });
+    assert.deepEqual(reads, [
+      "CLAIMLATCH_LLM_MODEL",
+      "TAVILY_API_KEY",
+      "CLAIMLATCH_LLM_API_KEY",
+      "CLAIMLATCH_LLM_BASE_URL",
+    ]);
+  } finally {
+    if (previousBun) runtime.Bun = previousBun;
+    else delete runtime.Bun;
   }
 });
 
