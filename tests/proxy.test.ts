@@ -2507,6 +2507,52 @@ test("FriendliAI provider profile forwards its documented model list and blocks 
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
+test("Together AI provider profile forwards its documented model list and blocks undocumented retrieval", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "together",
+  });
+  const capturedUrls: string[] = [];
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "together-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrls.push(String(input));
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify([
+        { id: "meta-llama/Llama-3.3-70B-Instruct-Turbo", object: "model", type: "chat" },
+      ]), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch,
+  }, async (url) => {
+    const modelsResponse = await fetch(`${url}/v1/models?dedicated=false`);
+    assert.equal(modelsResponse.status, 200);
+    assert.deepEqual(await modelsResponse.json(), [
+      { id: "meta-llama/Llama-3.3-70B-Instruct-Turbo", object: "model", type: "chat" },
+    ]);
+
+    const retrievalResponse = await fetch(`${url}/v1/models/meta-llama%2FLlama-3.3-70B-Instruct-Turbo`);
+    assert.equal(retrievalResponse.status, 404);
+    assert.deepEqual(await retrievalResponse.json(), {
+      error: {
+        type: "claimlatch_proxy_error",
+        code: "claimlatch_model_retrieval_route_unavailable",
+        message: "The configured provider does not expose a model-retrieval route.",
+      },
+    });
+  });
+
+  assert.deepEqual(capturedUrls, [
+    "https://api.together.xyz/v1/models?dedicated=false",
+  ]);
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer together-key");
+  assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
 test("Baseten provider profile sends the OpenAI-compatible bearer contract", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "baseten",

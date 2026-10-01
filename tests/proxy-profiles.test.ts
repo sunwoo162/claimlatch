@@ -659,6 +659,8 @@ test("proxy profiles provide Together-compatible Chat Completions defaults", () 
     upstreamBaseUrl: "https://api.together.xyz/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
+    upstreamModelRetrievalPath: null,
   });
 });
 
