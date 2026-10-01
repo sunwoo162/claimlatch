@@ -497,11 +497,13 @@ test("proxy profiles provide Gemini OpenAI-compatible Chat Completions defaults"
   });
 });
 
-test("proxy profiles provide Mistral-compatible Chat Completions defaults", () => {
+test("proxy profiles provide Mistral-compatible API defaults", () => {
   assert.deepEqual(resolveProxyProviderProfile("mistral"), {
     upstreamBaseUrl: "https://api.mistral.ai/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
+    upstreamModelRetrievalPath: "/models",
   });
 });
 
