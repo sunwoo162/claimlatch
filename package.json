@@ -77,7 +77,7 @@
     "example:receipts": "npm run build && node dist/examples/receipt-storage.js",
     "example:structured": "npm run build && node dist/examples/structured-output-verifier.js",
     "example:provider-proxy": "npm run build && node dist/examples/provider-compatible-proxy.js",
-    "prepublishOnly": "npm run check",
+    "prepublishOnly": "npm run verify",
     "bench": "npm run build && node dist/src/benchmark-cli.js --dataset benchmarks/independent.jsonl",
     "bench:manifest": "npm run build && node dist/src/benchmark-manifest-cli.js",
     "bench:validate": "npm run build && node dist/src/benchmark-cli.js --validate --dataset benchmarks/independent.jsonl --manifest benchmarks/MANIFEST.json --format json",
