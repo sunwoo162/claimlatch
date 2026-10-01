@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added DeepSeek model-list proxy coverage with fail-closed handling for its undocumented per-model retrieval route.
 - Added xAI model-list and model-retrieval proxy contract coverage using the documented `/v1/models` API routes.
 - Added OpenAI model-list and model-retrieval proxy contract coverage using the official `/v1/models` API routes.
 - Added Groq model-list and model-retrieval proxy contract coverage using its documented OpenAI-compatible model routes.

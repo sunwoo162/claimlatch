@@ -264,7 +264,7 @@ For Microsoft Foundry Models' OpenAI v1 API, set `CLAIMLATCH_PROXY_PROVIDER_PROF
 
 For DeepInfra's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="deepinfra"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.deepinfra.com/v1/openai`, bearer authentication, and `/chat/completions`.
 
-For DeepSeek's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="deepseek"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.deepseek.com`, bearer authentication, and `/chat/completions`.
+For DeepSeek's OpenAI-compatible API, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="deepseek"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.deepseek.com`, bearer authentication, `/chat/completions`, and `/models`. Model retrieval returns a local 404 unless `CLAIMLATCH_PROXY_UPSTREAM_MODEL_RETRIEVAL_PATH` is explicitly configured because DeepSeek's official API documents model listing but not a per-model retrieval route. See [DeepSeek's List Models API reference](https://api-docs.deepseek.com/api/list-models/) and [authentication reference](https://api-docs.deepseek.com/api/deepseek-api/).
 
 For Featherless AI's OpenAI-compatible API, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="featherless"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.featherless.ai/v1`, bearer authentication, `/chat/completions`, and `/models`; see [Featherless's API overview](https://featherless.ai/docs/api-overview-and-common-options) and [model-list reference](https://featherless.ai/docs/api-reference-models).
 

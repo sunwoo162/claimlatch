@@ -617,6 +617,8 @@ test("proxy profiles provide DeepSeek-compatible Chat Completions defaults", () 
     upstreamBaseUrl: "https://api.deepseek.com",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
+    upstreamModelRetrievalPath: null,
   });
 });
 
