@@ -565,6 +565,16 @@ test("proxy profiles provide StepFun-compatible Chat Completions defaults", () =
   });
 });
 
+test("proxy profiles provide SiliconFlow model-list defaults with fail-closed retrieval", () => {
+  assert.deepEqual(resolveProxyProviderProfile("siliconflow"), {
+    upstreamBaseUrl: "https://api.siliconflow.cn/v1",
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
+    upstreamModelRetrievalPath: null,
+  });
+});
+
 test("proxy profiles provide Moonshot-compatible API defaults", () => {
   assert.deepEqual(resolveProxyProviderProfile("moonshot"), {
     upstreamBaseUrl: "https://api.moonshot.ai/v1",
@@ -749,6 +759,8 @@ test("proxy profiles provide SiliconFlow-compatible Chat Completions defaults", 
     upstreamBaseUrl: "https://api.siliconflow.cn/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
+    upstreamModelRetrievalPath: null,
   });
 });
 
