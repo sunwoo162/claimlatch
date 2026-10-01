@@ -4573,6 +4573,54 @@ test("Cohere provider profile fails closed for compatibility-unsupported model r
   assert.equal(upstreamCalled, false);
 });
 
+test("NVIDIA hosted provider profile forwards its documented model list and blocks undocumented retrieval", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "nvidia",
+  });
+  const capturedUrls: string[] = [];
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "nvidia-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrls.push(String(input));
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({
+        object: "list",
+        data: [{ id: "meta/llama-3.1-8b-instruct", object: "model", owned_by: "nvidia" }],
+      }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch,
+  }, async (url) => {
+    const modelsResponse = await fetch(`${url}/v1/models?limit=1`);
+    assert.equal(modelsResponse.status, 200);
+    assert.deepEqual(await modelsResponse.json(), {
+      object: "list",
+      data: [{ id: "meta/llama-3.1-8b-instruct", object: "model", owned_by: "nvidia" }],
+    });
+
+    const retrievalResponse = await fetch(`${url}/v1/models/meta%2Fllama-3.1-8b-instruct`);
+    assert.equal(retrievalResponse.status, 404);
+    assert.deepEqual(await retrievalResponse.json(), {
+      error: {
+        type: "claimlatch_proxy_error",
+        code: "claimlatch_model_retrieval_route_unavailable",
+        message: "The configured provider does not expose a model-retrieval route.",
+      },
+    });
+  });
+
+  assert.deepEqual(capturedUrls, [
+    "https://integrate.api.nvidia.com/v1/models?limit=1",
+  ]);
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer nvidia-key");
+  assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
 test("Xiaomi MiMo provider profile sends the OpenAI-compatible bearer contract", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "mimo",

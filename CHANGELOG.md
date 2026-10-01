@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added NVIDIA hosted model-list coverage with fail-closed handling for the undocumented per-model retrieval route.
 - Hardened the Cohere compatibility profile with fail-closed handling for undocumented model-list and model-retrieval routes.
 - Added DeepSeek model-list proxy coverage with fail-closed handling for its undocumented per-model retrieval route.
 - Added xAI model-list and model-retrieval proxy contract coverage using the documented `/v1/models` API routes.
