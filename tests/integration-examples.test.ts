@@ -14,6 +14,12 @@ import {
   type FastifyRequest,
 } from "../examples/fastify-route-handler.js";
 import {
+  createHapiGuardedAnswerHandler,
+  type HapiRequest,
+  type HapiResponseObject,
+  type HapiResponseToolkit,
+} from "../examples/hapi-route-handler.js";
+import {
   createHonoGuardedAnswerHandler,
   type HonoContext,
 } from "../examples/hono-route-handler.js";
@@ -428,6 +434,61 @@ test("Koa example adapts parsed JSON requests and response setters", async () =>
   assert.equal(statusCode, 200);
   assert.equal(responseHeaders.get("content-type"), "application/json");
   assert.equal(responseHeaders.get("x-claimlatch-result"), "pass");
+  assert.deepEqual(responseHeaders.get("set-cookie"), ["session=abc; Path=/", "theme=dark; Path=/"]);
+  assert.equal(responseBody, JSON.stringify({ answer: "verified" }));
+});
+
+test("Hapi example adapts parsed JSON requests and response toolkit", async () => {
+  const handler = createHapiGuardedAnswerHandler(async (request) => {
+    assert.equal(request.method, "POST");
+    assert.equal(request.url, "https://example.test:3443/answer?trace=1");
+    assert.deepEqual(await request.json(), { question: "question", draft: "draft" });
+    return new Response(JSON.stringify({ answer: "verified" }), {
+      status: 200,
+      headers: [
+        ["content-type", "application/json"],
+        ["x-claimlatch-result", "pass"],
+        ["set-cookie", "session=abc; Path=/"],
+        ["set-cookie", "theme=dark; Path=/"],
+      ],
+    });
+  });
+
+  const responseHeaders = new Map<string, string[]>();
+  let responseBody: unknown;
+  let statusCode: number | undefined;
+  const responseObject: HapiResponseObject = {
+    code(status) {
+      statusCode = status;
+      return responseObject;
+    },
+    header(name, value) {
+      const current = responseHeaders.get(name.toLowerCase()) ?? [];
+      current.push(value);
+      responseHeaders.set(name.toLowerCase(), current);
+      return responseObject;
+    },
+  };
+  const toolkit: HapiResponseToolkit = {
+    response(payload) {
+      responseBody = payload;
+      return responseObject;
+    },
+  };
+  const request: HapiRequest = {
+    method: "post",
+    url: "/answer?trace=1",
+    headers: { host: "example.test:3443" },
+    server: { info: { protocol: "https" } },
+    info: { host: "example.test:3443" },
+    payload: { question: "question", draft: "draft" },
+  };
+
+  await handler(request, toolkit);
+
+  assert.equal(statusCode, 200);
+  assert.deepEqual(responseHeaders.get("content-type"), ["application/json"]);
+  assert.deepEqual(responseHeaders.get("x-claimlatch-result"), ["pass"]);
   assert.deepEqual(responseHeaders.get("set-cookie"), ["session=abc; Path=/", "theme=dark; Path=/"]);
   assert.equal(responseBody, JSON.stringify({ answer: "verified" }));
 });
