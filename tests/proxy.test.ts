@@ -1288,6 +1288,45 @@ test("DashScope provider profile sends its model-list path and bearer header", a
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
+test("Hyperbolic provider profile fails closed for retired model routes", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "hyperbolic",
+  });
+  const upstreamRequests: Array<{ url: string; headers: Headers }> = [];
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "hyperbolic-key",
+    fetchImpl: (async (requestUrl, init) => {
+      upstreamRequests.push({ url: String(requestUrl), headers: new Headers(init?.headers) });
+      return new Response("unexpected upstream request", { status: 500 });
+    }) as typeof fetch,
+  }, async (url) => {
+    const modelsResponse = await fetch(`${url}/v1/models`);
+    assert.equal(modelsResponse.status, 404);
+    assert.deepEqual(await modelsResponse.json(), {
+      error: {
+        type: "claimlatch_proxy_error",
+        code: "claimlatch_model_route_unavailable",
+        message: "The configured provider does not expose a model-list route.",
+      },
+    });
+
+    const retrievalResponse = await fetch(`${url}/v1/models/Qwen%2FQwen3-235B-A22B`);
+    assert.equal(retrievalResponse.status, 404);
+    assert.deepEqual(await retrievalResponse.json(), {
+      error: {
+        type: "claimlatch_proxy_error",
+        code: "claimlatch_model_route_unavailable",
+        message: "The configured provider does not expose a model-list route.",
+      },
+    });
+  });
+
+  assert.deepEqual(upstreamRequests, []);
+});
+
 test("Qianfan provider profile sends its model-list path and bearer header", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "qianfan",
