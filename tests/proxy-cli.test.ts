@@ -693,6 +693,13 @@ test("provider-compatible proxy example preserves the configured model-retrieval
   assert.equal(configuration.upstreamModelRetrievalPath, null);
 });
 
+test("provider-compatible proxy example preserves provider model ID encoding", () => {
+  const configuration = resolveProviderCompatibleProxyConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "huggingface",
+  });
+  assert.equal(configuration.upstreamModelIdEncoding, "path");
+});
+
 test("provider-compatible proxy example preserves OpenRouter attribution headers", () => {
   const configuration = resolveProviderCompatibleProxyConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "openrouter",

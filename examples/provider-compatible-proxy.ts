@@ -26,6 +26,7 @@ async function main(): Promise<void> {
     upstreamChatCompletionsPath,
     upstreamModelsPath,
     upstreamModelRetrievalPath,
+    upstreamModelIdEncoding,
     upstreamRequestHeaders,
   } = providerConfiguration;
   const upstreamResponseHeaderNames = process.env.CLAIMLATCH_PROXY_UPSTREAM_RESPONSE_HEADER_NAMES;
@@ -58,6 +59,7 @@ async function main(): Promise<void> {
     upstreamChatCompletionsPath,
     upstreamModelsPath,
     ...(upstreamModelRetrievalPath !== undefined ? { upstreamModelRetrievalPath } : {}),
+    ...(upstreamModelIdEncoding !== undefined ? { upstreamModelIdEncoding } : {}),
     upstreamApiKeyHeader,
     ...(upstreamApiKeyPrefix !== undefined ? { upstreamApiKeyPrefix } : {}),
     ...(upstreamApiKey ? { upstreamApiKey } : {}),

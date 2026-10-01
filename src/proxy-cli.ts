@@ -49,6 +49,9 @@ async function main(): Promise<void> {
     ...(providerConfiguration.upstreamModelRetrievalPath !== undefined
       ? { upstreamModelRetrievalPath: providerConfiguration.upstreamModelRetrievalPath }
       : {}),
+    ...(providerConfiguration.upstreamModelIdEncoding !== undefined
+      ? { upstreamModelIdEncoding: providerConfiguration.upstreamModelIdEncoding }
+      : {}),
     ...(providerConfiguration.upstreamRequestHeaders
       ? { upstreamRequestHeaders: providerConfiguration.upstreamRequestHeaders }
       : {}),
