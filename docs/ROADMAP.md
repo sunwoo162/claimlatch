@@ -57,7 +57,7 @@
 - xAI provider profile with documented model-list/model-retrieval contract coverage
 - DeepSeek provider profile with documented model-list and fail-closed retrieval coverage
 - Cohere compatibility profile with fail-closed model-route handling
-- NVIDIA hosted provider profile with fail-closed model-route handling
+- NVIDIA hosted provider profile with documented model-list and fail-closed retrieval coverage
 - Koa route adapter example without a core framework dependency
 - Baidu Qianfan v2 OpenAI-compatible proxy provider profile with model-list contract coverage
 - Alibaba Cloud DashScope OpenAI-compatible proxy provider profile with model-list contract coverage
