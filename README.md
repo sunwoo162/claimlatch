@@ -212,7 +212,7 @@ For AI/ML API's OpenAI-compatible API, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="a
 
 For Chutes' OpenAI-compatible LLM gateway, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="chutes"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://llm.chutes.ai/v1`, bearer authentication, `/chat/completions`, and `/models`; see [Chutes' agent connection guide](https://chutes.ai/agents/connect).
 
-For Groq's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="groq"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.groq.com/openai/v1`, bearer authentication, and `/chat/completions`; the proxy does not enable Groq's separate Responses API route.
+For Groq's OpenAI-compatible API, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="groq"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.groq.com/openai/v1`, bearer authentication, `/chat/completions`, `/models`, and `/models/:id`; the proxy does not enable Groq's separate Responses API route. See [Groq's OpenAI compatibility documentation](https://console.groq.com/docs/openai), [model reference](https://console.groq.com/docs/api-reference), and [supported models](https://console.groq.com/docs/models).
 
 For Hugging Face Inference Providers' OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="huggingface"` and provide a Hugging Face token as `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://router.huggingface.co/v1`, bearer authentication, and `/chat/completions`; select the routed model and provider in the request's `model` value.
 
