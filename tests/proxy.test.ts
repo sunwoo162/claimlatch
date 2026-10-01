@@ -2553,6 +2553,52 @@ test("Together AI provider profile forwards its documented model list and blocks
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
+test("Perplexity Router provider profile forwards its documented model list and blocks undocumented retrieval", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "perplexity",
+  });
+  const capturedUrls: string[] = [];
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "perplexity-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrls.push(String(input));
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify([
+        { id: "perplexity/glm-5.3", object: "model" },
+      ]), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch,
+  }, async (url) => {
+    const modelsResponse = await fetch(`${url}/v1/models?limit=1`);
+    assert.equal(modelsResponse.status, 200);
+    assert.deepEqual(await modelsResponse.json(), [
+      { id: "perplexity/glm-5.3", object: "model" },
+    ]);
+
+    const retrievalResponse = await fetch(`${url}/v1/models/perplexity%2Fglm-5.3`);
+    assert.equal(retrievalResponse.status, 404);
+    assert.deepEqual(await retrievalResponse.json(), {
+      error: {
+        type: "claimlatch_proxy_error",
+        code: "claimlatch_model_retrieval_route_unavailable",
+        message: "The configured provider does not expose a model-retrieval route.",
+      },
+    });
+  });
+
+  assert.deepEqual(capturedUrls, [
+    "https://api.perplexity.ai/router/v1/models?limit=1",
+  ]);
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer perplexity-key");
+  assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
 test("Baseten provider profile sends the OpenAI-compatible bearer contract", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "baseten",

@@ -695,6 +695,8 @@ test("proxy profiles provide Perplexity Router-compatible Chat Completions defau
     upstreamBaseUrl: "https://api.perplexity.ai/router/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
+    upstreamModelRetrievalPath: null,
   });
 });
 

@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added Perplexity Router model-list coverage with fail-closed handling for undocumented per-model retrieval.
 - Added Together AI model-list coverage with fail-closed handling for undocumented per-model retrieval.
 - Added FriendliAI serverless model-list coverage with fail-closed handling for undocumented per-model retrieval.
 - Hardened the Fireworks provider profile with fail-closed handling for account-scoped model-management routes that are not part of its OpenAI-compatible inference endpoint.
