@@ -1426,6 +1426,36 @@ test("Novita provider profile sends its model-list path and bearer header", asyn
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
+test("Novita provider profile forwards its documented model retrieval path", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "novita",
+  });
+  let capturedUrl: string | undefined;
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "novita-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrl = String(input);
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({ id: "openai/gpt-oss-120b", object: "model" }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/models/openai%2Fgpt-oss-120b`);
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), { id: "openai/gpt-oss-120b", object: "model" });
+  });
+
+  assert.equal(capturedUrl, "https://api.novita.ai/openai/v1/models/openai%2Fgpt-oss-120b");
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer novita-key");
+  assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
 test("Chutes provider profile sends its model-list path and bearer header", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "chutes",
