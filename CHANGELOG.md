@@ -7,6 +7,7 @@
 - Hardened the Nscale provider profile with fail-closed handling for its undocumented per-model retrieval route.
 - Added Novita's documented `/models` and `/models/{model_id}` routes with bearer-authenticated wire-contract coverage.
 - Hardened the Poe provider profile with fail-closed handling for its undocumented per-model retrieval route.
+- Hardened the Requesty provider profile with fail-closed handling for its undocumented per-model retrieval route.
 - Hardened the Upstage provider profile with fail-closed handling for undocumented model-list and per-model retrieval routes.
 - Added MiniMax's documented `/models` and `/models/{model_id}` routes with bearer-authenticated wire-contract coverage.
 - Hardened the Nebius Token Factory profile with fail-closed handling for its undocumented per-model retrieval route.

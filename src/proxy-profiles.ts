@@ -441,6 +441,7 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
     upstreamModelsPath: "/models",
+    upstreamModelRetrievalPath: null,
   },
   sambanova: {
     upstreamBaseUrl: "https://api.sambanova.ai/v1",

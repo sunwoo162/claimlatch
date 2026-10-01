@@ -256,6 +256,7 @@ test("proxy profiles provide Requesty-compatible Chat Completions and model-list
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
     upstreamModelsPath: "/models",
+    upstreamModelRetrievalPath: null,
   });
 });
 
