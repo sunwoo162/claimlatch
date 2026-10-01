@@ -2522,6 +2522,47 @@ test("Mistral provider profile forwards documented model-list and retrieval path
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
+test("Nebius provider profile forwards model listing and fails closed for undocumented retrieval", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "nebius",
+  });
+  let upstreamCalled = false;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "nebius-key",
+    fetchImpl: (async (input, init) => {
+      upstreamCalled = true;
+      assert.equal(String(input), "https://api.tokenfactory.nebius.com/v1/models");
+      assert.equal(new Headers(init?.headers).get("authorization"), "Bearer nebius-key");
+      return new Response(JSON.stringify({
+        object: "list",
+        data: [{ id: "openai/gpt-oss-120b", object: "model" }],
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    }) as typeof fetch,
+  }, async (url) => {
+    const modelsResponse = await fetch(`${url}/v1/models`);
+    assert.equal(modelsResponse.status, 200);
+    assert.deepEqual(await modelsResponse.json(), {
+      object: "list",
+      data: [{ id: "openai/gpt-oss-120b", object: "model" }],
+    });
+
+    const retrievalResponse = await fetch(`${url}/v1/models/openai%2Fgpt-oss-120b`);
+    assert.equal(retrievalResponse.status, 404);
+    assert.deepEqual(await retrievalResponse.json(), {
+      error: {
+        type: "claimlatch_proxy_error",
+        code: "claimlatch_model_retrieval_route_unavailable",
+        message: "The configured provider does not expose a model-retrieval route.",
+      },
+    });
+  });
+
+  assert.equal(upstreamCalled, true);
+});
+
 test("MiniMax provider profile sends the OpenAI-compatible bearer contract", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "minimax",
