@@ -1867,7 +1867,7 @@ test("Lamini provider profile forwards model listing and fails closed for retrie
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
-test("AI/ML API provider profile sends its distinct completion and model-list paths", async () => {
+test("AI/ML API provider profile sends its distinct completion and model-list paths and fails closed for retrieval", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "aimlapi",
   });
@@ -1895,6 +1895,16 @@ test("AI/ML API provider profile sends its distinct completion and model-list pa
     const modelsResponse = await fetch(`${url}/v1/models`);
     assert.equal(modelsResponse.status, 200);
     assert.deepEqual(await modelsResponse.json(), [{ id: "openai/gpt-5-chat-latest", type: "chat-completion" }]);
+
+    const retrievalResponse = await fetch(`${url}/v1/models/openai%2Fgpt-5-chat-latest`);
+    assert.equal(retrievalResponse.status, 404);
+    assert.deepEqual(await retrievalResponse.json(), {
+      error: {
+        type: "claimlatch_proxy_error",
+        code: "claimlatch_model_retrieval_route_unavailable",
+        message: "The configured provider does not expose a model-retrieval route.",
+      },
+    });
 
     const completionResponse = await fetch(`${url}/v1/chat/completions`, {
       method: "POST",

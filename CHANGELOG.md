@@ -10,6 +10,7 @@
 - Hardened the IONOS AI Model Hub profile with fail-closed handling for its undocumented per-model retrieval route.
 - Hardened the Scaleway Generative APIs profile with fail-closed handling for its undocumented per-model retrieval route.
 - Hardened the Lamini profile with fail-closed handling for its undocumented per-model retrieval route.
+- Hardened the AI/ML API profile with fail-closed handling for its undocumented per-model retrieval route.
 - Hardened the Poe provider profile with fail-closed handling for its undocumented per-model retrieval route.
 - Hardened the Requesty provider profile with fail-closed handling for its undocumented per-model retrieval route.
 - Hardened the Upstage provider profile with fail-closed handling for undocumented model-list and per-model retrieval routes.
