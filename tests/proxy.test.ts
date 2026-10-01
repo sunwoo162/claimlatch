@@ -1657,11 +1657,11 @@ test("Requesty provider profile forwards model listing and fails closed for retr
   assert.equal(upstreamRequests[0]?.headers.get("api-key"), null);
 });
 
-test("Featherless provider profile sends its model-list path and bearer header", async () => {
+test("Featherless provider profile forwards documented model-list and retrieval paths", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "featherless",
   });
-  let capturedUrl: string | undefined;
+  const capturedUrls: string[] = [];
   let capturedHeaders: Headers | undefined;
 
   await withProxyOptions({
@@ -1669,9 +1669,13 @@ test("Featherless provider profile sends its model-list path and bearer header",
     ...profile,
     upstreamApiKey: "featherless-key",
     fetchImpl: (async (input, init) => {
-      capturedUrl = String(input);
+      const requestUrl = String(input);
+      capturedUrls.push(requestUrl);
       capturedHeaders = new Headers(init?.headers);
-      return new Response(JSON.stringify({ object: "list", data: [{ id: "Qwen/Qwen2.5-7B-Instruct", object: "model" }] }), {
+      const body = requestUrl.endsWith("/models")
+        ? { object: "list", data: [{ id: "Qwen/Qwen2.5-7B-Instruct", object: "model" }] }
+        : { object: "model", id: "Qwen/Qwen2.5-7B-Instruct", data: [{ id: "Qwen/Qwen2.5-7B-Instruct", object: "model" }] };
+      return new Response(JSON.stringify(body), {
         status: 200,
         headers: { "content-type": "application/json" },
       });
@@ -1683,9 +1687,20 @@ test("Featherless provider profile sends its model-list path and bearer header",
       object: "list",
       data: [{ id: "Qwen/Qwen2.5-7B-Instruct", object: "model" }],
     });
+
+    const retrievalResponse = await fetch(`${url}/v1/models/Qwen%2FQwen2.5-7B-Instruct`);
+    assert.equal(retrievalResponse.status, 200);
+    assert.deepEqual(await retrievalResponse.json(), {
+      object: "model",
+      id: "Qwen/Qwen2.5-7B-Instruct",
+      data: [{ id: "Qwen/Qwen2.5-7B-Instruct", object: "model" }],
+    });
   });
 
-  assert.equal(capturedUrl, "https://api.featherless.ai/v1/models");
+  assert.deepEqual(capturedUrls, [
+    "https://api.featherless.ai/v1/models",
+    "https://api.featherless.ai/v1/models/Qwen%2FQwen2.5-7B-Instruct",
+  ]);
   assert.equal(capturedHeaders?.get("authorization"), "Bearer featherless-key");
   assert.equal(capturedHeaders?.get("api-key"), null);
 });

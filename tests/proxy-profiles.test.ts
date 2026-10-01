@@ -266,6 +266,7 @@ test("proxy profiles provide Featherless-compatible Chat Completions and model-l
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
     upstreamModelsPath: "/models",
+    upstreamModelRetrievalPath: "/models",
   });
 });
 
