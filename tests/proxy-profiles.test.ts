@@ -609,6 +609,8 @@ test("proxy profiles provide Cohere-compatible Chat Completions defaults", () =>
     upstreamBaseUrl: "https://api.cohere.ai/compatibility/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: null,
+    upstreamModelRetrievalPath: null,
   });
 });
 
