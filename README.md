@@ -47,6 +47,8 @@ npm run build
 npm test
 ```
 
+For the complete credential-free release check, run `npm run verify`. It runs the TypeScript build, the full test suite, and validation of the frozen independent benchmark against its committed integrity manifest.
+
 Node.js 20 or later is supported. PDF extraction uses the PDF.js runtime dependency; TypeScript is a development-only dependency.
 
 ## CLI
