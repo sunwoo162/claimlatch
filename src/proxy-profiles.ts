@@ -11,6 +11,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "clarifai",
   "cloudflare",
   "cohere",
+  "databricks",
   "dashscope",
   "deepinfra",
   "deepseek",
@@ -162,6 +163,12 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamBaseUrl: "https://api.cohere.ai/compatibility/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+  },
+  databricks: {
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: null,
+    upstreamModelRetrievalPath: null,
   },
   dashscope: {
     upstreamBaseUrl: "https://dashscope.aliyuncs.com/compatible-mode/v1",
