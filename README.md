@@ -473,6 +473,8 @@ For Remix route modules, copy the `loader` export from [`examples/remix-route-ha
 
 For Cloudflare Workers, copy [`examples/cloudflare-worker.ts`](examples/cloudflare-worker.ts) into the Worker module and export its default object. Bind `CLAIMLATCH_LLM_MODEL`, `TAVILY_API_KEY`, and optional `CLAIMLATCH_LLM_API_KEY` / `CLAIMLATCH_LLM_BASE_URL` through the Worker environment; the adapter passes each `Request` to the same Fetch-native guarded handler and keeps the core package dependency-light.
 
+For Deno, use [`examples/deno-server.ts`](examples/deno-server.ts) as the default Fetch-native module. It reads the verifier settings through `Deno.env` and initializes the gate lazily on the first request. After `npm run build`, start the compiled module with `deno serve --allow-env --allow-net --port 4318 dist/examples/deno-server.js`. Deno's `deno serve` command invokes the exported `fetch` handler without requiring a framework dependency; see [Deno's HTTP server documentation](https://docs.deno.com/runtime/fundamentals/http_server/).
+
 For Express, install and enable `express.json()` before mounting the adapter from [`examples/express-route-handler.ts`](examples/express-route-handler.ts). It converts Express's parsed JSON request and response objects to the same Fetch-native guarded handler without adding Express to ClaimLatch's package dependencies:
 
 ```ts

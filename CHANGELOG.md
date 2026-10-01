@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added a dependency-light Deno `deno serve` integration example with lazy environment-based gate initialization and Fetch-native handler coverage.
 - Added a KoboldCpp self-hosted OpenAI-compatible proxy provider profile with explicit base URL configuration, versioned Chat Completions/model-list coverage, fail-closed handling for its undocumented model-retrieval route, and wire-contract tests.
 - Added an LMDeploy self-hosted OpenAI-compatible proxy provider profile with explicit base URL configuration, versioned Chat Completions/model-list coverage, fail-closed handling for its undocumented model-retrieval route, and wire-contract tests.
 - Added a Xinference self-hosted OpenAI-compatible proxy provider profile with explicit base URL configuration, versioned Chat Completions/model-list/model-retrieval coverage, and wire-contract tests.

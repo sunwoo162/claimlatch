@@ -40,6 +40,7 @@
 - Next.js App Router Fetch-native route handler example with explicit Node.js runtime
 - Remix loader/action route module example using the Fetch-native guarded handler
 - Cloudflare Worker Fetch-native integration example
+- Deno `deno serve` Fetch-native integration example
 - Express route adapter example without a core framework dependency
 - Fastify route adapter example without a core framework dependency
 - Hono route adapter example without a core framework dependency
