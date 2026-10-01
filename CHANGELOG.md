@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Hardened the Upstage provider profile with fail-closed handling for undocumented model-list and per-model retrieval routes.
+- Hardened the Tencent Hunyuan provider profile with fail-closed handling for undocumented model-list and per-model retrieval routes.
 - Hardened the AI21 provider profile with fail-closed handling for undocumented model-list and per-model retrieval routes.
 - Added documented Gemini OpenAI-compatibility model-list and per-model retrieval routes.
 - Added documented Hugging Face Inference Providers model-list and per-model retrieval routes, including encoded repository-style model IDs.
