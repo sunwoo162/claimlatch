@@ -158,7 +158,7 @@ npm run example:provider-proxy
 
 The profile fails closed when either attribution value is missing or the site URL is not an absolute HTTP(S) URL without embedded username or password credentials. Explicit `CLAIMLATCH_PROXY_UPSTREAM_*` values override profile defaults.
 
-For AI21's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="ai21"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.ai21.com/studio/v1`, bearer authentication, and `/chat/completions`; see [AI21's official TypeScript SDK](https://github.com/AI21Labs/ai21-typescript).
+For AI21's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="ai21"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.ai21.com/studio/v1`, bearer authentication, and `/chat/completions`. Model listing and per-model retrieval fail closed because AI21's documented API reference does not expose model routes; see [AI21's API reference](https://docs.ai21.com/reference) and [documentation index](https://docs.ai21.com/llms.txt).
 
 For Baichuan's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="baichuan"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.baichuan-ai.com/v1`, bearer authentication, and `/chat/completions`. Its model-list and model-retrieval routes return a local 404 unless `CLAIMLATCH_PROXY_UPSTREAM_MODELS_PATH` is explicitly configured; see [Baichuan's official API documentation](https://platform.baichuan-ai.com/docs/api?activity=true).
 
