@@ -220,6 +220,7 @@ test("proxy profiles provide Chutes-compatible Chat Completions and model-list d
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
     upstreamModelsPath: "/models",
+    upstreamModelRetrievalPath: null,
   });
 });
 
