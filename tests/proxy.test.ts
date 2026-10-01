@@ -1902,6 +1902,52 @@ test("Z.AI provider profile sends the OpenAI-compatible bearer contract", async 
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
+test("Mistral provider profile forwards documented model-list and retrieval paths", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "mistral",
+  });
+  const capturedUrls: string[] = [];
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "mistral-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrls.push(String(input));
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify(capturedUrls.length === 1
+        ? { object: "list", data: [{ id: "mistral-large-latest", object: "model" }] }
+        : { id: "mistral-large-latest", object: "model", owned_by: "mistralai" }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch,
+  }, async (url) => {
+    const modelsResponse = await fetch(`${url}/v1/models?limit=1`);
+    assert.equal(modelsResponse.status, 200);
+    assert.deepEqual(await modelsResponse.json(), {
+      object: "list",
+      data: [{ id: "mistral-large-latest", object: "model" }],
+    });
+
+    const retrievalResponse = await fetch(`${url}/v1/models/mistral-large-latest?include=capabilities`);
+    assert.equal(retrievalResponse.status, 200);
+    assert.deepEqual(await retrievalResponse.json(), {
+      id: "mistral-large-latest",
+      object: "model",
+      owned_by: "mistralai",
+    });
+  });
+
+  assert.deepEqual(capturedUrls, [
+    "https://api.mistral.ai/v1/models?limit=1",
+    "https://api.mistral.ai/v1/models/mistral-large-latest?include=capabilities",
+  ]);
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer mistral-key");
+  assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
 test("MiniMax provider profile sends the OpenAI-compatible bearer contract", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "minimax",

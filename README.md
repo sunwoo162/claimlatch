@@ -238,7 +238,7 @@ For MiniMax's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY
 
 For Xiaomi MiMo's OpenAI-compatible API, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="mimo"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.xiaomimimo.com/v1`, bearer authentication, `/chat/completions`, and `/models`; see [MiMo's official OpenAI-compatible usage guide](https://platform.xiaomimimo.com/docs/en-US/usage-guide/passing-back-reasoning_content) and [model-list API documentation](https://mimo.mi.com/docs/en-US/api/model/list-models).
 
-For Mistral's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="mistral"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.mistral.ai/v1`, bearer authentication, and `/chat/completions`.
+For Mistral's OpenAI-compatible API, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="mistral"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.mistral.ai/v1`, bearer authentication, `/chat/completions`, `/models`, and `/models/:id`; see [Mistral's Chat API](https://docs.mistral.ai/api/endpoint/chat) and [Models API](https://docs.mistral.ai/api/endpoint/models).
 
 For Moonshot's OpenAI-compatible Chat Completions endpoint, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="moonshot"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.moonshot.ai/v1`, bearer authentication, and `/chat/completions`; see [Moonshot's Chat Completions documentation](https://platform.kimi.ai/docs/api/chat).
 
