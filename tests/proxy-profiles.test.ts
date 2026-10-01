@@ -197,6 +197,8 @@ test("proxy profiles provide AI21-compatible Chat Completions defaults", () => {
     upstreamBaseUrl: "https://api.ai21.com/studio/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: null,
+    upstreamModelRetrievalPath: null,
   });
 });
 

@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Hardened the Upstage provider profile with fail-closed handling for undocumented model-list and per-model retrieval routes.
+- Hardened the AI21 provider profile with fail-closed handling for undocumented model-list and per-model retrieval routes.
 - Added Cerebras model-list and per-model retrieval coverage from its documented OpenAI-compatible API.
 - Added SambaNova model-list and per-model retrieval coverage from its documented OpenAI-compatible API.
 - Added Perplexity Router model-list coverage with fail-closed handling for undocumented per-model retrieval.
