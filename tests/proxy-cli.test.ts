@@ -186,6 +186,7 @@ test("proxy CLI resolves every hosted built-in profile without an explicit base 
       ...(profile === "moonshot" ? { upstreamModelRetrievalPath: null } : {}),
       ...(profile === "groq" ? { upstreamModelRetrievalPath: "/models" } : {}),
       ...(profile === "openai" ? { upstreamModelRetrievalPath: "/models" } : {}),
+      ...(profile === "xai" ? { upstreamModelRetrievalPath: "/models" } : {}),
     });
   }
 });
