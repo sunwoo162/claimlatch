@@ -45,6 +45,7 @@
 - Databricks Model Serving AI Gateway OpenAI-compatible proxy provider profile with explicit workspace base URL, Chat Completions contract coverage, and fail-closed model routes
 - Microsoft Foundry Models OpenAI v1 proxy provider profile with explicit resource base URL, `api-key` authentication, and Chat Completions/model-list/retrieval contract coverage
 - Mistral OpenAI-compatible proxy profile with explicit Chat Completions/model-list/model-retrieval contract coverage
+- Hapi route adapter example without a core framework dependency
 - Express route adapter example without a core framework dependency
 - Fastify route adapter example without a core framework dependency
 - Hono route adapter example without a core framework dependency

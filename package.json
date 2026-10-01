@@ -50,6 +50,10 @@
     "./examples/koa-route-handler.js": {
       "types": "./dist/examples/koa-route-handler.d.ts",
       "import": "./dist/examples/koa-route-handler.js"
+    },
+    "./examples/hapi-route-handler.js": {
+      "types": "./dist/examples/hapi-route-handler.d.ts",
+      "import": "./dist/examples/hapi-route-handler.js"
     }
   },
   "files": [

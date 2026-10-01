@@ -544,6 +544,21 @@ app.use(createKoaGuardedAnswerHandler());
 app.listen(3000);
 ```
 
+For Hapi, enable a JSON payload parser and mount the adapter from [`examples/hapi-route-handler.ts`](examples/hapi-route-handler.ts). It maps Hapi's parsed request payload and response toolkit to the same Fetch-native guarded handler without adding Hapi to ClaimLatch's package dependencies; see [Hapi's server methods documentation](https://hapi.dev/api/?v=21.4.0#-serverrouteoptions).
+
+```ts
+import Hapi from "@hapi/hapi";
+import { createHapiGuardedAnswerHandler } from "claimlatch/examples/hapi-route-handler.js";
+
+const server = Hapi.server({ port: 3000 });
+server.route({
+  method: "POST",
+  path: "/answer",
+  handler: createHapiGuardedAnswerHandler(),
+});
+await server.start();
+```
+
 ### Structured-output proxy policy example
 
 `structuredOutputVerifier` is the application-owned safety boundary for tool calls and multimodal output. The runnable example below allows only the comma-separated tool names in `CLAIMLATCH_ALLOWED_TOOLS`; any other tool call is returned as a deterministic BLOCK report. The example uses a local policy report for structured output and the configured ClaimLatch gate for ordinary textual responses.

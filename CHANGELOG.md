@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added a dependency-light Hapi route adapter example with parsed-payload and response-toolkit coverage.
 - Added a Microsoft Foundry Models OpenAI v1 proxy provider profile with explicit resource base URL configuration, `api-key` authentication, and Chat Completions/model-list/retrieval wire-contract coverage.
 - Added Mistral model-list and model-retrieval proxy contract coverage using its documented `/v1/models` and `/v1/models/{model_id}` routes.
 - Added a Databricks Model Serving AI Gateway OpenAI-compatible proxy provider profile with explicit workspace base URL configuration, bearer-authenticated Chat Completions coverage, and fail-closed model routes.
