@@ -440,7 +440,8 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamBaseUrl: "https://router.requesty.ai/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
-    upstreamModelsPath: "/models",
+    upstreamModelsPath: null,
+    upstreamModelRetrievalPath: null,
   },
   sambanova: {
     upstreamBaseUrl: "https://api.sambanova.ai/v1",

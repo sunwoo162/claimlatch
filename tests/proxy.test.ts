@@ -1616,37 +1616,43 @@ test("Upstage provider profile fails closed for undocumented model routes", asyn
   assert.equal(upstreamCalled, false);
 });
 
-test("Requesty provider profile sends its model-list path and bearer header", async () => {
+test("Requesty provider profile fails closed for undocumented model routes", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "requesty",
   });
-  let capturedUrl: string | undefined;
-  let capturedHeaders: Headers | undefined;
+  let upstreamCalled = false;
 
   await withProxyOptions({
     gate: fixtureGate(),
     ...profile,
     upstreamApiKey: "requesty-key",
-    fetchImpl: (async (input, init) => {
-      capturedUrl = String(input);
-      capturedHeaders = new Headers(init?.headers);
-      return new Response(JSON.stringify({ object: "list", data: [{ id: "openai/gpt-6-luna", object: "model" }] }), {
-        status: 200,
-        headers: { "content-type": "application/json" },
-      });
+    fetchImpl: (async () => {
+      upstreamCalled = true;
+      return new Response("unexpected upstream request", { status: 500 });
     }) as typeof fetch,
   }, async (url) => {
     const response = await fetch(`${url}/v1/models`);
-    assert.equal(response.status, 200);
+    assert.equal(response.status, 404);
     assert.deepEqual(await response.json(), {
-      object: "list",
-      data: [{ id: "openai/gpt-6-luna", object: "model" }],
+      error: {
+        type: "claimlatch_proxy_error",
+        code: "claimlatch_model_route_unavailable",
+        message: "The configured provider does not expose a model-list route.",
+      },
+    });
+
+    const retrievalResponse = await fetch(`${url}/v1/models/openai%2Fgpt-6-luna`);
+    assert.equal(retrievalResponse.status, 404);
+    assert.deepEqual(await retrievalResponse.json(), {
+      error: {
+        type: "claimlatch_proxy_error",
+        code: "claimlatch_model_route_unavailable",
+        message: "The configured provider does not expose a model-list route.",
+      },
     });
   });
 
-  assert.equal(capturedUrl, "https://router.requesty.ai/v1/models");
-  assert.equal(capturedHeaders?.get("authorization"), "Bearer requesty-key");
-  assert.equal(capturedHeaders?.get("api-key"), null);
+  assert.equal(upstreamCalled, false);
 });
 
 test("Featherless provider profile sends its model-list path and bearer header", async () => {

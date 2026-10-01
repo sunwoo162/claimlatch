@@ -248,7 +248,7 @@ For Novita AI's OpenAI-compatible LLM API, set `CLAIMLATCH_PROXY_PROVIDER_PROFIL
 
 For Poe's OpenAI-compatible API, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="poe"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.poe.com/v1`, bearer authentication, `/chat/completions`, and `/models`; individual model retrieval is fail-closed because Poe documents model listing without a per-model retrieval route. See [Poe's OpenAI-compatible API guide](https://creator.poe.com/docs/external-applications/openai-compatible-api) and [List available models](https://creator.poe.com/api-reference/listModels).
 
-For Requesty's OpenAI-compatible gateway, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="requesty"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://router.requesty.ai/v1`, bearer authentication, `/chat/completions`, and `/models`; see [Requesty's Quickstart](https://docs.requesty.ai/).
+For Requesty's OpenAI-compatible gateway, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="requesty"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://router.requesty.ai/v1` and bearer-authenticated `/chat/completions`; model-list and individual model-retrieval routes fail closed because Requesty's documented gateway selects models through the chat endpoint without documenting OpenAI model catalog routes. See [Requesty's Quickstart](https://docs.requesty.ai/).
 
 For the direct OpenAI API, set `CLAIMLATCH_PROXY_PROVIDER_PROFILE="openai"` and provide `CLAIMLATCH_PROXY_UPSTREAM_API_KEY`. The profile uses `https://api.openai.com/v1`, bearer authentication, `/chat/completions`, `/models`, and `/models/:id`; see [OpenAI's Models API reference](https://platform.openai.com/docs/api-reference/models).
 
