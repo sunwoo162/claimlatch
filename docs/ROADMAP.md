@@ -52,6 +52,7 @@
 - SvelteKit route adapter example without a core framework dependency
 - AWS Lambda HTTP API payload v2 adapter example without an AWS SDK dependency
 - Moonshot OpenAI-compatible proxy provider profile with documented model-list coverage and fail-closed model retrieval
+- Groq OpenAI-compatible proxy provider profile with Chat Completions/model-list/model-retrieval contract coverage
 - Koa route adapter example without a core framework dependency
 - Baidu Qianfan v2 OpenAI-compatible proxy provider profile with model-list contract coverage
 - Alibaba Cloud DashScope OpenAI-compatible proxy provider profile with model-list contract coverage
