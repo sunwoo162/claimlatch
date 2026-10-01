@@ -522,6 +522,8 @@ test("proxy profiles provide MiniMax-compatible Chat Completions defaults", () =
     upstreamBaseUrl: "https://api.minimax.io/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
+    upstreamModelRetrievalPath: "/models",
   });
 });
 
