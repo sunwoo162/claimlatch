@@ -8,7 +8,7 @@ import type { ClaimExtractor, ClaimVerifier, EvidenceProvider } from "../src/typ
 import type { OpenAIProxyOptions } from "../src/proxy.js";
 import type { ProxyProviderProfileName } from "../src/proxy-profiles.js";
 
-const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "aphrodite" | "azure" | "cerebrium" | "cloudflare" | "databricks" | "fastchat" | "jan" | "koboldcpp" | "litellm" | "llamacpp" | "lmdeploy" | "lmstudio" | "localai" | "mlc" | "mlx" | "modal" | "ollama" | "openllm" | "openrouter" | "sglang" | "tgi" | "tensorrtllm" | "textgen" | "vllm" | "xinference">, string> = {
+const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "aphrodite" | "azure" | "cerebrium" | "cloudflare" | "databricks" | "fastchat" | "foundry" | "jan" | "koboldcpp" | "litellm" | "llamacpp" | "lmdeploy" | "lmstudio" | "localai" | "mlc" | "mlx" | "modal" | "ollama" | "openllm" | "openrouter" | "sglang" | "tgi" | "tensorrtllm" | "textgen" | "vllm" | "xinference">, string> = {
   ai21: "https://api.ai21.com/studio/v1",
   aimlapi: "https://api.aimlapi.com",
   baichuan: "https://api.baichuan-ai.com/v1",
@@ -4114,6 +4114,87 @@ test("Databricks provider profile fails closed for unsupported model routes", as
   assert.equal(upstreamCalled, false);
 });
 
+test("Microsoft Foundry provider profile sends its OpenAI v1 Chat Completions contract", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "foundry",
+    CLAIMLATCH_PROXY_UPSTREAM_BASE_URL: "https://foundry-resource.services.ai.azure.com",
+  });
+  let capturedUrl: string | undefined;
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "foundry-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrl = String(input);
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({
+        id: "chatcmpl_foundry_profile",
+        object: "chat.completion",
+        choices: [{ message: { role: "assistant", content: "Foundry-compatible answer." } }],
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ model: "gpt-4o-mini", messages: [{ role: "user", content: "question" }] }),
+    });
+    assert.equal(response.status, 200);
+    assert.match(await response.text(), /Foundry-compatible answer/);
+  });
+
+  assert.equal(capturedUrl, "https://foundry-resource.services.ai.azure.com/openai/v1/chat/completions");
+  assert.equal(capturedHeaders?.get("api-key"), "foundry-key");
+  assert.equal(capturedHeaders?.get("authorization"), null);
+});
+
+test("Microsoft Foundry provider profile forwards documented model-list and retrieval paths", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "foundry",
+    CLAIMLATCH_PROXY_UPSTREAM_BASE_URL: "https://foundry-resource.services.ai.azure.com",
+  });
+  const capturedUrls: string[] = [];
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "foundry-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrls.push(String(input));
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify(capturedUrls.length === 1
+        ? { object: "list", data: [{ id: "gpt-4o-mini", object: "model" }] }
+        : { id: "gpt-4o-mini", object: "model", owned_by: "azure" }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch,
+  }, async (url) => {
+    const modelsResponse = await fetch(`${url}/v1/models?limit=1`);
+    assert.equal(modelsResponse.status, 200);
+    assert.deepEqual(await modelsResponse.json(), {
+      object: "list",
+      data: [{ id: "gpt-4o-mini", object: "model" }],
+    });
+    const retrievalResponse = await fetch(`${url}/v1/models/gpt-4o-mini?include=metadata`);
+    assert.equal(retrievalResponse.status, 200);
+    assert.deepEqual(await retrievalResponse.json(), {
+      id: "gpt-4o-mini",
+      object: "model",
+      owned_by: "azure",
+    });
+  });
+
+  assert.deepEqual(capturedUrls, [
+    "https://foundry-resource.services.ai.azure.com/openai/v1/models?limit=1",
+    "https://foundry-resource.services.ai.azure.com/openai/v1/models/gpt-4o-mini?include=metadata",
+  ]);
+  assert.equal(capturedHeaders?.get("api-key"), "foundry-key");
+});
+
 test("Cloudflare Workers AI provider profile sends the account-scoped bearer contract", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "cloudflare",
@@ -4281,7 +4362,7 @@ test("OVHcloud provider profile fails closed for unsupported model routes", asyn
 
 test("hosted provider profiles preserve their resolver contracts through the proxy", async () => {
   const expectedHostedProfiles = PROXY_PROVIDER_PROFILE_NAMES.filter(
-    (profileName) => profileName !== "aphrodite" && profileName !== "azure" && profileName !== "cerebrium" && profileName !== "cloudflare" && profileName !== "databricks" && profileName !== "fastchat" && profileName !== "jan" && profileName !== "koboldcpp" && profileName !== "litellm" && profileName !== "llamacpp" && profileName !== "lmdeploy" && profileName !== "lmstudio" && profileName !== "localai" && profileName !== "mlc" && profileName !== "mlx" && profileName !== "modal" && profileName !== "ollama" && profileName !== "openllm" && profileName !== "openrouter" && profileName !== "sglang" && profileName !== "tgi" && profileName !== "tensorrtllm" && profileName !== "textgen" && profileName !== "vllm" && profileName !== "xinference",
+    (profileName) => profileName !== "aphrodite" && profileName !== "azure" && profileName !== "cerebrium" && profileName !== "cloudflare" && profileName !== "databricks" && profileName !== "fastchat" && profileName !== "foundry" && profileName !== "jan" && profileName !== "koboldcpp" && profileName !== "litellm" && profileName !== "llamacpp" && profileName !== "lmdeploy" && profileName !== "lmstudio" && profileName !== "localai" && profileName !== "mlc" && profileName !== "mlx" && profileName !== "modal" && profileName !== "ollama" && profileName !== "openllm" && profileName !== "openrouter" && profileName !== "sglang" && profileName !== "tgi" && profileName !== "tensorrtllm" && profileName !== "textgen" && profileName !== "vllm" && profileName !== "xinference",
   );
   assert.deepEqual(Object.keys(HOSTED_PROFILE_BASE_URLS).sort(), [...expectedHostedProfiles].sort());
 

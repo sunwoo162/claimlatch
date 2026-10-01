@@ -25,7 +25,7 @@ test("proxy CLI help documents credentials, routes, and fail-closed behavior", (
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_MODELS_PATH.*profile supplies one/);
   assert.match(help, /CLAIMLATCH_PROXY_UPSTREAM_MODEL_RETRIEVAL_PATH.*profile supplies one/);
   assert.match(help, /CLAIMLATCH_PROXY_PROVIDER_PROFILE/);
-  assert.match(help, /ai21, aimlapi, aphrodite, azure, baichuan, baseten, cerebras, cerebrium, chutes, clarifai, cloudflare, cohere, databricks, dashscope, deepinfra, deepseek, featherless, fastchat, fireworks, friendli, gemini, groq, huggingface, hyperbolic, inferencenet, ionos, jan, koboldcpp, lamini, litellm, llamacpp, lmdeploy, lmstudio, localai, mlc, mlx, hunyuan, minimax, mimo, mistral, modal, moonshot, nebius, nscale, novita, nvidia, ollama, openllm, openai, openrouter, ovhcloud, perplexity, poe, qianfan, requesty, sambanova, scaleway, sglang, siliconflow, stepfun, textgen, tgi, tensorrtllm, together, tokenhub, upstage, vllm, volcengine, xinference, xai, or zai/);
+  assert.match(help, /ai21, aimlapi, aphrodite, azure, baichuan, baseten, cerebras, cerebrium, chutes, clarifai, cloudflare, cohere, databricks, dashscope, deepinfra, deepseek, featherless, fastchat, fireworks, friendli, foundry, gemini, groq, huggingface, hyperbolic, inferencenet, ionos, jan, koboldcpp, lamini, litellm, llamacpp, lmdeploy, lmstudio, localai, mlc, mlx, hunyuan, minimax, mimo, mistral, modal, moonshot, nebius, nscale, novita, nvidia, ollama, openllm, openai, openrouter, ovhcloud, perplexity, poe, qianfan, requesty, sambanova, scaleway, sglang, siliconflow, stepfun, textgen, tgi, tensorrtllm, together, tokenhub, upstage, vllm, volcengine, xinference, xai, or zai/);
   assert.match(help, /PASS.*BLOCK/s);
   assert.match(help, /credential-free/);
 });
@@ -552,6 +552,25 @@ test("proxy CLI requires an explicit workspace base URL for Databricks", () => {
     upstreamChatCompletionsPath: "/chat/completions",
     upstreamModelsPath: null,
     upstreamModelRetrievalPath: null,
+  });
+});
+
+test("proxy CLI requires an explicit Microsoft Foundry resource base URL", () => {
+  assert.throws(
+    () => resolveProxyProviderConfiguration({
+      CLAIMLATCH_PROXY_PROVIDER_PROFILE: "foundry",
+    }),
+    /Set CLAIMLATCH_PROXY_UPSTREAM_BASE_URL/,
+  );
+  assert.deepEqual(resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "foundry",
+    CLAIMLATCH_PROXY_UPSTREAM_BASE_URL: "https://foundry-resource.services.ai.azure.com",
+  }), {
+    upstreamBaseUrl: "https://foundry-resource.services.ai.azure.com",
+    upstreamApiKeyHeader: "api-key",
+    upstreamChatCompletionsPath: "/openai/v1/chat/completions",
+    upstreamModelsPath: "/openai/v1/models",
+    upstreamModelRetrievalPath: "/openai/v1/models",
   });
 });
 

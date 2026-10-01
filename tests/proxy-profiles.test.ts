@@ -28,6 +28,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
     "fastchat",
     "fireworks",
     "friendli",
+    "foundry",
     "gemini",
     "groq",
     "huggingface",
@@ -82,7 +83,7 @@ test("proxy profile names are centralized for CLI and SDK consumers", () => {
   ]);
   assert.equal(
     formatProxyProviderProfileNames(),
-    "ai21, aimlapi, aphrodite, azure, baichuan, baseten, cerebras, cerebrium, chutes, clarifai, cloudflare, cohere, databricks, dashscope, deepinfra, deepseek, featherless, fastchat, fireworks, friendli, gemini, groq, huggingface, hyperbolic, inferencenet, ionos, jan, koboldcpp, lamini, litellm, llamacpp, lmdeploy, lmstudio, localai, mlc, mlx, hunyuan, minimax, mimo, mistral, modal, moonshot, nebius, nscale, novita, nvidia, ollama, openllm, openai, openrouter, ovhcloud, perplexity, poe, qianfan, requesty, sambanova, scaleway, sglang, siliconflow, stepfun, textgen, tgi, tensorrtllm, together, tokenhub, upstage, vllm, volcengine, xinference, xai, or zai",
+    "ai21, aimlapi, aphrodite, azure, baichuan, baseten, cerebras, cerebrium, chutes, clarifai, cloudflare, cohere, databricks, dashscope, deepinfra, deepseek, featherless, fastchat, fireworks, friendli, foundry, gemini, groq, huggingface, hyperbolic, inferencenet, ionos, jan, koboldcpp, lamini, litellm, llamacpp, lmdeploy, lmstudio, localai, mlc, mlx, hunyuan, minimax, mimo, mistral, modal, moonshot, nebius, nscale, novita, nvidia, ollama, openllm, openai, openrouter, ovhcloud, perplexity, poe, qianfan, requesty, sambanova, scaleway, sglang, siliconflow, stepfun, textgen, tgi, tensorrtllm, together, tokenhub, upstage, vllm, volcengine, xinference, xai, or zai",
   );
 });
 
@@ -352,6 +353,15 @@ test("proxy profiles provide Databricks-compatible Chat Completions defaults", (
     upstreamChatCompletionsPath: "/chat/completions",
     upstreamModelsPath: null,
     upstreamModelRetrievalPath: null,
+  });
+});
+
+test("proxy profiles provide Microsoft Foundry OpenAI v1 defaults", () => {
+  assert.deepEqual(resolveProxyProviderProfile("foundry"), {
+    upstreamApiKeyHeader: "api-key",
+    upstreamChatCompletionsPath: "/openai/v1/chat/completions",
+    upstreamModelsPath: "/openai/v1/models",
+    upstreamModelRetrievalPath: "/openai/v1/models",
   });
 });
 
@@ -693,7 +703,7 @@ test("proxy profiles provide SiliconFlow-compatible Chat Completions defaults", 
 
 test("every hosted proxy profile resolves a complete HTTPS Chat Completions contract", () => {
   for (const profile of PROXY_PROVIDER_PROFILE_NAMES) {
-    if (profile === "aphrodite" || profile === "azure" || profile === "cerebrium" || profile === "cloudflare" || profile === "databricks" || profile === "fastchat" || profile === "jan" || profile === "koboldcpp" || profile === "litellm" || profile === "llamacpp" || profile === "lmdeploy" || profile === "lmstudio" || profile === "localai" || profile === "mlc" || profile === "mlx" || profile === "modal" || profile === "ollama" || profile === "openllm" || profile === "openrouter" || profile === "sglang" || profile === "tgi" || profile === "tensorrtllm" || profile === "textgen" || profile === "vllm" || profile === "xinference") continue;
+    if (profile === "aphrodite" || profile === "azure" || profile === "cerebrium" || profile === "cloudflare" || profile === "databricks" || profile === "fastchat" || profile === "foundry" || profile === "jan" || profile === "koboldcpp" || profile === "litellm" || profile === "llamacpp" || profile === "lmdeploy" || profile === "lmstudio" || profile === "localai" || profile === "mlc" || profile === "mlx" || profile === "modal" || profile === "ollama" || profile === "openllm" || profile === "openrouter" || profile === "sglang" || profile === "tgi" || profile === "tensorrtllm" || profile === "textgen" || profile === "vllm" || profile === "xinference") continue;
     const resolved = resolveProxyProviderProfile(profile);
     assert.match(resolved.upstreamBaseUrl ?? "", /^https:\/\//);
     assert.equal(resolved.upstreamApiKeyHeader, "authorization");

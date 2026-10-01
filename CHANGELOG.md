@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added a Microsoft Foundry Models OpenAI v1 proxy provider profile with explicit resource base URL configuration, `api-key` authentication, and Chat Completions/model-list/retrieval wire-contract coverage.
 - Added a Databricks Model Serving AI Gateway OpenAI-compatible proxy provider profile with explicit workspace base URL configuration, bearer-authenticated Chat Completions coverage, and fail-closed model routes.
 - Added a dependency-light Bun `Bun.serve` integration example with lazy environment-based gate initialization and Fetch-native handler coverage.
 - Added a dependency-light Deno `deno serve` integration example with lazy environment-based gate initialization and Fetch-native handler coverage.
