@@ -205,6 +205,8 @@ test("proxy profiles provide Cerebras-compatible Chat Completions defaults", () 
     upstreamBaseUrl: "https://api.cerebras.ai/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
+    upstreamModelRetrievalPath: "/models",
   });
 });
 
