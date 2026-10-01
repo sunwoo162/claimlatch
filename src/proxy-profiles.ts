@@ -19,6 +19,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "fastchat",
   "fireworks",
   "friendli",
+  "foundry",
   "gemini",
   "groq",
   "huggingface",
@@ -207,6 +208,12 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamBaseUrl: "https://api.friendli.ai/serverless/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+  },
+  foundry: {
+    upstreamApiKeyHeader: "api-key",
+    upstreamChatCompletionsPath: "/openai/v1/chat/completions",
+    upstreamModelsPath: "/openai/v1/models",
+    upstreamModelRetrievalPath: "/openai/v1/models",
   },
   gemini: {
     upstreamBaseUrl: "https://generativelanguage.googleapis.com/v1beta/openai",
