@@ -68,7 +68,7 @@
 - Koa route adapter example without a core framework dependency
 - Baidu Qianfan v2 OpenAI-compatible proxy provider profile with model-list contract coverage
 - Alibaba Cloud DashScope OpenAI-compatible proxy provider profile with model-list contract coverage
-- Z.AI OpenAI-compatible proxy provider profile with Chat Completions contract coverage
+- Z.AI OpenAI-compatible proxy provider profile with documented Chat Completions coverage and fail-closed model routes
 - Volcengine Ark OpenAI-compatible proxy provider profile with Chat Completions contract coverage
 - MiniMax OpenAI-compatible proxy provider profile with Chat Completions contract coverage
 - Tencent Hunyuan OpenAI-compatible proxy provider profile with Chat Completions contract coverage
