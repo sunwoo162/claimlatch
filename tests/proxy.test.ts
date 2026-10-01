@@ -1914,6 +1914,53 @@ test("Groq provider profile forwards documented model-list and retrieval paths",
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
+test("Cerebras provider profile forwards documented model-list and retrieval paths", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "cerebras",
+  });
+  const capturedUrls: string[] = [];
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "cerebras-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrls.push(String(input));
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify(capturedUrls.length === 1
+        ? { object: "list", data: [{ id: "gpt-oss-120b", object: "model", created: 0, owned_by: "Cerebras" }] }
+        : { id: "gpt-oss-120b", object: "model", created: 1721692800, owned_by: "Cerebras" }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch,
+  }, async (url) => {
+    const modelsResponse = await fetch(`${url}/v1/models`);
+    assert.equal(modelsResponse.status, 200);
+    assert.deepEqual(await modelsResponse.json(), {
+      object: "list",
+      data: [{ id: "gpt-oss-120b", object: "model", created: 0, owned_by: "Cerebras" }],
+    });
+
+    const retrievalResponse = await fetch(`${url}/v1/models/gpt-oss-120b`);
+    assert.equal(retrievalResponse.status, 200);
+    assert.deepEqual(await retrievalResponse.json(), {
+      id: "gpt-oss-120b",
+      object: "model",
+      created: 1721692800,
+      owned_by: "Cerebras",
+    });
+  });
+
+  assert.deepEqual(capturedUrls, [
+    "https://api.cerebras.ai/v1/models",
+    "https://api.cerebras.ai/v1/models/gpt-oss-120b",
+  ]);
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer cerebras-key");
+  assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
 test("OpenAI provider profile forwards official model-list and retrieval paths", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "openai",

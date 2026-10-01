@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added Cerebras model-list and per-model retrieval coverage from its documented OpenAI-compatible API.
 - Added SambaNova model-list and per-model retrieval coverage from its documented OpenAI-compatible API.
 - Added Perplexity Router model-list coverage with fail-closed handling for undocumented per-model retrieval.
 - Added Together AI model-list coverage with fail-closed handling for undocumented per-model retrieval.

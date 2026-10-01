@@ -63,6 +63,7 @@
 - Together AI provider profile with documented model-list and fail-closed retrieval coverage
 - Perplexity Router API provider profile with documented model-list and fail-closed retrieval coverage
 - SambaNova provider profile with documented model-list and model-retrieval contract coverage
+- Cerebras provider profile with documented model-list and model-retrieval contract coverage
 - Koa route adapter example without a core framework dependency
 - Baidu Qianfan v2 OpenAI-compatible proxy provider profile with model-list contract coverage
 - Alibaba Cloud DashScope OpenAI-compatible proxy provider profile with model-list contract coverage
