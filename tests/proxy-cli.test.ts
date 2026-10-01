@@ -182,6 +182,7 @@ test("proxy CLI resolves every hosted built-in profile without an explicit base 
       upstreamChatCompletionsPath,
       upstreamModelsPath: profile === "baichuan" || profile === "clarifai" || profile === "ovhcloud" ? null : "/models",
       ...(profile === "mistral" ? { upstreamModelRetrievalPath: "/models" } : {}),
+      ...(profile === "moonshot" ? { upstreamModelRetrievalPath: null } : {}),
     });
   }
 });

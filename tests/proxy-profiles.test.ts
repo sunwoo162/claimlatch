@@ -549,11 +549,13 @@ test("proxy profiles provide StepFun-compatible Chat Completions defaults", () =
   });
 });
 
-test("proxy profiles provide Moonshot-compatible Chat Completions defaults", () => {
+test("proxy profiles provide Moonshot-compatible API defaults", () => {
   assert.deepEqual(resolveProxyProviderProfile("moonshot"), {
     upstreamBaseUrl: "https://api.moonshot.ai/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
+    upstreamModelRetrievalPath: null,
   });
 });
 
