@@ -255,7 +255,7 @@ test("proxy profiles provide Requesty-compatible Chat Completions and model-list
     upstreamBaseUrl: "https://router.requesty.ai/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
-    upstreamModelsPath: null,
+    upstreamModelsPath: "/models",
     upstreamModelRetrievalPath: null,
   });
 });

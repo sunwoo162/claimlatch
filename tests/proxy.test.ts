@@ -1616,29 +1616,29 @@ test("Upstage provider profile fails closed for undocumented model routes", asyn
   assert.equal(upstreamCalled, false);
 });
 
-test("Requesty provider profile fails closed for undocumented model routes", async () => {
+test("Requesty provider profile forwards model listing and fails closed for retrieval", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "requesty",
   });
-  let upstreamCalled = false;
+  const upstreamRequests: string[] = [];
 
   await withProxyOptions({
     gate: fixtureGate(),
     ...profile,
     upstreamApiKey: "requesty-key",
-    fetchImpl: (async () => {
-      upstreamCalled = true;
-      return new Response("unexpected upstream request", { status: 500 });
+    fetchImpl: (async (input) => {
+      upstreamRequests.push(String(input));
+      return new Response(JSON.stringify({ object: "list", data: [{ id: "openai/gpt-6-luna", object: "model" }] }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
     }) as typeof fetch,
   }, async (url) => {
     const response = await fetch(`${url}/v1/models`);
-    assert.equal(response.status, 404);
+    assert.equal(response.status, 200);
     assert.deepEqual(await response.json(), {
-      error: {
-        type: "claimlatch_proxy_error",
-        code: "claimlatch_model_route_unavailable",
-        message: "The configured provider does not expose a model-list route.",
-      },
+      object: "list",
+      data: [{ id: "openai/gpt-6-luna", object: "model" }],
     });
 
     const retrievalResponse = await fetch(`${url}/v1/models/openai%2Fgpt-6-luna`);
@@ -1646,13 +1646,13 @@ test("Requesty provider profile fails closed for undocumented model routes", asy
     assert.deepEqual(await retrievalResponse.json(), {
       error: {
         type: "claimlatch_proxy_error",
-        code: "claimlatch_model_route_unavailable",
-        message: "The configured provider does not expose a model-list route.",
+        code: "claimlatch_model_retrieval_route_unavailable",
+        message: "The configured provider does not expose a model-retrieval route.",
       },
     });
   });
 
-  assert.equal(upstreamCalled, false);
+  assert.deepEqual(upstreamRequests, ["https://router.requesty.ai/v1/models"]);
 });
 
 test("Featherless provider profile sends its model-list path and bearer header", async () => {
