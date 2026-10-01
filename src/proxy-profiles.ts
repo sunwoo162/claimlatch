@@ -32,6 +32,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "lmdeploy",
   "lmstudio",
   "localai",
+  "mlc",
   "mlx",
   "hunyuan",
   "minimax",
@@ -274,6 +275,12 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/v1/chat/completions",
     upstreamModelsPath: "/v1/models",
+  },
+  mlc: {
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/v1/chat/completions",
+    upstreamModelsPath: "/v1/models",
+    upstreamModelRetrievalPath: null,
   },
   mlx: {
     upstreamApiKeyHeader: "authorization",
