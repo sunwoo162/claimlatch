@@ -4542,6 +4542,37 @@ test("Cloudflare Workers AI provider profile fails closed for undocumented model
   assert.equal(upstreamCalled, false);
 });
 
+test("Cohere provider profile fails closed for compatibility-unsupported model routes", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "cohere",
+  });
+  let upstreamCalled = false;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "cohere-key",
+    fetchImpl: (async () => {
+      upstreamCalled = true;
+      return new Response("unexpected upstream request", { status: 500 });
+    }) as typeof fetch,
+  }, async (url) => {
+    for (const path of ["/v1/models", "/v1/models/command-a-03-2025"]) {
+      const response = await fetch(`${url}${path}`);
+      assert.equal(response.status, 404);
+      assert.deepEqual(await response.json(), {
+        error: {
+          type: "claimlatch_proxy_error",
+          code: "claimlatch_model_route_unavailable",
+          message: "The configured provider does not expose a model-list route.",
+        },
+      });
+    }
+  });
+
+  assert.equal(upstreamCalled, false);
+});
+
 test("Xiaomi MiMo provider profile sends the OpenAI-compatible bearer contract", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "mimo",
