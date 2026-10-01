@@ -241,6 +241,8 @@ test("proxy profiles provide Upstage-compatible Chat Completions defaults", () =
     upstreamBaseUrl: "https://api.upstage.ai/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: null,
+    upstreamModelRetrievalPath: null,
   });
 });
 
