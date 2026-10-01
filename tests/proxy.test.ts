@@ -1327,7 +1327,7 @@ test("Hyperbolic provider profile fails closed for retired model routes", async 
   assert.deepEqual(upstreamRequests, []);
 });
 
-test("Qianfan provider profile sends its model-list path and bearer header", async () => {
+test("Qianfan provider profile forwards model listing and fails closed for retrieval", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "qianfan",
   });
@@ -1352,6 +1352,16 @@ test("Qianfan provider profile sends its model-list path and bearer header", asy
     assert.deepEqual(await response.json(), {
       object: "list",
       data: [{ id: "ernie-5.0", object: "model" }],
+    });
+
+    const retrievalResponse = await fetch(`${url}/v1/models/ernie-5.0`);
+    assert.equal(retrievalResponse.status, 404);
+    assert.deepEqual(await retrievalResponse.json(), {
+      error: {
+        type: "claimlatch_proxy_error",
+        code: "claimlatch_model_retrieval_route_unavailable",
+        message: "The configured provider does not expose a model-retrieval route.",
+      },
     });
   });
 
