@@ -1824,7 +1824,7 @@ test("Scaleway provider profile forwards model listing and fails closed for retr
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
-test("Lamini provider profile sends its model-list path and bearer header", async () => {
+test("Lamini provider profile forwards model listing and fails closed for retrieval", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "lamini",
   });
@@ -1849,6 +1849,16 @@ test("Lamini provider profile sends its model-list path and bearer header", asyn
     assert.deepEqual(await response.json(), {
       object: "list",
       data: [{ id: "meta-llama/Llama-3.2-3B-Instruct", object: "model" }],
+    });
+
+    const retrievalResponse = await fetch(`${url}/v1/models/meta-llama%2FLlama-3.2-3B-Instruct`);
+    assert.equal(retrievalResponse.status, 404);
+    assert.deepEqual(await retrievalResponse.json(), {
+      error: {
+        type: "claimlatch_proxy_error",
+        code: "claimlatch_model_retrieval_route_unavailable",
+        message: "The configured provider does not expose a model-retrieval route.",
+      },
     });
   });
 

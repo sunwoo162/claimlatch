@@ -427,6 +427,7 @@ test("proxy profiles provide Lamini-compatible Chat Completions and model-list d
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
     upstreamModelsPath: "/models",
+    upstreamModelRetrievalPath: null,
   });
 });
 
