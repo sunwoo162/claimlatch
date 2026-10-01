@@ -1705,7 +1705,7 @@ test("Featherless provider profile forwards documented model-list and retrieval 
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
-test("IONOS provider profile sends its model-list path and bearer header", async () => {
+test("IONOS provider profile forwards model listing and fails closed for retrieval", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "ionos",
   });
@@ -1730,6 +1730,16 @@ test("IONOS provider profile sends its model-list path and bearer header", async
     assert.deepEqual(await response.json(), {
       object: "list",
       data: [{ id: "openai/gpt-oss-120b", object: "model" }],
+    });
+
+    const retrievalResponse = await fetch(`${url}/v1/models/openai%2Fgpt-oss-120b`);
+    assert.equal(retrievalResponse.status, 404);
+    assert.deepEqual(await retrievalResponse.json(), {
+      error: {
+        type: "claimlatch_proxy_error",
+        code: "claimlatch_model_retrieval_route_unavailable",
+        message: "The configured provider does not expose a model-retrieval route.",
+      },
     });
   });
 

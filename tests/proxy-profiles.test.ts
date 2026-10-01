@@ -276,6 +276,7 @@ test("proxy profiles provide IONOS AI Model Hub-compatible Chat Completions and 
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
     upstreamModelsPath: "/models",
+    upstreamModelRetrievalPath: null,
   });
 });
 

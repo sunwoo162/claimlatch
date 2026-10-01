@@ -7,6 +7,7 @@
 - Hardened the Nscale provider profile with fail-closed handling for its undocumented per-model retrieval route.
 - Added Novita's documented `/models` and `/models/{model_id}` routes with bearer-authenticated wire-contract coverage.
 - Added Featherless's documented `/models/{model_id}` route with encoded model-ID wire-contract coverage.
+- Hardened the IONOS AI Model Hub profile with fail-closed handling for its undocumented per-model retrieval route.
 - Hardened the Poe provider profile with fail-closed handling for its undocumented per-model retrieval route.
 - Hardened the Requesty provider profile with fail-closed handling for its undocumented per-model retrieval route.
 - Hardened the Upstage provider profile with fail-closed handling for undocumented model-list and per-model retrieval routes.
