@@ -80,6 +80,7 @@
 - Poe OpenAI-compatible proxy provider profile with Chat Completions and model-list contract coverage
 - Upstage OpenAI-compatible proxy provider profile with Chat Completions contract coverage
 - AI21 OpenAI-compatible proxy provider profile with fail-closed handling for undocumented model routes
+- Gemini OpenAI-compatible proxy provider profile with Chat Completions, model-list, and per-model retrieval contract coverage
 - Requesty OpenAI-compatible proxy provider profile with Chat Completions and model-list contract coverage
 - Featherless AI OpenAI-compatible proxy provider profile with Chat Completions and model-list contract coverage
 - IONOS Cloud AI Model Hub OpenAI-compatible proxy provider profile with Chat Completions and model-list contract coverage
