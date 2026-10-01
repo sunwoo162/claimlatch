@@ -3827,34 +3827,45 @@ test("Xinference provider profile sends its versioned model-list path and bearer
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
-test("Xinference provider profile fails closed for undocumented model retrieval routes", async () => {
+test("Xinference provider profile forwards its documented model retrieval route", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "xinference",
     CLAIMLATCH_PROXY_UPSTREAM_BASE_URL: "http://localhost:9997",
   });
-  let upstreamCalled = false;
+  let capturedUrl: string | undefined;
+  let capturedHeaders: Headers | undefined;
 
   await withProxyOptions({
     gate: fixtureGate(),
     ...profile,
     upstreamApiKey: "xinference-local",
-    fetchImpl: (async () => {
-      upstreamCalled = true;
-      return new Response("unexpected upstream request", { status: 500 });
+    fetchImpl: (async (input, init) => {
+      capturedUrl = String(input);
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({
+        model_uid: "xinference-model",
+        model_name: "qwen2.5-instruct",
+        replica: 1,
+        model_engine: "llama.cpp",
+      }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
     }) as typeof fetch,
   }, async (url) => {
-    const response = await fetch(`${url}/v1/models/xinference-model`);
-    assert.equal(response.status, 404);
+    const response = await fetch(`${url}/v1/models/xinference-model?include=metadata`);
+    assert.equal(response.status, 200);
     assert.deepEqual(await response.json(), {
-      error: {
-        type: "claimlatch_proxy_error",
-        code: "claimlatch_model_retrieval_route_unavailable",
-        message: "The configured provider does not expose a model-retrieval route.",
-      },
+      model_uid: "xinference-model",
+      model_name: "qwen2.5-instruct",
+      replica: 1,
+      model_engine: "llama.cpp",
     });
   });
 
-  assert.equal(upstreamCalled, false);
+  assert.equal(capturedUrl, "http://localhost:9997/v1/models/xinference-model?include=metadata");
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer xinference-local");
+  assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
 test("Cloudflare Workers AI provider profile sends the account-scoped bearer contract", async () => {

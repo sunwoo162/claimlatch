@@ -494,7 +494,7 @@ test("proxy CLI requires an explicit base URL for Xinference", () => {
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/v1/chat/completions",
     upstreamModelsPath: "/v1/models",
-    upstreamModelRetrievalPath: null,
+    upstreamModelRetrievalPath: "/v1/models",
   });
 });
 

@@ -321,7 +321,7 @@ test("proxy profiles provide Xinference-compatible Chat Completions and model-li
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/v1/chat/completions",
     upstreamModelsPath: "/v1/models",
-    upstreamModelRetrievalPath: null,
+    upstreamModelRetrievalPath: "/v1/models",
   });
 });
 
