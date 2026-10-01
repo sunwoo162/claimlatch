@@ -1620,14 +1620,14 @@ test("Requesty provider profile forwards model listing and fails closed for retr
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "requesty",
   });
-  const upstreamRequests: string[] = [];
+  const upstreamRequests: Array<{ url: string; headers: Headers }> = [];
 
   await withProxyOptions({
     gate: fixtureGate(),
     ...profile,
     upstreamApiKey: "requesty-key",
-    fetchImpl: (async (input) => {
-      upstreamRequests.push(String(input));
+    fetchImpl: (async (input, init) => {
+      upstreamRequests.push({ url: String(input), headers: new Headers(init?.headers) });
       return new Response(JSON.stringify({ object: "list", data: [{ id: "openai/gpt-6-luna", object: "model" }] }), {
         status: 200,
         headers: { "content-type": "application/json" },
@@ -1652,7 +1652,9 @@ test("Requesty provider profile forwards model listing and fails closed for retr
     });
   });
 
-  assert.deepEqual(upstreamRequests, ["https://router.requesty.ai/v1/models"]);
+  assert.deepEqual(upstreamRequests.map(({ url }) => url), ["https://router.requesty.ai/v1/models"]);
+  assert.equal(upstreamRequests[0]?.headers.get("authorization"), "Bearer requesty-key");
+  assert.equal(upstreamRequests[0]?.headers.get("api-key"), null);
 });
 
 test("Featherless provider profile sends its model-list path and bearer header", async () => {
