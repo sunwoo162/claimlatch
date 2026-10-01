@@ -6,6 +6,7 @@
 - Hardened the Upstage provider profile with fail-closed handling for undocumented model-list and per-model retrieval routes.
 - Added MiniMax's documented `/models` and `/models/{model_id}` routes with bearer-authenticated wire-contract coverage.
 - Hardened the Nebius Token Factory profile with fail-closed handling for its undocumented per-model retrieval route.
+- Hardened the SiliconFlow provider profile with fail-closed handling for its undocumented per-model retrieval route.
 - Added StepFun's documented `/models` and `/models/{model}` routes with bearer-authenticated wire-contract coverage.
 - Hardened the Tencent Hunyuan provider profile with fail-closed handling for undocumented model-list and per-model retrieval routes.
 - Deprecated the retired Tencent Hunyuan provider profile and directed new deployments to the TokenHub profile.

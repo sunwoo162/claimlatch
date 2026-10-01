@@ -476,6 +476,8 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamBaseUrl: "https://api.siliconflow.cn/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
+    upstreamModelRetrievalPath: null,
   },
   stepfun: {
     upstreamBaseUrl: "https://api.stepfun.ai/v1",

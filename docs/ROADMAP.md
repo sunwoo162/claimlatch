@@ -73,6 +73,7 @@
 - Volcengine Ark OpenAI-compatible proxy provider profile with documented Chat Completions coverage and fail-closed model routes
 - MiniMax OpenAI-compatible proxy provider profile with Chat Completions, model-list, and model-retrieval contract coverage
 - Nebius Token Factory OpenAI-compatible proxy provider profile with documented model-list coverage and fail-closed model retrieval
+- SiliconFlow OpenAI-compatible proxy provider profile with documented model-list coverage and fail-closed model retrieval
 - Retired Tencent Hunyuan provider profile documented as legacy-only with migration guidance to TokenHub
 - Tencent Cloud TokenHub OpenAI-compatible proxy provider profile with model-list contract coverage
 - StepFun OpenAI-compatible proxy provider profile with Chat Completions, model-list, and model-retrieval contract coverage

@@ -2563,6 +2563,47 @@ test("Nebius provider profile forwards model listing and fails closed for undocu
   assert.equal(upstreamCalled, true);
 });
 
+test("SiliconFlow provider profile forwards model listing and fails closed for undocumented retrieval", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "siliconflow",
+  });
+  let upstreamCalled = false;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "siliconflow-key",
+    fetchImpl: (async (input, init) => {
+      upstreamCalled = true;
+      assert.equal(String(input), "https://api.siliconflow.cn/v1/models?type=text");
+      assert.equal(new Headers(init?.headers).get("authorization"), "Bearer siliconflow-key");
+      return new Response(JSON.stringify({
+        object: "list",
+        data: [{ id: "deepseek-ai/DeepSeek-V4-Flash", object: "model" }],
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    }) as typeof fetch,
+  }, async (url) => {
+    const modelsResponse = await fetch(`${url}/v1/models?type=text`);
+    assert.equal(modelsResponse.status, 200);
+    assert.deepEqual(await modelsResponse.json(), {
+      object: "list",
+      data: [{ id: "deepseek-ai/DeepSeek-V4-Flash", object: "model" }],
+    });
+
+    const retrievalResponse = await fetch(`${url}/v1/models/deepseek-ai%2FDeepSeek-V4-Flash`);
+    assert.equal(retrievalResponse.status, 404);
+    assert.deepEqual(await retrievalResponse.json(), {
+      error: {
+        type: "claimlatch_proxy_error",
+        code: "claimlatch_model_retrieval_route_unavailable",
+        message: "The configured provider does not expose a model-retrieval route.",
+      },
+    });
+  });
+
+  assert.equal(upstreamCalled, true);
+});
+
 test("MiniMax provider profile sends the OpenAI-compatible bearer contract", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "minimax",
