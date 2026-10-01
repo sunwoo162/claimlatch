@@ -86,7 +86,7 @@
 - Gemini OpenAI-compatible proxy provider profile with Chat Completions, model-list, and per-model retrieval contract coverage
 - Hugging Face Inference Providers proxy provider profile with Chat Completions, model-list, and encoded per-model retrieval contract coverage
 - DeepInfra OpenAI-compatible proxy provider profile with model-list coverage and fail-closed per-model retrieval
-- Featherless AI OpenAI-compatible proxy provider profile with Chat Completions and model-list contract coverage
+- Featherless AI OpenAI-compatible proxy provider profile with Chat Completions, model-list, and encoded model-retrieval contract coverage
 - IONOS Cloud AI Model Hub OpenAI-compatible proxy provider profile with Chat Completions and model-list contract coverage
 - Hyperbolic OpenAI-compatible proxy provider profile with Chat Completions and fail-closed retired model-route coverage
 - Nscale model-list coverage with fail-closed individual model retrieval

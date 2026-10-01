@@ -203,6 +203,7 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
     upstreamModelsPath: "/models",
+    upstreamModelRetrievalPath: "/models",
   },
   fastchat: {
     upstreamApiKeyHeader: "authorization",
