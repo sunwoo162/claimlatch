@@ -188,7 +188,7 @@ test("proxy CLI resolves every hosted built-in profile without an explicit base 
       ...(profile === "deepseek" ? { upstreamModelRetrievalPath: null } : {}),
       ...(profile === "fireworks" ? { upstreamModelRetrievalPath: null } : {}),
       ...(profile === "friendli" || profile === "together" ? { upstreamModelRetrievalPath: null } : {}),
-      ...(profile === "groq" || profile === "gemini" ? { upstreamModelRetrievalPath: "/models" } : {}),
+      ...(profile === "groq" || profile === "gemini" || profile === "huggingface" ? { upstreamModelRetrievalPath: "/models" } : {}),
       ...(profile === "openai" ? { upstreamModelRetrievalPath: "/models" } : {}),
       ...(profile === "nvidia" ? { upstreamModelRetrievalPath: null } : {}),
       ...(profile === "perplexity" ? { upstreamModelRetrievalPath: null } : {}),
@@ -197,6 +197,7 @@ test("proxy CLI resolves every hosted built-in profile without an explicit base 
       ...(profile === "sambanova" ? { upstreamModelRetrievalPath: "/models" } : {}),
       ...(profile === "upstage" ? { upstreamModelRetrievalPath: null } : {}),
       ...(profile === "xai" ? { upstreamModelRetrievalPath: "/models" } : {}),
+      ...(profile === "huggingface" ? { upstreamModelIdEncoding: "path" } : {}),
     });
   }
 });
@@ -690,6 +691,13 @@ test("provider-compatible proxy example preserves the configured model-retrieval
 
   assert.equal(configuration.upstreamModelsPath, "/v1/models");
   assert.equal(configuration.upstreamModelRetrievalPath, null);
+});
+
+test("provider-compatible proxy example preserves provider model ID encoding", () => {
+  const configuration = resolveProviderCompatibleProxyConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "huggingface",
+  });
+  assert.equal(configuration.upstreamModelIdEncoding, "path");
 });
 
 test("provider-compatible proxy example preserves OpenRouter attribution headers", () => {

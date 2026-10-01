@@ -7,6 +7,7 @@ export interface ProxyProviderConfiguration {
   upstreamChatCompletionsPath: string;
   upstreamModelsPath: string | null;
   upstreamModelRetrievalPath?: string | null;
+  upstreamModelIdEncoding?: "encoded" | "path";
   upstreamRequestHeaders?: Record<string, string>;
 }
 
@@ -89,6 +90,9 @@ export function resolveProxyProviderConfiguration(
       : profile.upstreamModelRetrievalPath !== undefined
         ? { upstreamModelRetrievalPath: profile.upstreamModelRetrievalPath }
         : {}),
+    ...(profile.upstreamModelIdEncoding !== undefined
+      ? { upstreamModelIdEncoding: profile.upstreamModelIdEncoding }
+      : {}),
     ...(Object.keys(upstreamRequestHeaders).length > 0 ? { upstreamRequestHeaders } : {}),
   };
 }
