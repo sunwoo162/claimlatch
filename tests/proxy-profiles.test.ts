@@ -642,7 +642,7 @@ test("proxy profiles provide DeepInfra-compatible Chat Completions defaults and 
     upstreamBaseUrl: "https://api.deepinfra.com/v1/openai",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
-    upstreamModelsPath: null,
+    upstreamModelsPath: "/models",
     upstreamModelRetrievalPath: null,
   });
 });
