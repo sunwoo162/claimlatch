@@ -558,6 +558,8 @@ test("proxy profiles provide StepFun-compatible Chat Completions defaults", () =
     upstreamBaseUrl: "https://api.stepfun.ai/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
+    upstreamModelRetrievalPath: "/models",
   });
 });
 

@@ -73,7 +73,7 @@
 - MiniMax OpenAI-compatible proxy provider profile with Chat Completions contract coverage
 - Retired Tencent Hunyuan provider profile documented as legacy-only with migration guidance to TokenHub
 - Tencent Cloud TokenHub OpenAI-compatible proxy provider profile with model-list contract coverage
-- StepFun OpenAI-compatible proxy provider profile with Chat Completions contract coverage
+- StepFun OpenAI-compatible proxy provider profile with Chat Completions, model-list, and model-retrieval contract coverage
 - AI21 OpenAI-compatible proxy provider profile with Chat Completions contract coverage
 - Novita AI OpenAI-compatible proxy provider profile with Chat Completions and model-list contract coverage
 - Chutes OpenAI-compatible proxy provider profile with Chat Completions and model-list contract coverage

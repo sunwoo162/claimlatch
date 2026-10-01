@@ -1831,6 +1831,52 @@ test("StepFun provider profile sends the OpenAI-compatible bearer contract", asy
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
+test("StepFun provider profile forwards documented model-list and retrieval paths", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "stepfun",
+  });
+  const capturedUrls: string[] = [];
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "stepfun-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrls.push(String(input));
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify(capturedUrls.length === 1
+        ? { object: "list", data: [{ id: "step-5-preview", object: "model", owned_by: "stepai" }] }
+        : { id: "step-5-preview", object: "model", owned_by: "stepai" }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch,
+  }, async (url) => {
+    const modelsResponse = await fetch(`${url}/v1/models`);
+    assert.equal(modelsResponse.status, 200);
+    assert.deepEqual(await modelsResponse.json(), {
+      object: "list",
+      data: [{ id: "step-5-preview", object: "model", owned_by: "stepai" }],
+    });
+
+    const retrievalResponse = await fetch(`${url}/v1/models/step-5-preview`);
+    assert.equal(retrievalResponse.status, 200);
+    assert.deepEqual(await retrievalResponse.json(), {
+      id: "step-5-preview",
+      object: "model",
+      owned_by: "stepai",
+    });
+  });
+
+  assert.deepEqual(capturedUrls, [
+    "https://api.stepfun.ai/v1/models",
+    "https://api.stepfun.ai/v1/models/step-5-preview",
+  ]);
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer stepfun-key");
+  assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
 test("AI21 provider profile sends the OpenAI-compatible bearer contract", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "ai21",

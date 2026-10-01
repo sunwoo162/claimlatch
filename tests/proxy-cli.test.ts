@@ -201,6 +201,7 @@ test("proxy CLI resolves every hosted built-in profile without an explicit base 
       ...(profile === "zai" ? { upstreamModelRetrievalPath: null } : {}),
       ...(profile === "hunyuan" ? { upstreamModelRetrievalPath: null } : {}),
       ...(profile === "volcengine" ? { upstreamModelRetrievalPath: null } : {}),
+      ...(profile === "stepfun" ? { upstreamModelRetrievalPath: "/models" } : {}),
       ...(profile === "huggingface" ? { upstreamModelIdEncoding: "path" } : {}),
     });
   }
