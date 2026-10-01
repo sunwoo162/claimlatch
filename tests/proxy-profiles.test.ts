@@ -539,6 +539,8 @@ test("proxy profiles provide Tencent Hunyuan-compatible Chat Completions default
     upstreamBaseUrl: "https://api.hunyuan.cloud.tencent.com/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: null,
+    upstreamModelRetrievalPath: null,
   });
 });
 
