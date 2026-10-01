@@ -1902,6 +1902,54 @@ test("Z.AI provider profile sends the OpenAI-compatible bearer contract", async 
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
+test("Moonshot provider profile forwards its documented model list and blocks undocumented retrieval", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "moonshot",
+  });
+  const capturedUrls: string[] = [];
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "moonshot-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrls.push(String(input));
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify({
+        object: "list",
+        data: [{ id: "kimi-k3", object: "model", owned_by: "moonshot" }],
+      }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch,
+  }, async (url) => {
+    const modelsResponse = await fetch(`${url}/v1/models?limit=1`);
+    assert.equal(modelsResponse.status, 200);
+    assert.deepEqual(await modelsResponse.json(), {
+      object: "list",
+      data: [{ id: "kimi-k3", object: "model", owned_by: "moonshot" }],
+    });
+
+    const retrievalResponse = await fetch(`${url}/v1/models/kimi-k3`);
+    assert.equal(retrievalResponse.status, 404);
+    assert.deepEqual(await retrievalResponse.json(), {
+      error: {
+        type: "claimlatch_proxy_error",
+        code: "claimlatch_model_retrieval_route_unavailable",
+        message: "The configured provider does not expose a model-retrieval route.",
+      },
+    });
+  });
+
+  assert.deepEqual(capturedUrls, [
+    "https://api.moonshot.ai/v1/models?limit=1",
+  ]);
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer moonshot-key");
+  assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
 test("Mistral provider profile forwards documented model-list and retrieval paths", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "mistral",
