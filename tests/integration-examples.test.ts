@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import cloudflareWorker from "../examples/cloudflare-worker.js";
+import denoServer, { createDenoGuardedAnswerHandler } from "../examples/deno-server.js";
 import {
   createExpressGuardedAnswerHandler,
   type ExpressRequest,
@@ -47,6 +48,64 @@ test("Remix route example exports Fetch-native loader and action handlers", () =
 
 test("Cloudflare Worker example exports a Fetch-native worker", () => {
   assert.equal(typeof cloudflareWorker.fetch, "function");
+});
+
+test("Deno example adapts a Fetch-native handler and preserves the response", async () => {
+  const handler = createDenoGuardedAnswerHandler(async (request) => {
+    assert.equal(request.method, "POST");
+    assert.equal(request.url, "https://example.test/answer");
+    assert.deepEqual(await request.json(), { question: "question", draft: "draft" });
+    return new Response(JSON.stringify({ answer: "verified" }), {
+      status: 200,
+      headers: { "content-type": "application/json", "x-claimlatch-result": "pass" },
+    });
+  });
+
+  const response = await handler(new Request("https://example.test/answer", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ question: "question", draft: "draft" }),
+  }));
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get("content-type"), "application/json");
+  assert.equal(response.headers.get("x-claimlatch-result"), "pass");
+  assert.deepEqual(await response.json(), { answer: "verified" });
+});
+
+test("Deno example default fetch lazily initializes from Deno.env", async () => {
+  const runtime = globalThis as typeof globalThis & {
+    Deno?: { env: { get(name: string): string | undefined } };
+  };
+  const previousDeno = runtime.Deno;
+  const reads: string[] = [];
+  runtime.Deno = {
+    env: {
+      get(name) {
+        reads.push(name);
+        return {
+          CLAIMLATCH_LLM_MODEL: "test-model",
+          TAVILY_API_KEY: "test-tavily-key",
+        }[name];
+      },
+    },
+  };
+
+  try {
+    assert.deepEqual(reads, []);
+    const response = await denoServer.fetch(new Request("https://example.test/health"));
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), { ok: true, service: "claimlatch-guarded-answer" });
+    assert.deepEqual(reads, [
+      "CLAIMLATCH_LLM_MODEL",
+      "TAVILY_API_KEY",
+      "CLAIMLATCH_LLM_API_KEY",
+      "CLAIMLATCH_LLM_BASE_URL",
+    ]);
+  } finally {
+    if (previousDeno) runtime.Deno = previousDeno;
+    else delete runtime.Deno;
+  }
 });
 
 test("Express example adapts parsed JSON requests to the guarded Fetch handler", async () => {
