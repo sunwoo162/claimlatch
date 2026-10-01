@@ -2556,6 +2556,52 @@ test("MiniMax provider profile sends the OpenAI-compatible bearer contract", asy
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
+test("MiniMax provider profile forwards documented model-list and retrieval paths", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "minimax",
+  });
+  const capturedUrls: string[] = [];
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "minimax-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrls.push(String(input));
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify(capturedUrls.length === 1
+        ? { object: "list", data: [{ id: "MiniMax-M3", object: "model", owned_by: "minimax" }] }
+        : { id: "MiniMax-M3", object: "model", owned_by: "minimax" }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch,
+  }, async (url) => {
+    const modelsResponse = await fetch(`${url}/v1/models`);
+    assert.equal(modelsResponse.status, 200);
+    assert.deepEqual(await modelsResponse.json(), {
+      object: "list",
+      data: [{ id: "MiniMax-M3", object: "model", owned_by: "minimax" }],
+    });
+
+    const retrievalResponse = await fetch(`${url}/v1/models/MiniMax-M3`);
+    assert.equal(retrievalResponse.status, 200);
+    assert.deepEqual(await retrievalResponse.json(), {
+      id: "MiniMax-M3",
+      object: "model",
+      owned_by: "minimax",
+    });
+  });
+
+  assert.deepEqual(capturedUrls, [
+    "https://api.minimax.io/v1/models",
+    "https://api.minimax.io/v1/models/MiniMax-M3",
+  ]);
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer minimax-key");
+  assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
 test("Tencent Hunyuan provider profile sends the OpenAI-compatible bearer contract", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "hunyuan",
