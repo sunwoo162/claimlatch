@@ -68,7 +68,7 @@
 - Added a FriendliAI serverless OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions defaults and profile coverage.
 - Added an Alibaba Cloud DashScope OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions and model-list defaults and wire-contract coverage.
 - Added a Baidu Qianfan v2 OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions and model-list defaults and wire-contract coverage.
-- Added a Z.AI OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions defaults and wire-contract coverage.
+- Added a Z.AI OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions defaults, wire-contract coverage, and fail-closed model routes.
 - Added a Volcengine Ark OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions defaults and wire-contract coverage.
 - Added a MiniMax OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions defaults and wire-contract coverage.
 - Added a Tencent Hunyuan OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions defaults and wire-contract coverage.

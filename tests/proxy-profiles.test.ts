@@ -692,6 +692,8 @@ test("proxy profiles provide Z.AI-compatible Chat Completions defaults", () => {
     upstreamBaseUrl: "https://api.z.ai/api/paas/v4",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: null,
+    upstreamModelRetrievalPath: null,
   });
 });
 
