@@ -92,6 +92,7 @@
 - KoboldCpp self-hosted OpenAI-compatible proxy provider profile with explicit base URL configuration, versioned Chat Completions/model-list contract coverage, and fail-closed handling for its undocumented model-retrieval route
 - LMDeploy self-hosted OpenAI-compatible proxy provider profile with explicit base URL configuration, versioned Chat Completions/model-list contract coverage, and fail-closed handling for its undocumented model-retrieval route
 - Xinference self-hosted OpenAI-compatible proxy provider profile with explicit base URL configuration and versioned Chat Completions/model-list/model-retrieval contract coverage
+- text-generation-webui self-hosted OpenAI-compatible proxy provider profile with explicit base URL configuration and Chat Completions/model-list/model-retrieval contract coverage
 - MLX-LM OpenAI-compatible proxy provider profile with explicit base URL configuration and versioned Chat Completions/model-list contract coverage
 - OpenLLM self-hosted OpenAI-compatible proxy provider profile with explicit base URL configuration, versioned Chat Completions/model-list contract coverage, and fail-closed handling for its undocumented model-retrieval route
 - FastChat self-hosted OpenAI-compatible proxy provider profile with explicit base URL configuration and versioned Chat Completions/model-list contract coverage
