@@ -639,6 +639,8 @@ test("proxy profiles provide Fireworks-compatible Chat Completions defaults", ()
     upstreamBaseUrl: "https://api.fireworks.ai/inference/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: null,
+    upstreamModelRetrievalPath: null,
   });
 });
 

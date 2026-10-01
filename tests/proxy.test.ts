@@ -2420,6 +2420,45 @@ test("Baichuan provider profile fails closed for unsupported model routes", asyn
   assert.equal(upstreamCalled, false);
 });
 
+test("Fireworks provider profile fails closed for management-only model routes", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "fireworks",
+  });
+  let upstreamCalled = false;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "fireworks-key",
+    fetchImpl: (async () => {
+      upstreamCalled = true;
+      return new Response("unexpected upstream request", { status: 500 });
+    }) as typeof fetch,
+  }, async (url) => {
+    const modelsResponse = await fetch(`${url}/v1/models`);
+    assert.equal(modelsResponse.status, 404);
+    assert.deepEqual(await modelsResponse.json(), {
+      error: {
+        type: "claimlatch_proxy_error",
+        code: "claimlatch_model_route_unavailable",
+        message: "The configured provider does not expose a model-list route.",
+      },
+    });
+
+    const retrievalResponse = await fetch(`${url}/v1/models/accounts%2Ffireworks%2Fmodels%2Fllama-v3p1-8b-instruct`);
+    assert.equal(retrievalResponse.status, 404);
+    assert.deepEqual(await retrievalResponse.json(), {
+      error: {
+        type: "claimlatch_proxy_error",
+        code: "claimlatch_model_route_unavailable",
+        message: "The configured provider does not expose a model-list route.",
+      },
+    });
+  });
+
+  assert.equal(upstreamCalled, false);
+});
+
 test("Baseten provider profile sends the OpenAI-compatible bearer contract", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "baseten",

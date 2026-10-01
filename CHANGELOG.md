@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Hardened the Fireworks provider profile with fail-closed handling for account-scoped model-management routes that are not part of its OpenAI-compatible inference endpoint.
 - Added NVIDIA hosted model-list coverage with fail-closed handling for the undocumented per-model retrieval route.
 - Hardened the Cohere compatibility profile with fail-closed handling for undocumented model-list and model-retrieval routes.
 - Added DeepSeek model-list proxy coverage with fail-closed handling for its undocumented per-model retrieval route.
