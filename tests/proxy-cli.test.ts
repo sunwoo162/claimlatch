@@ -131,7 +131,7 @@ test("proxy CLI resolves every hosted built-in profile without an explicit base 
     clarifai: "https://api.clarifai.com/v2/ext/openai/v1",
     cohere: "https://api.cohere.ai/compatibility/v1",
     dashscope: "https://dashscope.aliyuncs.com/compatible-mode/v1",
-    deepinfra: "https://api.deepinfra.com/v1/openai",
+    deepinfra: "https://api.deepinfra.com/v1",
     deepseek: "https://api.deepseek.com",
     featherless: "https://api.featherless.ai/v1",
     fireworks: "https://api.fireworks.ai/inference/v1",

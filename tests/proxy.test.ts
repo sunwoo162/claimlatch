@@ -18,7 +18,7 @@ const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "aphrod
   clarifai: "https://api.clarifai.com/v2/ext/openai/v1",
   cohere: "https://api.cohere.ai/compatibility/v1",
   dashscope: "https://dashscope.aliyuncs.com/compatible-mode/v1",
-  deepinfra: "https://api.deepinfra.com/v1/openai",
+  deepinfra: "https://api.deepinfra.com/v1",
   deepseek: "https://api.deepseek.com",
   featherless: "https://api.featherless.ai/v1",
   fireworks: "https://api.fireworks.ai/inference/v1",
@@ -1900,14 +1900,14 @@ test("DeepInfra provider profile forwards documented model listing and fails clo
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "deepinfra",
   });
-  let upstreamCalled = false;
+  const upstreamRequests: Array<{ url: string; headers: Headers }> = [];
 
   await withProxyOptions({
     gate: fixtureGate(),
     ...profile,
     upstreamApiKey: "deepinfra-key",
-    fetchImpl: (async () => {
-      upstreamCalled = true;
+    fetchImpl: (async (requestUrl, init) => {
+      upstreamRequests.push({ url: String(requestUrl), headers: new Headers(init?.headers) });
       return new Response(JSON.stringify({
         object: "list",
         data: [{ id: "deepseek-ai/DeepSeek-V4-Flash", object: "model", owned_by: "deepinfra" }],
@@ -1932,7 +1932,8 @@ test("DeepInfra provider profile forwards documented model listing and fails clo
     });
   });
 
-  assert.equal(upstreamCalled, true);
+  assert.deepEqual(upstreamRequests.map(({ url }) => url), ["https://api.deepinfra.com/v1/models"]);
+  assert.equal(upstreamRequests[0]?.headers.get("authorization"), "Bearer deepinfra-key");
 });
 
 test("hosted Gemini provider profile sends the OpenAI-compatible bearer contract", async () => {

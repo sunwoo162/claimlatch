@@ -639,7 +639,7 @@ test("proxy profiles provide DeepSeek-compatible Chat Completions defaults", () 
 
 test("proxy profiles provide DeepInfra-compatible Chat Completions defaults and fail-closed model routes", () => {
   assert.deepEqual(resolveProxyProviderProfile("deepinfra"), {
-    upstreamBaseUrl: "https://api.deepinfra.com/v1/openai",
+    upstreamBaseUrl: "https://api.deepinfra.com/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
     upstreamModelsPath: "/models",
