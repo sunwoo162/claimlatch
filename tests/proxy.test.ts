@@ -1308,7 +1308,7 @@ test("Hyperbolic provider profile fails closed for retired model routes", async 
     assert.deepEqual(await modelsResponse.json(), {
       error: {
         type: "claimlatch_proxy_error",
-        code: "claimlatch_model_list_route_unavailable",
+        code: "claimlatch_model_route_unavailable",
         message: "The configured provider does not expose a model-list route.",
       },
     });
@@ -1318,8 +1318,8 @@ test("Hyperbolic provider profile fails closed for retired model routes", async 
     assert.deepEqual(await retrievalResponse.json(), {
       error: {
         type: "claimlatch_proxy_error",
-        code: "claimlatch_model_retrieval_route_unavailable",
-        message: "The configured provider does not expose a model-retrieval route.",
+        code: "claimlatch_model_route_unavailable",
+        message: "The configured provider does not expose a model-list route.",
       },
     });
   });

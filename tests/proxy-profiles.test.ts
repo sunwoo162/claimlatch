@@ -118,7 +118,7 @@ test("proxy profiles provide Baseten Model APIs Chat Completions and model-list 
     upstreamBaseUrl: "https://inference.baseten.co/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
-    upstreamModelsPath: null,
+    upstreamModelsPath: "/models",
   });
 });
 
@@ -376,7 +376,7 @@ test("proxy profiles provide Hyperbolic-compatible Chat Completions defaults", (
     upstreamBaseUrl: "https://api.hyperbolic.xyz/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
-    upstreamModelsPath: "/models",
+    upstreamModelsPath: null,
     upstreamModelRetrievalPath: null,
   });
 });
