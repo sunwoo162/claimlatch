@@ -231,6 +231,8 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamBaseUrl: "https://generativelanguage.googleapis.com/v1beta/openai",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
+    upstreamModelRetrievalPath: "/models",
   },
   groq: {
     upstreamBaseUrl: "https://api.groq.com/openai/v1",

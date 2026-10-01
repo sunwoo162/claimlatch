@@ -188,7 +188,7 @@ test("proxy CLI resolves every hosted built-in profile without an explicit base 
       ...(profile === "deepseek" ? { upstreamModelRetrievalPath: null } : {}),
       ...(profile === "fireworks" ? { upstreamModelRetrievalPath: null } : {}),
       ...(profile === "friendli" || profile === "together" ? { upstreamModelRetrievalPath: null } : {}),
-      ...(profile === "groq" ? { upstreamModelRetrievalPath: "/models" } : {}),
+      ...(profile === "groq" || profile === "gemini" ? { upstreamModelRetrievalPath: "/models" } : {}),
       ...(profile === "openai" ? { upstreamModelRetrievalPath: "/models" } : {}),
       ...(profile === "nvidia" ? { upstreamModelRetrievalPath: null } : {}),
       ...(profile === "perplexity" ? { upstreamModelRetrievalPath: null } : {}),

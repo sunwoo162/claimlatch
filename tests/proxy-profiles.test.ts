@@ -497,11 +497,13 @@ test("proxy profiles provide Groq-compatible API defaults", () => {
   });
 });
 
-test("proxy profiles provide Gemini OpenAI-compatible Chat Completions defaults", () => {
+test("proxy profiles provide Gemini OpenAI-compatible Chat Completions and model-route defaults", () => {
   assert.deepEqual(resolveProxyProviderProfile("gemini"), {
     upstreamBaseUrl: "https://generativelanguage.googleapis.com/v1beta/openai",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
+    upstreamModelRetrievalPath: "/models",
   });
 });
 
