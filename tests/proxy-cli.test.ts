@@ -199,7 +199,7 @@ test("proxy CLI resolves every hosted built-in profile without an explicit base 
       ...(profile === "upstage" ? { upstreamModelRetrievalPath: null } : {}),
       ...(profile === "xai" ? { upstreamModelRetrievalPath: "/models" } : {}),
       ...(profile === "zai" ? { upstreamModelRetrievalPath: null } : {}),
-      ...(profile === "hunyuan" || profile === "hyperbolic" || profile === "nebius" || profile === "siliconflow" ? { upstreamModelRetrievalPath: null } : {}),
+      ...(profile === "hunyuan" || profile === "hyperbolic" || profile === "nebius" || profile === "nscale" || profile === "siliconflow" ? { upstreamModelRetrievalPath: null } : {}),
       ...(profile === "volcengine" ? { upstreamModelRetrievalPath: null } : {}),
       ...(profile === "stepfun" ? { upstreamModelRetrievalPath: "/models" } : {}),
       ...(profile === "minimax" ? { upstreamModelRetrievalPath: "/models" } : {}),
