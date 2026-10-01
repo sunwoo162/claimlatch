@@ -1929,8 +1929,8 @@ test("Cerebras provider profile forwards documented model-list and retrieval pat
       capturedUrls.push(String(input));
       capturedHeaders = new Headers(init?.headers);
       return new Response(JSON.stringify(capturedUrls.length === 1
-        ? { object: "list", data: [{ id: "gpt-oss-120b", object: "model" }] }
-        : { id: "gpt-oss-120b", object: "model", owned_by: "Cerebras" }), {
+        ? { object: "list", data: [{ id: "gpt-oss-120b", object: "model", created: 0, owned_by: "Cerebras" }] }
+        : { id: "gpt-oss-120b", object: "model", created: 1721692800, owned_by: "Cerebras" }), {
         status: 200,
         headers: { "content-type": "application/json" },
       });
@@ -1940,7 +1940,7 @@ test("Cerebras provider profile forwards documented model-list and retrieval pat
     assert.equal(modelsResponse.status, 200);
     assert.deepEqual(await modelsResponse.json(), {
       object: "list",
-      data: [{ id: "gpt-oss-120b", object: "model" }],
+      data: [{ id: "gpt-oss-120b", object: "model", created: 0, owned_by: "Cerebras" }],
     });
 
     const retrievalResponse = await fetch(`${url}/v1/models/gpt-oss-120b`);
@@ -1948,6 +1948,7 @@ test("Cerebras provider profile forwards documented model-list and retrieval pat
     assert.deepEqual(await retrievalResponse.json(), {
       id: "gpt-oss-120b",
       object: "model",
+      created: 1721692800,
       owned_by: "Cerebras",
     });
   });
