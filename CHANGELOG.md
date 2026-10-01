@@ -4,6 +4,7 @@
 
 - Added the credential-free `npm run verify` release check for build, full tests, and independent benchmark manifest validation.
 - Updated `prepublishOnly` to run the complete credential-free release verification before publishing.
+- Updated the main CI matrix to run the same complete credential-free release verification on every pull request.
 - Added DNS resolution, public-IP validation, and per-request IP pinning to the built-in OpenAI-compatible proxy transport, including streaming response support and fail-closed private-target handling.
 - Made Hyperbolic model-list and individual model-retrieval routes fail closed because the documented serverless inference endpoints are retired.
 - Hardened the Nscale provider profile with fail-closed handling for its undocumented per-model retrieval route.
