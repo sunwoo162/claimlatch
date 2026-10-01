@@ -103,6 +103,7 @@ test("proxy CLI resolves an explicit upstream API key prefix", () => {
     upstreamApiKeyHeader: "authorization",
     upstreamApiKeyPrefix: "Api-Key",
     upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelRetrievalPath: "/models",
     upstreamModelsPath: "/models",
   });
 });
@@ -184,6 +185,7 @@ test("proxy CLI resolves every hosted built-in profile without an explicit base 
       ...(profile === "mistral" ? { upstreamModelRetrievalPath: "/models" } : {}),
       ...(profile === "moonshot" ? { upstreamModelRetrievalPath: null } : {}),
       ...(profile === "groq" ? { upstreamModelRetrievalPath: "/models" } : {}),
+      ...(profile === "openai" ? { upstreamModelRetrievalPath: "/models" } : {}),
     });
   }
 });

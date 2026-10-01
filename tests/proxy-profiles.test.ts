@@ -586,11 +586,13 @@ test("proxy profiles provide Hugging Face Inference Providers defaults", () => {
   });
 });
 
-test("proxy profiles provide OpenAI-compatible Chat Completions defaults", () => {
+test("proxy profiles provide OpenAI-compatible API defaults", () => {
   assert.deepEqual(resolveProxyProviderProfile("openai"), {
     upstreamBaseUrl: "https://api.openai.com/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
+    upstreamModelRetrievalPath: "/models",
   });
 });
 

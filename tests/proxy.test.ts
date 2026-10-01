@@ -1914,6 +1914,52 @@ test("Groq provider profile forwards documented model-list and retrieval paths",
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
+test("OpenAI provider profile forwards official model-list and retrieval paths", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "openai",
+  });
+  const capturedUrls: string[] = [];
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "openai-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrls.push(String(input));
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify(capturedUrls.length === 1
+        ? { object: "list", data: [{ id: "gpt-5.6", object: "model" }] }
+        : { id: "gpt-5.6", object: "model", owned_by: "openai" }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch,
+  }, async (url) => {
+    const modelsResponse = await fetch(`${url}/v1/models?limit=1`);
+    assert.equal(modelsResponse.status, 200);
+    assert.deepEqual(await modelsResponse.json(), {
+      object: "list",
+      data: [{ id: "gpt-5.6", object: "model" }],
+    });
+
+    const retrievalResponse = await fetch(`${url}/v1/models/gpt-5.6?include=permissions`);
+    assert.equal(retrievalResponse.status, 200);
+    assert.deepEqual(await retrievalResponse.json(), {
+      id: "gpt-5.6",
+      object: "model",
+      owned_by: "openai",
+    });
+  });
+
+  assert.deepEqual(capturedUrls, [
+    "https://api.openai.com/v1/models?limit=1",
+    "https://api.openai.com/v1/models/gpt-5.6?include=permissions",
+  ]);
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer openai-key");
+  assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
 test("Z.AI provider profile sends the OpenAI-compatible bearer contract", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "zai",
