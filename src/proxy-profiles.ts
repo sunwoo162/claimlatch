@@ -64,6 +64,7 @@ export const PROXY_PROVIDER_PROFILE_NAMES = [
   "upstage",
   "vllm",
   "volcengine",
+  "xinference",
   "xai",
   "zai",
 ] as const;
@@ -438,6 +439,12 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamBaseUrl: "https://ark.cn-beijing.volces.com/api/v3",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+  },
+  xinference: {
+    upstreamApiKeyHeader: "authorization",
+    upstreamChatCompletionsPath: "/v1/chat/completions",
+    upstreamModelsPath: "/v1/models",
+    upstreamModelRetrievalPath: "/v1/models",
   },
   xai: {
     upstreamBaseUrl: "https://api.x.ai/v1",
