@@ -753,6 +753,7 @@ test("proxy profiles provide Qianfan v2-compatible Chat Completions defaults", (
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
     upstreamModelsPath: "/models",
+    upstreamModelRetrievalPath: null,
   });
 });
 

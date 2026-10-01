@@ -67,7 +67,7 @@
 - Cerebras provider profile with documented model-list and model-retrieval contract coverage
 - Upstage provider profile with fail-closed handling for undocumented model routes
 - Koa route adapter example without a core framework dependency
-- Baidu Qianfan v2 OpenAI-compatible proxy provider profile with model-list contract coverage
+- Baidu Qianfan v2 OpenAI-compatible proxy provider profile with model-list and fail-closed retrieval coverage
 - Alibaba Cloud DashScope OpenAI-compatible proxy provider profile with model-list contract coverage
 - Z.AI OpenAI-compatible proxy provider profile with documented Chat Completions coverage and fail-closed model routes
 - Volcengine Ark OpenAI-compatible proxy provider profile with documented Chat Completions coverage and fail-closed model routes

@@ -12,6 +12,7 @@
 - Hardened the Lamini profile with fail-closed handling for its undocumented per-model retrieval route.
 - Hardened the AI/ML API profile with fail-closed handling for its undocumented per-model retrieval route.
 - Hardened the Inference.net profile with fail-closed handling for its undocumented per-model retrieval route.
+- Hardened the Baidu Qianfan v2 profile with fail-closed handling for its non-OpenAI model-details route.
 - Hardened the Poe provider profile with fail-closed handling for its undocumented per-model retrieval route.
 - Hardened the Requesty provider profile with fail-closed handling for its undocumented per-model retrieval route.
 - Hardened the Upstage provider profile with fail-closed handling for undocumented model-list and per-model retrieval routes.
