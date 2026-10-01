@@ -3552,6 +3552,35 @@ test("Nscale provider profile sends its model-list path and bearer header", asyn
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
+test("Nscale provider profile fails closed for undocumented model retrieval", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "nscale",
+  });
+  let upstreamCalled = false;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "nscale-token",
+    fetchImpl: (async () => {
+      upstreamCalled = true;
+      return new Response("unexpected upstream request", { status: 500 });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/models/meta-llama%2FLlama-3.1-8B-Instruct`);
+    assert.equal(response.status, 404);
+    assert.deepEqual(await response.json(), {
+      error: {
+        type: "claimlatch_proxy_error",
+        code: "claimlatch_model_retrieval_route_unavailable",
+        message: "The configured provider does not expose a model-retrieval route.",
+      },
+    });
+  });
+
+  assert.equal(upstreamCalled, false);
+});
+
 test("LiteLLM provider profile sends its versioned Chat Completions contract", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "litellm",

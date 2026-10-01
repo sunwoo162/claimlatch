@@ -136,6 +136,7 @@ test("proxy profiles provide Nscale Inference-compatible Chat Completions and mo
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
     upstreamModelsPath: "/models",
+    upstreamModelRetrievalPath: null,
   });
 });
 
