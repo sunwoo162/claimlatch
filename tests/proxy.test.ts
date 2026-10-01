@@ -2567,9 +2567,10 @@ test("Perplexity Router provider profile forwards its documented model list and 
     fetchImpl: (async (input, init) => {
       capturedUrls.push(String(input));
       capturedHeaders = new Headers(init?.headers);
-      return new Response(JSON.stringify([
-        { id: "perplexity/glm-5.3", object: "model" },
-      ]), {
+      return new Response(JSON.stringify({
+        object: "list",
+        data: [{ id: "perplexity/glm-5.3", object: "model" }],
+      }), {
         status: 200,
         headers: { "content-type": "application/json" },
       });
@@ -2577,9 +2578,10 @@ test("Perplexity Router provider profile forwards its documented model list and 
   }, async (url) => {
     const modelsResponse = await fetch(`${url}/v1/models?limit=1`);
     assert.equal(modelsResponse.status, 200);
-    assert.deepEqual(await modelsResponse.json(), [
-      { id: "perplexity/glm-5.3", object: "model" },
-    ]);
+    assert.deepEqual(await modelsResponse.json(), {
+      object: "list",
+      data: [{ id: "perplexity/glm-5.3", object: "model" }],
+    });
 
     const retrievalResponse = await fetch(`${url}/v1/models/perplexity%2Fglm-5.3`);
     assert.equal(retrievalResponse.status, 404);
