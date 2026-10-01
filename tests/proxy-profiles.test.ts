@@ -714,6 +714,8 @@ test("proxy profiles provide SambaNova-compatible Chat Completions defaults", ()
     upstreamBaseUrl: "https://api.sambanova.ai/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
+    upstreamModelRetrievalPath: "/models",
   });
 });
 

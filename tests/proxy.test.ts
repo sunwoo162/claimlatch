@@ -2601,6 +2601,52 @@ test("Perplexity Router provider profile forwards its documented model list and 
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
+test("SambaNova provider profile forwards documented model-list and retrieval paths", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "sambanova",
+  });
+  const capturedUrls: string[] = [];
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "sambanova-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrls.push(String(input));
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify(capturedUrls.length === 1
+        ? { object: "list", data: [{ id: "DeepSeek-R1", object: "model" }] }
+        : { id: "DeepSeek-R1", object: "model", owned_by: "SambaNova" }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch,
+  }, async (url) => {
+    const modelsResponse = await fetch(`${url}/v1/models?limit=1`);
+    assert.equal(modelsResponse.status, 200);
+    assert.deepEqual(await modelsResponse.json(), {
+      object: "list",
+      data: [{ id: "DeepSeek-R1", object: "model" }],
+    });
+
+    const retrievalResponse = await fetch(`${url}/v1/models/DeepSeek-R1?include=metadata`);
+    assert.equal(retrievalResponse.status, 200);
+    assert.deepEqual(await retrievalResponse.json(), {
+      id: "DeepSeek-R1",
+      object: "model",
+      owned_by: "SambaNova",
+    });
+  });
+
+  assert.deepEqual(capturedUrls, [
+    "https://api.sambanova.ai/v1/models?limit=1",
+    "https://api.sambanova.ai/v1/models/DeepSeek-R1?include=metadata",
+  ]);
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer sambanova-key");
+  assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
 test("Baseten provider profile sends the OpenAI-compatible bearer contract", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "baseten",
