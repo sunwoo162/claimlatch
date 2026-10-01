@@ -1781,7 +1781,7 @@ test("Inference.net provider profile sends its model-list path and bearer header
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
-test("Scaleway provider profile sends its model-list path and bearer header", async () => {
+test("Scaleway provider profile forwards model listing and fails closed for retrieval", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "scaleway",
   });
@@ -1806,6 +1806,16 @@ test("Scaleway provider profile sends its model-list path and bearer header", as
     assert.deepEqual(await response.json(), {
       object: "list",
       data: [{ id: "llama-3.3-70b-instruct", object: "model" }],
+    });
+
+    const retrievalResponse = await fetch(`${url}/v1/models/llama-3.3-70b-instruct`);
+    assert.equal(retrievalResponse.status, 404);
+    assert.deepEqual(await retrievalResponse.json(), {
+      error: {
+        type: "claimlatch_proxy_error",
+        code: "claimlatch_model_retrieval_route_unavailable",
+        message: "The configured provider does not expose a model-retrieval route.",
+      },
     });
   });
 
