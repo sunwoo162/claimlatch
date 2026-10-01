@@ -181,7 +181,7 @@ test("proxy CLI resolves every hosted built-in profile without an explicit base 
       upstreamApiKeyHeader: "authorization",
       ...(profile === "clarifai" ? { upstreamApiKeyPrefix: "Key" } : {}),
       upstreamChatCompletionsPath,
-      upstreamModelsPath: profile === "ai21" || profile === "baichuan" || profile === "clarifai" || profile === "cohere" || profile === "fireworks" || profile === "hunyuan" || profile === "ovhcloud" || profile === "upstage" || profile === "zai" ? null : "/models",
+      upstreamModelsPath: profile === "ai21" || profile === "baichuan" || profile === "clarifai" || profile === "cohere" || profile === "fireworks" || profile === "hunyuan" || profile === "ovhcloud" || profile === "upstage" || profile === "volcengine" || profile === "zai" ? null : "/models",
       ...(profile === "mistral" ? { upstreamModelRetrievalPath: "/models" } : {}),
       ...(profile === "moonshot" ? { upstreamModelRetrievalPath: null } : {}),
       ...(profile === "cohere" ? { upstreamModelRetrievalPath: null } : {}),
@@ -200,6 +200,7 @@ test("proxy CLI resolves every hosted built-in profile without an explicit base 
       ...(profile === "xai" ? { upstreamModelRetrievalPath: "/models" } : {}),
       ...(profile === "zai" ? { upstreamModelRetrievalPath: null } : {}),
       ...(profile === "hunyuan" ? { upstreamModelRetrievalPath: null } : {}),
+      ...(profile === "volcengine" ? { upstreamModelRetrievalPath: null } : {}),
       ...(profile === "huggingface" ? { upstreamModelIdEncoding: "path" } : {}),
     });
   }

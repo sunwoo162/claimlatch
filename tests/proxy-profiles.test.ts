@@ -704,6 +704,8 @@ test("proxy profiles provide Volcengine Ark-compatible Chat Completions defaults
     upstreamBaseUrl: "https://ark.cn-beijing.volces.com/api/v3",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: null,
+    upstreamModelRetrievalPath: null,
   });
 });
 

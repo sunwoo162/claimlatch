@@ -72,6 +72,7 @@
 - Added a Baidu Qianfan v2 OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions and model-list defaults and wire-contract coverage.
 - Added a Z.AI OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions defaults, wire-contract coverage, and fail-closed model routes.
 - Added a Volcengine Ark OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions defaults and wire-contract coverage.
+- Hardened the Volcengine Ark provider profile with fail-closed handling for undocumented model-list and per-model retrieval routes.
 - Added a MiniMax OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions defaults and wire-contract coverage.
 - Added a Tencent Hunyuan OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions defaults and wire-contract coverage.
 - Added a Tencent Cloud TokenHub OpenAI-compatible proxy provider profile with documented bearer-authenticated Chat Completions and model-list defaults and wire-contract coverage.
