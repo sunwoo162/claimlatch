@@ -634,6 +634,10 @@ function upstreamRequestHeaders(
     headers[name] = value;
   }
 
+  // The built-in pinned transport intentionally does not decompress response bodies.
+  // Keep upstream JSON/SSE responses readable and bounded by disabling content encoding.
+  headers["accept-encoding"] = "identity";
+
   if (upstreamApiKey) {
     headers[upstreamApiKeyHeader] = upstreamApiKeyPrefix
       ? `${upstreamApiKeyPrefix} ${upstreamApiKey}`

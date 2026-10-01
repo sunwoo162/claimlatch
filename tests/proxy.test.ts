@@ -5502,6 +5502,7 @@ test("proxy pins upstream requests to a validated public DNS address", async () 
   let lookupHostname: string | undefined;
   let pinnedAddress: string | undefined;
   let pinnedServername: string | undefined;
+  let acceptEncoding: string | undefined;
 
   await withProxyOptions({
     gate: fixtureGate(),
@@ -5516,6 +5517,7 @@ test("proxy pins upstream requests to a validated public DNS address", async () 
     requestImpl: async (url, options) => {
       pinnedAddress = options.address;
       pinnedServername = url.hostname;
+      acceptEncoding = options.headers["accept-encoding"];
       return new Response(JSON.stringify({
         id: "chatcmpl_pinned_proxy",
         object: "chat.completion",
@@ -5534,6 +5536,7 @@ test("proxy pins upstream requests to a validated public DNS address", async () 
   assert.equal(lookupHostname, "upstream.example");
   assert.equal(pinnedAddress, "8.8.8.8");
   assert.equal(pinnedServername, "upstream.example");
+  assert.equal(acceptEncoding, "identity");
 });
 
 test("proxy fails closed when upstream DNS resolves to a private address", async () => {
