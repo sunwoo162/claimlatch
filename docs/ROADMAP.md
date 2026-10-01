@@ -42,6 +42,7 @@
 - Cloudflare Worker Fetch-native integration example
 - Deno `deno serve` Fetch-native integration example
 - Bun `Bun.serve` Fetch-native integration example
+- Databricks Model Serving AI Gateway OpenAI-compatible proxy provider profile with explicit workspace base URL, Chat Completions contract coverage, and fail-closed model routes
 - Express route adapter example without a core framework dependency
 - Fastify route adapter example without a core framework dependency
 - Hono route adapter example without a core framework dependency

@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added a Databricks Model Serving AI Gateway OpenAI-compatible proxy provider profile with explicit workspace base URL configuration, bearer-authenticated Chat Completions coverage, and fail-closed model routes.
 - Added a dependency-light Bun `Bun.serve` integration example with lazy environment-based gate initialization and Fetch-native handler coverage.
 - Added a dependency-light Deno `deno serve` integration example with lazy environment-based gate initialization and Fetch-native handler coverage.
 - Added a KoboldCpp self-hosted OpenAI-compatible proxy provider profile with explicit base URL configuration, versioned Chat Completions/model-list coverage, fail-closed handling for its undocumented model-retrieval route, and wire-contract tests.
