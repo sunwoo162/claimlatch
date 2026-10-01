@@ -393,6 +393,7 @@ test("proxy profiles provide Inference.net-compatible Chat Completions and model
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
     upstreamModelsPath: "/models",
+    upstreamModelRetrievalPath: null,
   });
 });
 
