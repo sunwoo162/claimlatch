@@ -193,7 +193,7 @@ test("proxy CLI resolves every hosted built-in profile without an explicit base 
       ...(profile === "nvidia" ? { upstreamModelRetrievalPath: null } : {}),
       ...(profile === "perplexity" ? { upstreamModelRetrievalPath: null } : {}),
       ...(profile === "cerebras" ? { upstreamModelRetrievalPath: "/models" } : {}),
-      ...(profile === "ai21" ? { upstreamModelRetrievalPath: null } : {}),
+      ...(profile === "ai21" || profile === "aimlapi" ? { upstreamModelRetrievalPath: null } : {}),
       ...(profile === "deepinfra" ? { upstreamModelRetrievalPath: null } : {}),
       ...(profile === "sambanova" ? { upstreamModelRetrievalPath: "/models" } : {}),
       ...(profile === "upstage" ? { upstreamModelRetrievalPath: null } : {}),

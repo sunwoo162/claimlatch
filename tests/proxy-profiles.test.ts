@@ -190,6 +190,7 @@ test("proxy profiles provide AI/ML API Chat Completions and model-list defaults"
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/v1/chat/completions",
     upstreamModelsPath: "/models",
+    upstreamModelRetrievalPath: null,
   });
 });
 
