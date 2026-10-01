@@ -375,6 +375,8 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamBaseUrl: "https://api.openai.com/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
+    upstreamModelRetrievalPath: "/models",
   },
   ovhcloud: {
     upstreamBaseUrl: "https://oai.endpoints.kepler.ai.cloud.ovh.net/v1",

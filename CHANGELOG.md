@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added OpenAI model-list and model-retrieval proxy contract coverage using the official `/v1/models` API routes.
 - Added Groq model-list and model-retrieval proxy contract coverage using its documented OpenAI-compatible model routes.
 - Hardened the Moonshot provider profile with its documented `/models` route and fail-closed handling for undocumented per-model retrieval.
 - Added a dependency-light Hapi route adapter example with parsed-payload and response-toolkit coverage.
