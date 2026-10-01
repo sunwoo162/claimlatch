@@ -1522,6 +1522,35 @@ test("Poe provider profile sends its model-list path and bearer header", async (
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
+test("Poe provider profile fails closed for undocumented model retrieval", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "poe",
+  });
+  let upstreamCalled = false;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "poe-key",
+    fetchImpl: (async () => {
+      upstreamCalled = true;
+      return new Response("unexpected upstream request", { status: 500 });
+    }) as typeof fetch,
+  }, async (url) => {
+    const response = await fetch(`${url}/v1/models/Claude-Sonnet-4.6`);
+    assert.equal(response.status, 404);
+    assert.deepEqual(await response.json(), {
+      error: {
+        type: "claimlatch_proxy_error",
+        code: "claimlatch_model_retrieval_route_unavailable",
+        message: "The configured provider does not expose a model-retrieval route.",
+      },
+    });
+  });
+
+  assert.equal(upstreamCalled, false);
+});
+
 test("Upstage provider profile sends the OpenAI-compatible bearer contract", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "upstage",

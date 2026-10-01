@@ -236,6 +236,7 @@ test("proxy profiles provide Poe-compatible Chat Completions and model-list defa
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
     upstreamModelsPath: "/models",
+    upstreamModelRetrievalPath: null,
   });
 });
 
