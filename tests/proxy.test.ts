@@ -1976,6 +1976,52 @@ test("Gemini provider profile forwards documented model-list and retrieval paths
   assert.equal(capturedHeaders?.get("api-key"), null);
 });
 
+test("Hugging Face provider profile forwards documented model-list and encoded retrieval paths", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "huggingface",
+  });
+  const capturedUrls: string[] = [];
+  let capturedHeaders: Headers | undefined;
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "hf-key",
+    fetchImpl: (async (input, init) => {
+      capturedUrls.push(String(input));
+      capturedHeaders = new Headers(init?.headers);
+      return new Response(JSON.stringify(capturedUrls.length === 1
+        ? { object: "list", data: [{ id: "deepseek-ai/DeepSeek-V4-Pro", object: "model", owned_by: "deepseek-ai" }] }
+        : { id: "deepseek-ai/DeepSeek-V4-Pro", object: "model", owned_by: "deepseek-ai" }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch,
+  }, async (url) => {
+    const modelsResponse = await fetch(`${url}/v1/models`);
+    assert.equal(modelsResponse.status, 200);
+    assert.deepEqual(await modelsResponse.json(), {
+      object: "list",
+      data: [{ id: "deepseek-ai/DeepSeek-V4-Pro", object: "model", owned_by: "deepseek-ai" }],
+    });
+
+    const retrievalResponse = await fetch(`${url}/v1/models/deepseek-ai%2FDeepSeek-V4-Pro`);
+    assert.equal(retrievalResponse.status, 200);
+    assert.deepEqual(await retrievalResponse.json(), {
+      id: "deepseek-ai/DeepSeek-V4-Pro",
+      object: "model",
+      owned_by: "deepseek-ai",
+    });
+  });
+
+  assert.deepEqual(capturedUrls, [
+    "https://router.huggingface.co/v1/models",
+    "https://router.huggingface.co/v1/models/deepseek-ai%2FDeepSeek-V4-Pro",
+  ]);
+  assert.equal(capturedHeaders?.get("authorization"), "Bearer hf-key");
+  assert.equal(capturedHeaders?.get("api-key"), null);
+});
+
 test("Groq provider profile forwards documented model-list and retrieval paths", async () => {
   const profile = resolveProxyProviderConfiguration({
     CLAIMLATCH_PROXY_PROVIDER_PROFILE: "groq",

@@ -586,11 +586,13 @@ test("proxy profiles provide Novita-compatible Chat Completions and model-list d
   });
 });
 
-test("proxy profiles provide Hugging Face Inference Providers defaults", () => {
+test("proxy profiles provide Hugging Face Inference Providers model-route defaults", () => {
   assert.deepEqual(resolveProxyProviderProfile("huggingface"), {
     upstreamBaseUrl: "https://router.huggingface.co/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
+    upstreamModelRetrievalPath: "/models",
   });
 });
 
