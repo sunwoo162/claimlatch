@@ -483,6 +483,8 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamBaseUrl: "https://api.upstage.ai/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: null,
+    upstreamModelRetrievalPath: null,
   },
   vllm: {
     upstreamApiKeyHeader: "authorization",

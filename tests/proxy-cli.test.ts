@@ -181,7 +181,7 @@ test("proxy CLI resolves every hosted built-in profile without an explicit base 
       upstreamApiKeyHeader: "authorization",
       ...(profile === "clarifai" ? { upstreamApiKeyPrefix: "Key" } : {}),
       upstreamChatCompletionsPath,
-      upstreamModelsPath: profile === "baichuan" || profile === "clarifai" || profile === "cohere" || profile === "fireworks" || profile === "ovhcloud" ? null : "/models",
+      upstreamModelsPath: profile === "baichuan" || profile === "clarifai" || profile === "cohere" || profile === "fireworks" || profile === "ovhcloud" || profile === "upstage" ? null : "/models",
       ...(profile === "mistral" ? { upstreamModelRetrievalPath: "/models" } : {}),
       ...(profile === "moonshot" ? { upstreamModelRetrievalPath: null } : {}),
       ...(profile === "cohere" ? { upstreamModelRetrievalPath: null } : {}),
@@ -194,6 +194,7 @@ test("proxy CLI resolves every hosted built-in profile without an explicit base 
       ...(profile === "perplexity" ? { upstreamModelRetrievalPath: null } : {}),
       ...(profile === "cerebras" ? { upstreamModelRetrievalPath: "/models" } : {}),
       ...(profile === "sambanova" ? { upstreamModelRetrievalPath: "/models" } : {}),
+      ...(profile === "upstage" ? { upstreamModelRetrievalPath: null } : {}),
       ...(profile === "xai" ? { upstreamModelRetrievalPath: "/models" } : {}),
     });
   }
