@@ -70,6 +70,7 @@
     "build": "tsc -p tsconfig.json",
     "test": "npm run build && node --test dist/tests/*.test.js",
     "check": "npm run build && node --test dist/tests/*.test.js",
+    "verify": "npm run check && node dist/src/benchmark-cli.js --validate --dataset benchmarks/independent.jsonl --manifest benchmarks/MANIFEST.json --format json",
     "demo": "npm run build && node dist/examples/offline-demo.js",
     "example:guarded": "npm run build && node dist/examples/guarded-answer.js",
     "example:guarded-http": "npm run build && node dist/examples/guarded-http-service.js",
