@@ -185,9 +185,11 @@ const STATIC_PROXY_PROVIDER_PROFILES: Readonly<Record<StaticProxyProviderProfile
     upstreamModelsPath: "/models",
   },
   deepinfra: {
-    upstreamBaseUrl: "https://api.deepinfra.com/v1/openai",
+    upstreamBaseUrl: "https://api.deepinfra.com/v1",
     upstreamApiKeyHeader: "authorization",
     upstreamChatCompletionsPath: "/chat/completions",
+    upstreamModelsPath: "/models",
+    upstreamModelRetrievalPath: null,
   },
   deepseek: {
     upstreamBaseUrl: "https://api.deepseek.com",

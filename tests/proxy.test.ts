@@ -18,7 +18,7 @@ const HOSTED_PROFILE_BASE_URLS: Record<Exclude<ProxyProviderProfileName, "aphrod
   clarifai: "https://api.clarifai.com/v2/ext/openai/v1",
   cohere: "https://api.cohere.ai/compatibility/v1",
   dashscope: "https://dashscope.aliyuncs.com/compatible-mode/v1",
-  deepinfra: "https://api.deepinfra.com/v1/openai",
+  deepinfra: "https://api.deepinfra.com/v1",
   deepseek: "https://api.deepseek.com",
   featherless: "https://api.featherless.ai/v1",
   fireworks: "https://api.fireworks.ai/inference/v1",
@@ -1894,6 +1894,46 @@ test("AI21 provider profile fails closed for undocumented model routes", async (
   });
 
   assert.equal(upstreamCalled, false);
+});
+
+test("DeepInfra provider profile forwards documented model listing and fails closed for retrieval", async () => {
+  const profile = resolveProxyProviderConfiguration({
+    CLAIMLATCH_PROXY_PROVIDER_PROFILE: "deepinfra",
+  });
+  const upstreamRequests: Array<{ url: string; headers: Headers }> = [];
+
+  await withProxyOptions({
+    gate: fixtureGate(),
+    ...profile,
+    upstreamApiKey: "deepinfra-key",
+    fetchImpl: (async (requestUrl, init) => {
+      upstreamRequests.push({ url: String(requestUrl), headers: new Headers(init?.headers) });
+      return new Response(JSON.stringify({
+        object: "list",
+        data: [{ id: "deepseek-ai/DeepSeek-V4-Flash", object: "model", owned_by: "deepinfra" }],
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    }) as typeof fetch,
+  }, async (url) => {
+    const modelsResponse = await fetch(`${url}/v1/models`);
+    assert.equal(modelsResponse.status, 200);
+    assert.deepEqual(await modelsResponse.json(), {
+      object: "list",
+      data: [{ id: "deepseek-ai/DeepSeek-V4-Flash", object: "model", owned_by: "deepinfra" }],
+    });
+
+    const retrievalResponse = await fetch(`${url}/v1/models/deepseek-ai%2FDeepSeek-V4-Flash`);
+    assert.equal(retrievalResponse.status, 404);
+    assert.deepEqual(await retrievalResponse.json(), {
+      error: {
+        type: "claimlatch_proxy_error",
+        code: "claimlatch_model_retrieval_route_unavailable",
+        message: "The configured provider does not expose a model-retrieval route.",
+      },
+    });
+  });
+
+  assert.deepEqual(upstreamRequests.map(({ url }) => url), ["https://api.deepinfra.com/v1/models"]);
+  assert.equal(upstreamRequests[0]?.headers.get("authorization"), "Bearer deepinfra-key");
 });
 
 test("hosted Gemini provider profile sends the OpenAI-compatible bearer contract", async () => {
